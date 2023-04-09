@@ -122,7 +122,6 @@ class Trainer:
         """ Launches the training. """
         time.sleep(1)
 
-        print("\n")
         p_bar: tqdm = tqdm(total=self._params["num_epochs"], desc="training in progress")
         for epoch in range(self._params["num_epochs"]):
             # Clear cache
