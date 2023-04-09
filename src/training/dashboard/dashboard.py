@@ -173,6 +173,6 @@ class Dashboard:
             "inference": [
                 wandb.Image(image)
                 for image
-                in pipeline(batch_size=8, generator=torch.manual_seed(0)).images
+                in pipeline(batch_size=5, generator=torch.manual_seed(0)).images
             ]
         })
