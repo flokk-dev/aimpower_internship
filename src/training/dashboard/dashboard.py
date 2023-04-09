@@ -54,7 +54,7 @@ class Dashboard:
                 id of the training
         """
         # Initialize the wandb entity
-        os.environ["WANDB_SILENT"] = "true"
+        os.environ["WANDB_SILENT"] = "false"
         wandb.init(entity="machine_learning_lib", project="test", mode=mode)
 
         wandb.run.name = train_id
