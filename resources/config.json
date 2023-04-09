@@ -2,8 +2,10 @@
   "lazy_loading": "True",
 
   "model": "unet",
+  "loss_type": "loss",
   "loss": "mse",
 
+  "num_data": 1000,
   "img_size": 128,
   "num_epochs": 100,
   "batch_size": 16,
