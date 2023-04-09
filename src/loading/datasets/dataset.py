@@ -54,7 +54,6 @@ class DataSet(torch.utils.data.Dataset):
         self._pre_process = transforms.Compose([
             transforms.Resize((params["img_size"], params["img_size"])),
             transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
             transforms.Normalize([0.5], [0.5]),
         ])
 

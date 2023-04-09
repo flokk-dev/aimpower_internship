@@ -159,6 +159,7 @@ class Trainer:
 
         epoch_loss = list()
         for batch_idx, batch in enumerate(self._data_loaders[step]):
+            print(batch.shape)
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}")
             epoch_loss.append(self._learn_on_batch(batch, batch_idx, learn=learning_allowed))
 
@@ -221,7 +222,6 @@ class Trainer:
         self._data_loaders: Dict[str: DataLoader] = loader(dataset_path)
 
         # Pipeline
-        print("pipeline")
         self._pipeline: Union[DDPMPipeline, DDIMPipeline] = self._init_pipeline(weights_path)
 
         # Optimizer and learning rate
