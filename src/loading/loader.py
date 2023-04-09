@@ -74,10 +74,11 @@ class Loader:
 
                 data_idx += 1
                 print(data_idx)
-                if data_idx > self._params["num_data"]:
+                if data_idx >= self._params["num_data"]:
                     break
 
-        print(len(file_paths))
+        print(len(file_paths["train"]))
+        print(len(file_paths["valid"]))
         return file_paths
 
     def _generate_data_loaders(self, file_paths: Dict[str, List[str]]) -> Dict[str, DataLoader]:
