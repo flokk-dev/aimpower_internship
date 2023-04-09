@@ -95,7 +95,7 @@ class LossTrainer(Trainer):
 
         # Get the model prediction --> noise
         # noise_pred = model(noisy_input, timesteps).sample
-        noise_pred = self._pipeline.model(noisy_input, timesteps, return_dict=False)[0]
+        noise_pred = self._pipeline.unet(noisy_input, timesteps, return_dict=False)[0]
 
         # Compare the prediction with the actual noise
         # NB - trying to predict noise (eps) not (noisy_ims-clean_ims) or just (clean_ims)
