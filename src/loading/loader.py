@@ -75,6 +75,7 @@ class Loader:
                 if data_idx >= self._params["num_data"]:
                     break
 
+        print(file_paths["valid"])
         return file_paths
 
     def _generate_data_loaders(self, file_paths: Dict[str, List[str]]) -> Dict[str, DataLoader]:
