@@ -128,8 +128,8 @@ class Dashboard:
             self,
             image: torch.Tensor,
             input_tensor: torch.Tensor,
-            pred_tensor: torch.Tensor,
             target_tensor: torch.Tensor,
+            pred_tensor: torch.Tensor,
             step: str
     ):
         """

@@ -111,7 +111,7 @@ class LossTrainer(Trainer):
         if batch_idx % 10 == 0:
             min_idx = torch.argmin(timesteps)
             self._dashboard.upload_images(
-                noisy_input[min_idx], noise_pred[min_idx], noise[min_idx],
+                input_tensor[min_idx], noisy_input[min_idx], noise[min_idx], noise_pred[min_idx],
                 step="train" if learn else "valid"
             )
         return loss_value.detach().item()
