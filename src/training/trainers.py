@@ -99,7 +99,7 @@ class LossTrainer(Trainer):
 
         # Compare the prediction with the actual noise
         # NB - trying to predict noise (eps) not (noisy_ims-clean_ims) or just (clean_ims)
-        loss_value = self._pipeline.loss(noise_pred, noise)
+        loss_value = self._loss(noise_pred, noise)
 
         # Update the model parameters
         self._optimizer.zero_grad()

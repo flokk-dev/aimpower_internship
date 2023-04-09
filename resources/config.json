@@ -1,5 +1,5 @@
 {
-  "lazy_loading": "True",
+  "lazy_loading": "False",
 
   "model": "unet",
   "loss_type": "loss",
