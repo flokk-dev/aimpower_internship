@@ -149,9 +149,9 @@ class Dashboard:
                 function isn't implemented yet
         """
         images = {
-            f"input_{step}": utils.adjust_image_colors(input_batch[0]),
-            f"target_{step}": utils.adjust_image_colors(target_batch[0]),
-            f"prediction_{step}": utils.adjust_image_colors(prediction_batch[0]),
+            f"input_{step}": utils.adjust_image_colors(input_batch),
+            f"target_{step}": utils.adjust_image_colors(target_batch),
+            f"prediction_{step}": utils.adjust_image_colors(prediction_batch),
         }
 
         for image_id in images.keys():
