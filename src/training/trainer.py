@@ -10,8 +10,7 @@ Purpose:
 from typing import *
 
 import time
-import PIL
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 
 # IMPORT: deep learning
 import torch
@@ -135,7 +134,7 @@ class Trainer:
             # Update
             self._dashboard.upload_values(self._scheduler.get_last_lr()[0])
             if epoch % 10 == 0:
-                self._dashboard.upload_inference(self._inference())
+                self._dashboard.upload_inference(self._pipeline)
 
             p_bar.update(1)
 
@@ -189,20 +188,6 @@ class Trainer:
                 function isn't implemented yet
         """
         raise NotImplementedError()
-
-    def _inference(self) -> PIL.Image:
-        """
-        Generates images using the training's pipeline.
-
-        Returns
-        ----------
-            PIL.Image
-                images generated using the training's pipeline
-        """
-        return self._pipeline(
-            batch_size=8,
-            generator=torch.manual_seed(0)
-        ).images
 
     def __call__(self, dataset_path: str, weights_path: str):
         """

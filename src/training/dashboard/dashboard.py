@@ -8,9 +8,10 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
-
 import os
+
 import torch
+from diffusers import DDPMPipeline, DDIMPipeline
 
 # IMPORT: data processing
 from torchvision import transforms
@@ -159,13 +160,19 @@ class Dashboard:
         wandb.log(images)
 
     @staticmethod
-    def upload_inference(images: torch.Tensor):
+    def upload_inference(pipeline: Union[DDPMPipeline, DDIMPipeline]):
         """
         Uploads examples of results.
 
         Parameters
         ----------
-            images : torch.Tensor
-                generated images
+            pipeline : Union[DDPMPipeline, DDIMPipeline]
+                trained diffusion pipeline
         """
-        wandb.log({"inference": images})
+        wandb.log({
+            "inference": [
+                wandb.Image(image)
+                for image
+                in pipeline(batch_size=8, generator=torch.manual_seed(0)).images
+            ]
+        })
