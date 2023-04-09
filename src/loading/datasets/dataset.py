@@ -72,7 +72,7 @@ class DataSet(torch.utils.data.Dataset):
                 the image as a tensor
         """
         array: np.ndarray = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-        tensor: torch.Tensor = torch.from_numpy(array).type(torch.uint8)
+        tensor: torch.Tensor = torch.from_numpy(array).type(torch.float16)
 
         return self._pre_process(tensor.permute(2, 0, 1)).unsqueeze(0)
 
