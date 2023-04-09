@@ -55,7 +55,7 @@ class Dashboard:
         """
         # Initialize the wandb entity
         os.environ["WANDB_SILENT"] = "false"
-        wandb.init(entity="machine_learning_lib", project="test", mode=mode)
+        wandb.init(entity="flokk-dev", project="aimpower_internship_test", mode=mode)
 
         wandb.run.name = train_id
         wandb.config = params
