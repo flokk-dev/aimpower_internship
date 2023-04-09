@@ -58,8 +58,6 @@ class DataSet(torch.utils.data.Dataset):
             transforms.Normalize([0.5], [0.5]),
         ])
 
-        print("DATASET")
-
     def _load_image(self, path: str):
         """
         Loads an image from path.

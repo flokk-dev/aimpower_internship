@@ -110,7 +110,7 @@ class Trainer:
         scheduler_class = DDPMScheduler if self._params["pipeline_id"] == "DDPM" else DDIMScheduler
 
         # If pretrained load weights
-        if weights_path is None:
+        if weights_path is not None:
             return pipeline_class.from_pretrained(weights_path)
 
         # Else instantiate from scratch
@@ -217,7 +217,6 @@ class Trainer:
                 path to the model's weights
         """
         # Loading
-        print("loader")
         loader: Loader = Loader(self._params)
         self._data_loaders: Dict[str: DataLoader] = loader(dataset_path)
 
