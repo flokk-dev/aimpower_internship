@@ -69,7 +69,7 @@ class Loader:
         print("chemins de fichier")
         for root, dirs, files in os.walk(dataset_path, topdown=False):
             for file_path in map(lambda e: os.path.join(root, e), files):
-                key = "train" if int(self._params["num_data"] * 0.95) else "valid"
+                key = "train" if data_idx <= int(self._params["num_data"] * 0.95) else "valid"
                 file_paths[key].append(file_path)
 
                 data_idx += 1
