@@ -1,0 +1,14 @@
+{
+  "lazy_loading": "True",
+
+  "model": "unet",
+  "loss": "mse",
+
+  "img_size": 128,
+  "num_epochs": 100,
+  "batch_size": 16,
+  "lr": 1e-4,
+  "lr_warmup_steps": 1000,
+
+  "pipeline_id": "DDPM"
+}
