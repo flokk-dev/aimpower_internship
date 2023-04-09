@@ -109,5 +109,8 @@ class LossTrainer(Trainer):
             self._scheduler.step()
 
         if batch_idx % 50 == 0:
-            self._dashboard.upload_images()
+            self._dashboard.upload_images(
+                noisy_input, noise_pred, noise,
+                step="train" if learn else "valid"
+            )
         return loss_value.detach().item()
