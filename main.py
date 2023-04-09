@@ -49,4 +49,4 @@ if __name__ == "__main__":
 
     # Launch training
     trainer = TASKS[training_parameters["loss_type"]](params=training_parameters)
-    trainer(data_path=args.dataset, weights_path=args.weights)
+    trainer(dataset_path=args.dataset, weights_path=args.weights)
