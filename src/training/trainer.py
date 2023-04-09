@@ -10,19 +10,19 @@ Purpose:
 from typing import *
 
 import time
-import tqdm
+import PIL
+from tqdm.notebook import tqdm
 
 # IMPORT: deep learning
 import torch
 from torch.utils.data import DataLoader
 
-from torchvision import transforms
-
 import diffusers
 from diffusers import DDPMPipeline, DDPMScheduler, DDIMPipeline, DDIMScheduler
 
-import utils
 # IMPORT: project
+import utils
+
 from src.loading import Loader
 from .models import UNet
 from .dashboard import Dashboard
@@ -123,7 +123,7 @@ class Trainer:
         """ Launches the training. """
         time.sleep(1)
 
-        p_bar = tqdm.tqdm(total=self._params["num_epochs"], desc="training in progress")
+        p_bar: tqdm = tqdm(total=self._params["num_epochs"], desc="training in progress")
         for epoch in range(self._params["num_epochs"]):
             # Clear cache
             torch.cuda.empty_cache()
@@ -143,13 +143,13 @@ class Trainer:
         time.sleep(10)
         self._dashboard.shutdown()
 
-    def _run_epoch(self, p_bar: tqdm.std.tqdm, step: str):
+    def _run_epoch(self, p_bar: tqdm, step: str):
         """
         Runs an epoch.
 
         Parameters
         ----------
-            p_bar : tqdm.std.tqdm
+            p_bar : tqdm
                 the training's progress bar
             step : str
                 training step
@@ -190,22 +190,19 @@ class Trainer:
         """
         raise NotImplementedError()
 
-    def _inference(self) -> torch.Tensor:
+    def _inference(self) -> PIL.Image:
         """
         Generates images using the training's pipeline.
 
         Returns
         ----------
-            torch.Tensor
+            PIL.Image
                 images generated using the training's pipeline
         """
-        images = self._pipeline(
-            batch_size=self._params["batch_size"],
+        return self._pipeline(
+            batch_size=8,
             generator=torch.manual_seed(0)
         ).images
-
-        pil_to_tensor = transforms.PILToTensor()
-        return torch.stack([pil_to_tensor(image) for image in images])
 
     def __call__(self, dataset_path: str, weights_path: str):
         """

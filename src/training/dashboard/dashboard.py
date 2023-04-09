@@ -158,7 +158,8 @@ class Dashboard:
 
         wandb.log(images)
 
-    def upload_inference(self, images: torch.Tensor):
+    @staticmethod
+    def upload_inference(images: torch.Tensor):
         """
         Uploads examples of results.
 
@@ -167,7 +168,4 @@ class Dashboard:
             images : torch.Tensor
                 generated images
         """
-        images = utils.adjust_image_colors(images)
-        images = wandb.Image(self._tensor_to_pil(images))
-
         wandb.log({"inference": images})
