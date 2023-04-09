@@ -29,8 +29,7 @@ class Parser(argparse.ArgumentParser):
 
         # weights
         self.add_argument(
-            "-w", "--weights", type=str, nargs="?",
-            default=None,
+            "-w", "--weights", type=str, nargs="?", default=None,
             help="path to the model's weights"
         )
 

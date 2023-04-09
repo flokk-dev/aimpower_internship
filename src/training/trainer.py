@@ -88,7 +88,7 @@ class Trainer:
         # Dashboard
         self._dashboard: Dashboard = Dashboard(
             params,
-            train_id=f"{utils.get_datetime()}_{self._pipeline.unet}_e{self._params['num_epoch']}_"
+            train_id=f"{utils.get_datetime()}_UNet_e{self._params['num_epoch']}_"
         )
 
     def _init_pipeline(self, weights_path: str) -> Union[DDPMPipeline, DDIMPipeline]:
