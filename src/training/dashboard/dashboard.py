@@ -154,8 +154,7 @@ class Dashboard:
         }
 
         for image_id in images.keys():
-            images[image_id] = self._tensor_to_pil(images[image_id])
-            images[image_id] = [wandb.Image(images[image_id].data)]
+            images[image_id] = [wandb.Image(self._tensor_to_pil(images[image_id]))]
 
         wandb.log(images)
 
@@ -169,7 +168,6 @@ class Dashboard:
                 generated images
         """
         images = utils.adjust_image_colors(images)
-        images = self._tensor_to_pil(images)
-        images = wandb.Image(images.data)
+        images = wandb.Image(self._tensor_to_pil(images))
 
         wandb.log({"inference": images})
