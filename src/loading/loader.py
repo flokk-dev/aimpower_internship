@@ -48,7 +48,6 @@ class Loader:
         # Attributes
         self._params: Dict[str, Any] = params
         self._dataset_class = LazyDataSet if params["lazy_loading"] else TensorDataSet
-        print(self._dataset_class)
 
     def _extract_paths(self, dataset_path: str) -> Dict[str, List[str]]:
         """

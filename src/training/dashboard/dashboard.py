@@ -12,6 +12,9 @@ from typing import *
 import os
 import torch
 
+# IMPORT: data processing
+from torchvision import transforms
+
 # IMPORT: visualization
 import wandb
 
@@ -27,6 +30,9 @@ class Dashboard:
     ----------
         _loss : Dict[str, List[float]]
             history of the loss value during training
+        _tensor_to_pil: torchvision.transforms.Transform
+            transform tensor to PIL image
+
 
     Methods
     ----------
@@ -62,6 +68,7 @@ class Dashboard:
 
         # Attributes
         self._loss: Dict[str, List[float]] = {"train": list(), "valid": list()}
+        self._tensor_to_pil = transforms.ToPILImage()
 
     @staticmethod
     def collect_info(model: torch.nn.Module):
@@ -116,8 +123,8 @@ class Dashboard:
         # LOG ON WANDB
         wandb.log(result)
 
-    @staticmethod
     def upload_images(
+            self,
             input_batch: torch.Tensor, prediction_batch: torch.Tensor, target_batch: torch.Tensor,
             step: str
     ):
@@ -146,13 +153,13 @@ class Dashboard:
             f"prediction_{step}": utils.adjust_image_colors(prediction_batch[0]),
         }
 
-        for image_id, image in images.items():
-            images[image_id] = [wandb.Image(image.data)]
+        for image_id in images.keys():
+            images[image_id] = self._tensor_to_pil(images[image_id])
+            images[image_id] = [wandb.Image(images[image_id].data)]
 
         wandb.log(images)
 
-    @staticmethod
-    def upload_inference(images: torch.Tensor):
+    def upload_inference(self, images: torch.Tensor):
         """
         Uploads examples of results.
 
@@ -162,6 +169,7 @@ class Dashboard:
                 generated images
         """
         images = utils.adjust_image_colors(images)
+        images = self._tensor_to_pil(images)
         images = wandb.Image(images.data)
 
         wandb.log({"inference": images})
