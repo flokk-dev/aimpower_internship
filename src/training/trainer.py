@@ -217,10 +217,12 @@ class Trainer:
                 path to the model's weights
         """
         # Loading
-        self._loader: Loader = Loader(self._params)
-        self._data_loaders: Dict[str: DataLoader] = self._loader(dataset_path)
+        print("loader")
+        loader: Loader = Loader(self._params)
+        self._data_loaders: Dict[str: DataLoader] = loader(dataset_path)
 
         # Pipeline
+        print("pipeline")
         self._pipeline: Union[DDPMPipeline, DDIMPipeline] = self._init_pipeline(weights_path)
 
         # Optimizer and learning rate

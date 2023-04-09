@@ -66,13 +66,18 @@ class Loader:
         file_paths: Dict[str, List[str]] = {"train": list(), "valid": list()}
 
         data_idx = 0
+        print("chemins de fichier")
         for root, dirs, files in os.walk(dataset_path, topdown=False):
             for file_path in map(lambda e: os.path.join(root, e), files):
                 key = "train" if int(self._params["num_data"] * 0.95) else "valid"
                 file_paths[key].append(file_path)
 
                 data_idx += 1
+                print(data_idx)
+                if data_idx > self._params["num_data"]:
+                    break
 
+        print(len(file_paths))
         return file_paths
 
     def _generate_data_loaders(self, file_paths: Dict[str, List[str]]) -> Dict[str, DataLoader]:
