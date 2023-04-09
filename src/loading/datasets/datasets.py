@@ -54,6 +54,7 @@ class LazyDataSet(DataSet):
             torch.Tensor
                 the dataset's element as a tensor
         """
+        print(self._load_image(self._inputs[idx]).shape)
         return self._load_image(self._inputs[idx])
 
 

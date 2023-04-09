@@ -52,7 +52,7 @@ class DataSet(torch.utils.data.Dataset):
         self._inputs: List[Union[str, torch.Tensor]] = inputs
 
         self._pre_process = transforms.Compose([
-            transforms.Resize((params["img_size"], params["img_size"])),
+            transforms.Resize((params["img_size"], params["img_size"]), antialias=True),
             transforms.RandomHorizontalFlip(),
             transforms.Normalize([0.5], [0.5]),
         ])
