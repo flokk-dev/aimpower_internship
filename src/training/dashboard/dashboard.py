@@ -126,7 +126,10 @@ class Dashboard:
 
     def upload_images(
             self,
-            input_batch: torch.Tensor, prediction_batch: torch.Tensor, target_batch: torch.Tensor,
+            image: torch.Tensor,
+            input_tensor: torch.Tensor,
+            pred_tensor: torch.Tensor,
+            target_tensor: torch.Tensor,
             step: str
     ):
         """
@@ -134,12 +137,14 @@ class Dashboard:
 
         Parameters
         ----------
-            input_batch : torch.Tensor
-                batch of input tensors
-            prediction_batch : torch.Tensor
-                batch of predicted tensors
-            target_batch : torch.Tensor
-                batch of target tensors
+            image : torch.Tensor
+                input tensor without noise
+            input_tensor : torch.Tensor
+                input tensor
+            target_tensor : torch.Tensor
+                target tensor
+            pred_tensor : torch.Tensor
+                predicted tensor
             step : str
                 training step
 
@@ -149,9 +154,10 @@ class Dashboard:
                 function isn't implemented yet
         """
         images = {
-            f"input_{step}": utils.adjust_image_colors(input_batch),
-            f"target_{step}": utils.adjust_image_colors(target_batch),
-            f"prediction_{step}": utils.adjust_image_colors(prediction_batch),
+            f"image_{step}": utils.adjust_image_colors(image),
+            f"input_{step}": utils.adjust_image_colors(input_tensor),
+            f"target_{step}": utils.adjust_image_colors(target_tensor),
+            f"pred_{step}": utils.adjust_image_colors(pred_tensor),
         }
 
         for image_id in images.keys():
