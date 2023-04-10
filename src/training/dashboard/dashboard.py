@@ -10,8 +10,8 @@ Purpose:
 from typing import *
 import os
 
+from PIL import Image
 import torch
-import torchvision.utils
 from diffusers import DDPMPipeline, DDIMPipeline
 
 # IMPORT: data processing
@@ -155,7 +155,7 @@ class Dashboard:
                 function isn't implemented yet
         """
         values = torch.unique(image)
-        print(f"trainer + {min(values)} + {max(values)} + {image.shape}")
+        print(f"dashboard + {min(values)} + {max(values)} + {image.shape}")
 
         images = {
             f"image_{step}": utils.adjust_image_colors(image),
@@ -164,8 +164,8 @@ class Dashboard:
             f"pred_{step}": utils.adjust_image_colors(pred_tensor),
         }
 
-        # torch.save(image, "image.pt")
-        # torch.save(images["image_train"], "image_pp.pt")
+        values = torch.unique(images["image_train"])
+        print(f"dashboard adjusted + {min(values)} + {max(values)} + {images['image_train'].shape}")
 
         for image_id in images.keys():
             images[image_id] = [wandb.Image(self._tensor_to_pil(images[image_id]))]
@@ -182,10 +182,14 @@ class Dashboard:
             pipeline : Union[DDPMPipeline, DDIMPipeline]
                 trained diffusion pipeline
         """
+        images: List[Image] = pipeline(
+            batch_size=5, generator=torch.manual_seed(0)
+        ).images
+
+        image = transforms.PILToTensor()(images[0])
+        values = torch.unique(image)
+        print(f"dashboard adjusted + {min(values)} + {max(values)} + {image.shape}")
+
         wandb.log({
-            "inference": [
-                wandb.Image(image)
-                for image
-                in pipeline(batch_size=5, generator=torch.manual_seed(0)).images
-            ]
+            "inference": [wandb.Image(image) for image in images]
         })

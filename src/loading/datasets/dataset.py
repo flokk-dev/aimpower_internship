@@ -10,8 +10,7 @@ Purpose:
 from typing import *
 
 # IMPORT: data loading
-import numpy as np
-import cv2
+from PIL import Image
 
 import torch
 from torchvision import transforms
@@ -71,10 +70,10 @@ class DataSet(torch.utils.data.Dataset):
             torch.Tensor
                 the image as a tensor
         """
-        array: np.ndarray = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-        tensor: torch.Tensor = torch.from_numpy(array).type(torch.float32)
+        img: Image = Image.open(path).convert("RGB")
+        tensor: torch.Tensor = transforms.PILToTensor()(img) / 255
 
-        return self._pre_process(tensor.permute(2, 0, 1))
+        return self._pre_process(tensor)
 
     def __getitem__(self, idx: int) -> torch.Tensor:
         """
