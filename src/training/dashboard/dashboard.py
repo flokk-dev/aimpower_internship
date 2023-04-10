@@ -11,6 +11,7 @@ from typing import *
 import os
 
 import torch
+import torchvision.utils
 from diffusers import DDPMPipeline, DDIMPipeline
 
 # IMPORT: data processing
@@ -154,13 +155,16 @@ class Dashboard:
                 function isn't implemented yet
         """
         images = {
-            f"image_{step}": utils.adjust_image_colors(image),
-            f"input_{step}": utils.adjust_image_colors(input_tensor),
-            f"target_{step}": utils.adjust_image_colors(target_tensor),
-            f"pred_{step}": utils.adjust_image_colors(pred_tensor),
+            f"image_{step}": utils.adjust_image_colors(image).permute(1, 2, 0),
+            f"input_{step}": utils.adjust_image_colors(input_tensor).permute(1, 2, 0),
+            f"target_{step}": utils.adjust_image_colors(target_tensor).permute(1, 2, 0),
+            f"pred_{step}": utils.adjust_image_colors(pred_tensor).permute(1, 2, 0),
         }
-        print(torch.unique(image))
-        print(image.shape, input_tensor.shape, target_tensor.shape, pred_tensor.shape)
+
+        torchvision.utils.save_image(images["image_train"], "image.png")
+        torchvision.utils.save_image(images["input_train"], "input.png")
+        torchvision.utils.save_image(images["target_train"], "target.png")
+        torchvision.utils.save_image(images["pred_train"], "pred.png")
 
         for image_id in images.keys():
             images[image_id] = [wandb.Image(self._tensor_to_pil(images[image_id]))]
