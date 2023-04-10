@@ -109,7 +109,8 @@ class LossTrainer(Trainer):
             self._scheduler.step()
 
         # Upload results on WandB
-        if batch_idx % 100 == 0:
+        batch_modulo = batch_idx % 100 if learn else batch_idx % 5
+        if batch_modulo == 0:
             min_idx = torch.argmin(timesteps)
             self._dashboard.upload_images(
                 input_tensor[min_idx].cpu(),
