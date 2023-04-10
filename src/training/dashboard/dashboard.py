@@ -161,8 +161,10 @@ class Dashboard:
             f"pred_{step}": utils.adjust_image_colors(pred_tensor),
         }
 
+        print("a")
         torch.save(image, "image.pt")
         torch.save(images["image_train"], "image_pp.pt")
+        print("b")
 
         for image_id in images.keys():
             images[image_id] = [wandb.Image(self._tensor_to_pil(images[image_id]))]
