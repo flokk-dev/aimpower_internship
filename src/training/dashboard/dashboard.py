@@ -150,13 +150,13 @@ class Dashboard:
         wandb.log(images)
 
     @staticmethod
-    def upload_inference(images: List[Image]):
+    def upload_inference(images: List[Image.Image]):
         """
         Uploads examples of results.
 
         Parameters
         ----------
-            images : Union[DDPMPipeline, DDIMPipeline]
+            images : List[Image.Image]
                 trained diffusion pipeline
         """
         wandb.log({

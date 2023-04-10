@@ -14,6 +14,7 @@ import time
 
 import json
 from tqdm import tqdm
+from PIL import Image
 
 # IMPORT: deep learning
 import torch
@@ -220,7 +221,9 @@ class Trainer:
             os.makedirs(checkpoint_path)
 
         # Generates checkpoint images
-        images = self._pipeline(batch_size=5, generator=torch.manual_seed(0)).images
+        images: List[Image.Image] = self._pipeline(
+            batch_size=5, generator=torch.manual_seed(0)
+        ).images
 
         # Upload checkpoint images to WandB
         self._dashboard.upload_inference(images)
