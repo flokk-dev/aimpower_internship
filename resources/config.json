@@ -9,7 +9,7 @@
   "img_size": 32,
   "num_epochs": 100,
   "batch_size": 32,
-  "lr": 1e-3,
+  "lr": 1e-4,
   "lr_warmup_steps": 500,
 
   "pipeline_id": "DDPM"
