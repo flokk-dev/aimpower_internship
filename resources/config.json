@@ -5,11 +5,11 @@
   "loss_type": "loss",
   "loss": "mse",
 
-  "num_data": 8000,
-  "img_size": 128,
+  "num_data": 1000,
+  "img_size": 256,
   "num_epochs": 100,
-  "batch_size": 32,
-  "lr": 1e-3,
+  "batch_size": 8,
+  "lr": 1e-4,
   "lr_warmup_steps": 2000,
 
   "pipeline_id": "DDPM"
