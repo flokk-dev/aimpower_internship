@@ -98,7 +98,7 @@ class TensorDataSet(DataSet):
             torch.Tensor
                 the dataset's element as a tensor
         """
-        values = torch.unique(self._inputs[idx].shape)
+        values = torch.unique(self._inputs[idx])
         print(f"dataset + {idx} + {min(values)} + {max(values)} + {self._inputs[idx].shape}")
 
         return self._inputs[idx]

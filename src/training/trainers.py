@@ -108,7 +108,7 @@ class LossTrainer(Trainer):
             self._optimizer.step()
             self._scheduler.step()
 
-        values = torch.unique(batch.shape)
+        values = torch.unique(batch)
         print(f"trainer + {min(values)} + {max(values)} + {batch.shape}")
 
         if batch_idx % 25 == 0:

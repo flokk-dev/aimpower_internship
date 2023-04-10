@@ -154,7 +154,7 @@ class Dashboard:
             NotImplementedError
                 function isn't implemented yet
         """
-        values = torch.unique(image.shape)
+        values = torch.unique(image)
         print(f"trainer + {min(values)} + {max(values)} + {image.shape}")
 
         images = {

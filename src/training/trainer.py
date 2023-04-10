@@ -158,7 +158,7 @@ class Trainer:
 
         epoch_loss = list()
         for batch_idx, batch in enumerate(self._data_loaders[step]):
-            values = torch.unique(batch.shape)
+            values = torch.unique(batch)
             print(f"data_loader + {min(values)} + {max(values)} + {batch.shape}")
 
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}")
