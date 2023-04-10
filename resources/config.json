@@ -6,7 +6,7 @@
   "loss": "mse",
 
   "num_data": 1000,
-  "img_size": 28,
+  "img_size": 32,
   "num_epochs": 100,
   "batch_size": 32,
   "lr": 1e-4,
