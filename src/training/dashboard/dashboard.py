@@ -142,7 +142,8 @@ class Dashboard:
         """
         images_wandb = dict()
         for image_id, image in images.items():
-            print(image_id, image.shape)
+            adjusted_image = (utils.adjust_image_colors(image))
+            print(image_id, image.shape, adjusted_image.shape)
             images_wandb[f"{image_id}_{step}"] = wandb.Image(
                     self._tensor_to_pil(
                         utils.adjust_image_colors(image)
