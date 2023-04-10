@@ -112,7 +112,8 @@ class LossTrainer(Trainer):
             print("BBBBBBBBBBBBBBBBB")
             min_idx = torch.argmin(timesteps)
             self._dashboard.upload_images(
-                input_tensor[min_idx], noisy_input[min_idx], noise[min_idx], noise_pred[min_idx],
+                input_tensor[min_idx].cpu(), noisy_input[min_idx].cpu(),
+                noise[min_idx].cpu(), noise_pred[min_idx].cpu(),
                 step="train" if learn else "valid"
             )
         return loss_value.detach().item()
