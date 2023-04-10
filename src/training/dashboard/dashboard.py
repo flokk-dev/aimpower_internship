@@ -154,10 +154,11 @@ class Dashboard:
             NotImplementedError
                 function isn't implemented yet
         """
-        torchvision.utils.save_image(utils.adjust_image_colors(image), "image.png")
-        torchvision.utils.save_image(utils.adjust_image_colors(input_tensor), "input.png")
-        torchvision.utils.save_image(utils.adjust_image_colors(target_tensor), "target.png")
-        torchvision.utils.save_image(utils.adjust_image_colors(pred_tensor), "pred.png")
+        torchvision.utils.save_image(utils.adjust_image_colors(image).type(torch.float32),
+                                     "image.png")
+        torchvision.utils.save_image(utils.adjust_image_colors(input_tensor).type(torch.float32), "input.png")
+        torchvision.utils.save_image(utils.adjust_image_colors(target_tensor).type(torch.float32), "target.png")
+        torchvision.utils.save_image(utils.adjust_image_colors(pred_tensor).type(torch.float32), "pred.png")
 
         images = {
             f"image_{step}": utils.adjust_image_colors(image),
