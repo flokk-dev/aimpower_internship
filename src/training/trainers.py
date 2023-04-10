@@ -114,7 +114,7 @@ class LossTrainer(Trainer):
         return loss_value.detach().item(), \
             {
                 "image": input_tensor[0].cpu(),
-                "noisy_image": noisy_input[0].cpu(),
-                "noise": noise[0].cpu(),
-                "noise_pred": noise_pred[0].cpu()
+                "input": noisy_input[0].cpu(),
+                "target": noise[0].cpu(),
+                "pred": noise_pred[0].cpu()
             }
