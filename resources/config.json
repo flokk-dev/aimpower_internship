@@ -5,10 +5,10 @@
   "loss_type": "loss",
   "loss": "mse",
 
-  "num_data": 8000,
+  "num_data": 500,
   "img_size": 128,
   "num_epochs": 150,
-  "batch_size": 32,
+  "batch_size": 8,
   "lr": 1e-4,
   "lr_warmup_steps": 500,
   "checkpoints_step": 10,
