@@ -159,6 +159,8 @@ class Dashboard:
             f"target_{step}": utils.adjust_image_colors(target_tensor),
             f"pred_{step}": utils.adjust_image_colors(pred_tensor),
         }
+        print(torch.unique(image))
+        print(image.shape, input_tensor.shape, target_tensor.shape, pred_tensor.shape)
 
         for image_id in images.keys():
             images[image_id] = [wandb.Image(self._tensor_to_pil(images[image_id]))]
