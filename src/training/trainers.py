@@ -109,6 +109,7 @@ class LossTrainer(Trainer):
             self._scheduler.step()
 
         if batch_idx % 25 == 0:
+            print("BBBBBBBBBBBBBBBBB")
             min_idx = torch.argmin(timesteps)
             self._dashboard.upload_images(
                 input_tensor[min_idx], noisy_input[min_idx], noise[min_idx], noise_pred[min_idx],

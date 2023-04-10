@@ -154,6 +154,7 @@ class Dashboard:
             NotImplementedError
                 function isn't implemented yet
         """
+        print("AAAAAAAAAAAAAAAAAAA")
         images = {
             f"image_{step}": utils.adjust_image_colors(image),
             f"input_{step}": utils.adjust_image_colors(input_tensor),
