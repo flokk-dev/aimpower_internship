@@ -82,9 +82,8 @@ class TensorDataSet(DataSet):
         # Mother Class
         super(TensorDataSet, self).__init__(params, inputs)
 
-        if not params["lazy_loading"]:
-            for idx, file_path in enumerate(tqdm(self._inputs, desc="loading the data in RAM.")):
-                self._inputs[idx] = self._load_image(file_path)
+        for idx, file_path in enumerate(tqdm(self._inputs, desc="loading the data in RAM.")):
+            self._inputs[idx] = self._load_image(file_path)
 
     def __getitem__(self, idx: int) -> torch.Tensor:
         """
