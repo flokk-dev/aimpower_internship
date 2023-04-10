@@ -79,6 +79,7 @@ class Trainer:
         self._path = os.path.join(paths.MODELS_PATH, utils.get_datetime())
         if not os.path.exists(self._path):
             os.makedirs(self._path)
+            os.makedirs(os.path.join(self._path, "images"))
 
         with open(os.path.join(self._path, "config.json"), 'w') as file_content:
             json.dump(self._params, file_content)
@@ -142,7 +143,7 @@ class Trainer:
 
             # Update
             self._dashboard.upload_values(self._scheduler.get_last_lr()[0])
-            if epoch % 10 == 0:
+            if epoch % 5 == 0:
                 self._checkpoint(epoch)
 
             p_bar.update(1)
@@ -216,10 +217,6 @@ class Trainer:
             epoch : int
                 the current epoch idx
         """
-        checkpoint_path = os.path.join(self._path, f"epoch_{epoch}")
-        if not os.path.exists(checkpoint_path):
-            os.makedirs(checkpoint_path)
-
         # Generates checkpoint images
         images: List[Image.Image] = self._pipeline(
             batch_size=8, generator=torch.manual_seed(0)
@@ -229,10 +226,10 @@ class Trainer:
         self._dashboard.upload_inference(images)
 
         # Saves checkpoint image on disk
-        utils.save_image_as_plt(images, os.path.join(checkpoint_path, "images"))
+        utils.save_image_as_plt(images, os.path.join(self._path, "images", f"epoch_{epoch}.png"))
 
         # Saves pipeline
-        self._pipeline.save_pretrained(os.path.join(checkpoint_path, "pipeline"))
+        self._pipeline.save_pretrained(os.path.join(self._path, "pipeline"))
 
     def __call__(self, dataset_path: str, weights_path: str):
         """
