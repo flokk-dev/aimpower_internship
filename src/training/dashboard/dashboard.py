@@ -142,13 +142,13 @@ class Dashboard:
         """
         images_wandb = dict()
         for image_id, image in images.items():
-            images_wandb[f"{image_id}_{step}"] = [
-                wandb.Image(self._tensor_to_pil(
+            images_wandb[f"{image_id}_{step}"] = wandb.Image(
+                self._tensor_to_pil(
                         utils.adjust_image_colors(image)
-                    ))
-            ]
+                )
+            )
 
-        wandb.log(images)
+        wandb.log(images_wandb)
 
     @staticmethod
     def upload_inference(images: List[Image.Image]):
