@@ -10,6 +10,7 @@ Purpose:
 from typing import *
 
 import os
+import shutil
 import time
 
 import json
@@ -229,6 +230,9 @@ class Trainer:
         utils.save_image_as_plt(images, os.path.join(self._path, "images", f"epoch_{epoch}.png"))
 
         # Saves pipeline
+        if os.path.exists(os.path.join(self._path, "pipeline")):
+            shutil.rmtree(os.path.join(self._path, "pipeline"))
+
         self._pipeline.save_pretrained(os.path.join(self._path, "pipeline"))
 
     def __call__(self, dataset_path: str, weights_path: str):

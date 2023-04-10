@@ -7,10 +7,10 @@
 
   "num_data": 8000,
   "img_size": 128,
-  "num_epochs": 150,
+  "num_epochs": 100,
   "batch_size": 32,
-  "lr": 1e-4,
-  "lr_warmup_steps": 500,
+  "lr": 1e-3,
+  "lr_warmup_steps": 2000,
 
   "pipeline_id": "DDPM"
 }
