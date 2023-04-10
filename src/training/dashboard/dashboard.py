@@ -154,7 +154,9 @@ class Dashboard:
             NotImplementedError
                 function isn't implemented yet
         """
-        print("AAAAAAAAAAAAAAAAAAA")
+        values = torch.unique(image.shape)
+        print(f"trainer + {min(values)} + {max(values)} + {image.shape}")
+
         images = {
             f"image_{step}": utils.adjust_image_colors(image),
             f"input_{step}": utils.adjust_image_colors(input_tensor),
@@ -162,10 +164,8 @@ class Dashboard:
             f"pred_{step}": utils.adjust_image_colors(pred_tensor),
         }
 
-        print("a")
-        torch.save(image, "image.pt")
-        torch.save(images["image_train"], "image_pp.pt")
-        print("b")
+        # torch.save(image, "image.pt")
+        # torch.save(images["image_train"], "image_pp.pt")
 
         for image_id in images.keys():
             images[image_id] = [wandb.Image(self._tensor_to_pil(images[image_id]))]
