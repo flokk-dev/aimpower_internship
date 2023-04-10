@@ -222,7 +222,7 @@ class Trainer:
 
         # Generates checkpoint images
         images: List[Image.Image] = self._pipeline(
-            batch_size=5, generator=torch.manual_seed(0)
+            batch_size=8, generator=torch.manual_seed(0)
         ).images
 
         # Upload checkpoint images to WandB
