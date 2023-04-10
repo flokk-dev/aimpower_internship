@@ -162,10 +162,10 @@ class Trainer:
             step : str
                 training step
         """
-        num_batch = len(self._data_loaders[step])
-        learning_allowed = step == "train"
+        num_batch: int = len(self._data_loaders[step])
+        learning_allowed: bool = step == "train"
 
-        epoch_loss = list()
+        epoch_loss: list = list()
         for batch_idx, batch in enumerate(self._data_loaders[step]):
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}")
 
