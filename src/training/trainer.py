@@ -144,8 +144,8 @@ class Trainer:
 
             # Update
             self._dashboard.upload_values(self._scheduler.get_last_lr()[0])
-            if epoch % 5 == 0:
-                self._checkpoint(epoch)
+            if (epoch+1) % 10 == 0:
+                self._checkpoint(epoch+1)
 
             p_bar.update(1)
 
@@ -179,7 +179,8 @@ class Trainer:
 
             # Upload images generated using the batch on WandB
             if batch_idx % (num_batch // 2) == 0:
-                self._dashboard.upload_images(images, step=step)
+                # self._dashboard.upload_images(images, step=step)
+                pass
 
         # Store the results
         self._dashboard.update_loss(epoch_loss, step)
