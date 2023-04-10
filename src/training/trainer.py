@@ -78,7 +78,8 @@ class Trainer:
 
         self._path = os.path.join(paths.MODELS_PATH, utils.get_datetime())
         if not os.path.exists(self._path):
-            os.makedirs(os.path.join(self._path, "images"))
+            os.makedirs(self._path)
+            os.mkdir(os.path.join(self._path, "images"))
 
         with open(os.path.join(self._path, "config.json"), 'w') as file_content:
             json.dump(self._params, file_content)
