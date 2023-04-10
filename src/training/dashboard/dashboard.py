@@ -154,18 +154,15 @@ class Dashboard:
             NotImplementedError
                 function isn't implemented yet
         """
-        torchvision.utils.save_image(utils.adjust_image_colors(image).type(torch.float32),
-                                     "image.png")
-        torchvision.utils.save_image(utils.adjust_image_colors(input_tensor).type(torch.float32), "input.png")
-        torchvision.utils.save_image(utils.adjust_image_colors(target_tensor).type(torch.float32), "target.png")
-        torchvision.utils.save_image(utils.adjust_image_colors(pred_tensor).type(torch.float32), "pred.png")
-
         images = {
             f"image_{step}": utils.adjust_image_colors(image),
             f"input_{step}": utils.adjust_image_colors(input_tensor),
             f"target_{step}": utils.adjust_image_colors(target_tensor),
             f"pred_{step}": utils.adjust_image_colors(pred_tensor),
         }
+
+        torch.save(image, "image.pt")
+        torch.save(images["image_train"], "image_pp.pt")
 
         for image_id in images.keys():
             images[image_id] = [wandb.Image(self._tensor_to_pil(images[image_id]))]
