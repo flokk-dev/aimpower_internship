@@ -156,15 +156,6 @@ class Dashboard:
             NotImplementedError
                 function isn't implemented yet
         """
-        values = torch.unique(image)
-        print(f"dashboard image + {min(values)} + {max(values)} + {image.shape}")
-        values = torch.unique(input_tensor)
-        print(f"dashboard noisy + {min(values)} + {max(values)} + {input_tensor.shape}")
-        values = torch.unique(target_tensor)
-        print(f"dashboard target + {min(values)} + {max(values)} + {target_tensor.shape}")
-        values = torch.unique(pred_tensor)
-        print(f"dashboard pred + {min(values)} + {max(values)} + {pred_tensor.shape}")
-
         images = {
             f"image_{step}": utils.adjust_image_colors(image),
             f"input_{step}": utils.adjust_image_colors(input_tensor),
@@ -172,18 +163,8 @@ class Dashboard:
             f"pred_{step}": utils.adjust_image_colors(pred_tensor),
         }
 
-        values = torch.unique(images["image_train"])
-        print(f"dashboard image + {min(values)} + {max(values)} + {images['image_train'].shape}")
-        values = torch.unique(images["input_train"])
-        print(f"dashboard noisy + {min(values)} + {max(values)} + {images['input_train'].shape}")
-        values = torch.unique(images["target_train"])
-        print(f"dashboard target + {min(values)} + {max(values)} + {images['target_train'].shape}")
-        values = torch.unique(images["pred_train"])
-        print(f"dashboard pred + {min(values)} + {max(values)} + {images['pred_train'].shape}")
-
-        for image_id in images.keys():
-            images[image_id] = [wandb.Image(self._tensor_to_pil(images[image_id]))]
-
+        for image_id, image in images.items():
+            images[image_id] = [wandb.Image(self._tensor_to_pil(image))]
         wandb.log(images)
 
     @staticmethod

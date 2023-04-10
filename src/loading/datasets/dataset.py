@@ -71,10 +71,6 @@ class DataSet(torch.utils.data.Dataset):
                 the image as a tensor
         """
         img: Image = Image.open(path).convert("RGB")
-
-        values = torch.unique(transforms.PILToTensor()(img))
-        print(min(values), max(values))
-
         tensor: torch.Tensor = transforms.PILToTensor()(img) / 255
 
         return self._pre_process(tensor)
