@@ -100,8 +100,6 @@ class Dashboard:
             step : str
                 training step
         """
-        print(f"update_loss: {loss}, {sum(loss)}, {len(loss)}")
-
         # Update the loss
         current_loss = sum(loss) / len(loss)
         self._loss[step].append(current_loss)
@@ -177,14 +175,10 @@ class Dashboard:
             pipeline : Union[DDPMPipeline, DDIMPipeline]
                 trained diffusion pipeline
         """
-        images: List[Image] = pipeline(
-            batch_size=5, generator=torch.manual_seed(0)
-        ).images
-
-        image = transforms.PILToTensor()(images[0])
-        values = torch.unique(image)
-        print(f"dashboard adjusted + {min(values)} + {max(values)} + {image.shape}")
-
         wandb.log({
-            "inference": [wandb.Image(image) for image in images]
+            "inference": [
+                wandb.Image(image)
+                for image in
+                pipeline(batch_size=5, generator=torch.manual_seed(0)).images
+            ]
         })

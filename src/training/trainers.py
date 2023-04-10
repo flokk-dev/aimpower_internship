@@ -108,11 +108,15 @@ class LossTrainer(Trainer):
             self._optimizer.step()
             self._scheduler.step()
 
-        if batch_idx % 25 == 0:
+        # Upload results on WandB
+        if batch_idx % 100 == 0:
             min_idx = torch.argmin(timesteps)
             self._dashboard.upload_images(
-                input_tensor[min_idx].cpu(), noisy_input[min_idx].cpu(),
-                noise[min_idx].cpu(), noise_pred[min_idx].cpu(),
+                input_tensor[min_idx].cpu(),
+                noisy_input[min_idx].cpu(),
+                noise[min_idx].cpu(),
+                noise_pred[min_idx].cpu(),
                 step="train" if learn else "valid"
             )
+
         return loss_value.detach().item()
