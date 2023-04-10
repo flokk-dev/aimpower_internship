@@ -50,7 +50,7 @@ def save_image_as_plt(images, path):
     # Adds the subplots
     num_images = tensor.shape[0]
 
-    plt.figure(figsize=(tensor * 5, num_images * 5))
+    plt.figure(figsize=(num_images * 5, num_images * 5))
     for b_idx in range(num_images):
         plt.subplot(1, num_images, b_idx + 1)
         plt.imshow(tensor[b_idx].permute(1, 2, 0))
