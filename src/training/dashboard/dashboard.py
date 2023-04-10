@@ -100,6 +100,8 @@ class Dashboard:
             step : str
                 training step
         """
+        print(f"update_loss: {loss}, {sum(loss)}, {len(loss)}")
+
         # Update the loss
         current_loss = sum(loss) / len(loss)
         self._loss[step].append(current_loss)
@@ -141,7 +143,7 @@ class Dashboard:
             image : torch.Tensor
                 input tensor without noise
             input_tensor : torch.Tensor
-                input tensor
+                input tensor with noise
             target_tensor : torch.Tensor
                 target tensor
             pred_tensor : torch.Tensor
@@ -155,7 +157,13 @@ class Dashboard:
                 function isn't implemented yet
         """
         values = torch.unique(image)
-        print(f"dashboard + {min(values)} + {max(values)} + {image.shape}")
+        print(f"dashboard image + {min(values)} + {max(values)} + {image.shape}")
+        values = torch.unique(input_tensor)
+        print(f"dashboard noisy + {min(values)} + {max(values)} + {input_tensor.shape}")
+        values = torch.unique(target_tensor)
+        print(f"dashboard target + {min(values)} + {max(values)} + {target_tensor.shape}")
+        values = torch.unique(pred_tensor)
+        print(f"dashboard pred + {min(values)} + {max(values)} + {pred_tensor.shape}")
 
         images = {
             f"image_{step}": utils.adjust_image_colors(image),
@@ -165,7 +173,13 @@ class Dashboard:
         }
 
         values = torch.unique(images["image_train"])
-        print(f"dashboard adjusted + {min(values)} + {max(values)} + {images['image_train'].shape}")
+        print(f"dashboard image + {min(values)} + {max(values)} + {images['image_train'].shape}")
+        values = torch.unique(images["input_train"])
+        print(f"dashboard noisy + {min(values)} + {max(values)} + {images['input_train'].shape}")
+        values = torch.unique(images["target_train"])
+        print(f"dashboard target + {min(values)} + {max(values)} + {images['target_train'].shape}")
+        values = torch.unique(images["pred_train"])
+        print(f"dashboard pred + {min(values)} + {max(values)} + {images['pred_train'].shape}")
 
         for image_id in images.keys():
             images[image_id] = [wandb.Image(self._tensor_to_pil(images[image_id]))]

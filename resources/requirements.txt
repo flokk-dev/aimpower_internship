@@ -1,7 +1,6 @@
 tqdm
 pytest
 wandb
-numpy
 torch
 torchvision
 diffusers
