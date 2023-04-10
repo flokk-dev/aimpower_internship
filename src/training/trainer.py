@@ -9,7 +9,10 @@ Purpose:
 # IMPORT: utils
 from typing import *
 
+import os
 import time
+
+import json
 from tqdm import tqdm
 
 # IMPORT: deep learning
@@ -20,6 +23,7 @@ import diffusers
 from diffusers import DDPMPipeline, DDPMScheduler, DDIMPipeline, DDIMScheduler
 
 # IMPORT: project
+import paths
 import utils
 
 from src.loading import Loader
@@ -71,6 +75,13 @@ class Trainer:
         # Attributes
         self._params: Dict[str, Any] = params
 
+        self._path = os.path.join(paths.MODELS_PATH, utils.get_datetime())
+        if not os.path.exists(self._path):
+            os.makedirs(self._path)
+
+        with open(os.path.join(self._path, "config.json"), 'w') as file_content:
+            json.dump(self._params, file_content)
+
         # Loading
         self._data_loaders: Dict[str: DataLoader] = None
 
@@ -85,10 +96,7 @@ class Trainer:
         self._loss: torch.nn.Module = torch.nn.MSELoss().to(self._DEVICE)
 
         # Dashboard
-        self._dashboard: Dashboard = Dashboard(
-            params,
-            train_id=f"{utils.get_datetime()}_UNet_e{self._params['num_epochs']}_"
-        )
+        self._dashboard: Dashboard = Dashboard(params, train_id=os.path.basename(self._path))
 
     def _init_pipeline(self, weights_path: str) -> Union[DDPMPipeline, DDIMPipeline]:
         """
@@ -133,8 +141,8 @@ class Trainer:
 
             # Update
             self._dashboard.upload_values(self._scheduler.get_last_lr()[0])
-            if epoch % 10 == 0:
-                self._dashboard.upload_inference(self._pipeline)
+            if epoch % self._params["checkpoints_step"] == 0:
+                self._checkpoint(epoch)
 
             p_bar.update(1)
 
@@ -159,7 +167,16 @@ class Trainer:
         epoch_loss = list()
         for batch_idx, batch in enumerate(self._data_loaders[step]):
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}")
-            epoch_loss.append(self._learn_on_batch(batch, batch_idx, learn=learning_allowed))
+
+            # Learn on batch
+            loss, images = self._learn_on_batch(batch, batch_idx, learn=learning_allowed)
+
+            # Store the loss value
+            epoch_loss.append(loss)
+
+            # Upload images generated using the batch on WandB
+            if batch_idx % (num_batch // 2) == 0:
+                self._dashboard.upload_images(images, step=step)
 
         # Store the results
         self._dashboard.update_loss(epoch_loss, step)
@@ -188,6 +205,31 @@ class Trainer:
                 function isn't implemented yet
         """
         raise NotImplementedError()
+
+    def _checkpoint(self, epoch: int):
+        """
+        Saves pipeline's weights.
+
+        Parameters
+        ----------
+            epoch : int
+                the current epoch idx
+        """
+        checkpoint_path = os.path.join(self._path, f"epoch_{epoch}")
+        if not os.path.exists(checkpoint_path):
+            os.makedirs(checkpoint_path)
+
+        # Generates checkpoint images
+        images = self._pipeline(batch_size=5, generator=torch.manual_seed(0)).images
+
+        # Upload checkpoint images to WandB
+        self._dashboard.upload_inference(images)
+
+        # Saves checkpoint image on disk
+        utils.save_image_as_plt(images, os.path.join(checkpoint_path, "images"))
+
+        # Saves pipeline
+        self._pipeline.save_pretrained(os.path.join(checkpoint_path, "pipeline"))
 
     def __call__(self, dataset_path: str, weights_path: str):
         """

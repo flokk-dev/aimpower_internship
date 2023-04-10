@@ -11,6 +11,10 @@ import datetime
 
 # IMPORT: dataset processing
 import torch
+from torchvision import transforms
+
+# IMPORT: data visualization
+import matplotlib.pyplot as plt
 
 
 def get_datetime():
@@ -36,3 +40,20 @@ def adjust_image_colors(image):
         return image
 
     return ((image + 1.0) * 127.5).type(torch.uint8)
+
+
+def save_image_as_plt(images, path):
+    # Converts images into tensors
+    pil_to_tensor = transforms.PILToTensor()
+    tensor = torch.stack([pil_to_tensor(image) for image in images])
+
+    # Adds the subplots
+    num_images = tensor.shape[0]
+
+    plt.figure(figsize=(tensor * 5, num_images * 5))
+    for b_idx in range(num_images):
+        plt.subplot(1, num_images, b_idx + 1)
+        plt.imshow(tensor[b_idx].permute(1, 2, 0))
+
+    # Plot the images
+    plt.savefig(path, bbox_inches="tight")

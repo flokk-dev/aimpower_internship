@@ -10,9 +10,8 @@ Purpose:
 from typing import *
 import os
 
-from PIL import Image
 import torch
-from diffusers import DDPMPipeline, DDIMPipeline
+from PIL import Image
 
 # IMPORT: data processing
 from torchvision import transforms
@@ -125,27 +124,14 @@ class Dashboard:
         # LOG ON WANDB
         wandb.log(result)
 
-    def upload_images(
-            self,
-            image: torch.Tensor,
-            input_tensor: torch.Tensor,
-            target_tensor: torch.Tensor,
-            pred_tensor: torch.Tensor,
-            step: str
-    ):
+    def upload_images(self, images: Dict[str, torch.Tensor], step: str):
         """
         Uploads examples of results.
 
         Parameters
         ----------
-            image : torch.Tensor
-                input tensor without noise
-            input_tensor : torch.Tensor
-                input tensor with noise
-            target_tensor : torch.Tensor
-                target tensor
-            pred_tensor : torch.Tensor
-                predicted tensor
+            images : Dict[str, torch.Tensor]
+                images generated during the training
             step : str
                 training step
 
@@ -154,31 +140,25 @@ class Dashboard:
             NotImplementedError
                 function isn't implemented yet
         """
-        images = {
-            f"image_{step}": utils.adjust_image_colors(image),
-            f"input_{step}": utils.adjust_image_colors(input_tensor),
-            f"target_{step}": utils.adjust_image_colors(target_tensor),
-            f"pred_{step}": utils.adjust_image_colors(pred_tensor),
-        }
-
+        images_wandb = dict()
         for image_id, image in images.items():
-            images[image_id] = [wandb.Image(self._tensor_to_pil(image))]
+            images_wandb[f"{image_id}_{step}"] = wandb.Image(
+                    self._tensor_to_pil(
+                        utils.adjust_image_colors(image)
+                    )
+                )
         wandb.log(images)
 
     @staticmethod
-    def upload_inference(pipeline: Union[DDPMPipeline, DDIMPipeline]):
+    def upload_inference(images: List[Image]):
         """
         Uploads examples of results.
 
         Parameters
         ----------
-            pipeline : Union[DDPMPipeline, DDIMPipeline]
+            images : Union[DDPMPipeline, DDIMPipeline]
                 trained diffusion pipeline
         """
         wandb.log({
-            "inference": [
-                wandb.Image(image)
-                for image in
-                pipeline(batch_size=5, generator=torch.manual_seed(0)).images
-            ]
+            "test": [wandb.Image(image) for image in images]
         })

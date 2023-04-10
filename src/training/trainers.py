@@ -76,30 +76,32 @@ class LossTrainer(Trainer):
         ----------
             torch.Float
                 loss calculated using batch's data
+            Dict[str, torch.Tensor]
+                images generated using the batch
         """
         # Put input data on desired device
-        input_tensor = batch.type(torch.float32).to(self._DEVICE)
+        input_tensor: torch.Tensor = batch.type(torch.float32).to(self._DEVICE)
 
-        # Sample random noises
-        noise = torch.randn(input_tensor.shape).to(self._DEVICE)
+        # Sample random noise
+        noise: torch.Tensor = torch.randn(input_tensor.shape).to(self._DEVICE)
 
         # Sample random timesteps
-        timesteps = torch.randint(
+        timesteps: torch.Tensor = torch.randint(
             0, self._pipeline.scheduler.num_train_timesteps, (noise.shape[0],)
         ).to(self._DEVICE)
 
         # Add noise to the input data
-        noisy_input = self._pipeline.scheduler.add_noise(
+        noisy_input: torch.Tensor = self._pipeline.scheduler.add_noise(
             input_tensor, noise, timesteps
         ).to(self._DEVICE)
 
         # Get the model prediction --> noise
         # noise_pred = model(noisy_input, timesteps).sample
-        noise_pred = self._pipeline.unet(noisy_input, timesteps, return_dict=False)[0]
+        noise_pred: torch.Tensor = self._pipeline.unet(noisy_input, timesteps, return_dict=False)[0]
 
         # Compare the prediction with the actual noise
         # NB - trying to predict noise (eps) not (noisy_ims-clean_ims) or just (clean_ims)
-        loss_value = self._loss(noise_pred, noise)
+        loss_value: torch.Tensor = self._loss(noise_pred, noise)
 
         # Update the model parameters
         self._optimizer.zero_grad()
@@ -108,16 +110,11 @@ class LossTrainer(Trainer):
             self._optimizer.step()
             self._scheduler.step()
 
-        # Upload results on WandB
-        batch_modulo = batch_idx % 100 if learn else batch_idx % 5
-        if batch_modulo == 0:
-            min_idx = torch.argmin(timesteps)
-            self._dashboard.upload_images(
-                input_tensor[min_idx].cpu(),
-                noisy_input[min_idx].cpu(),
-                noise[min_idx].cpu(),
-                noise_pred[min_idx].cpu(),
-                step="train" if learn else "valid"
-            )
-
-        return loss_value.detach().item()
+        # Return
+        return loss_value.detach().item(), \
+            {
+                "image": input_tensor[0].cpu(),
+                "noisy_image": noisy_input[0].cpu(),
+                "noise": noise[0].cpu(),
+                "noise_pred": noise_pred[0].cpu()
+            }
