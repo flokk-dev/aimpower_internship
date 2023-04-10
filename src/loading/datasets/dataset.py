@@ -73,7 +73,7 @@ class DataSet(torch.utils.data.Dataset):
         img: Image = Image.open(path).convert("RGB")
         tensor: torch.Tensor = transforms.PILToTensor()(img) / 255
 
-        return self._pre_process(tensor)
+        return self._pre_process(tensor).type(torch.float16)
 
     def __getitem__(self, idx: int) -> torch.Tensor:
         """

@@ -78,7 +78,7 @@ class LossTrainer(Trainer):
                 loss calculated using batch's data
         """
         # Put input data on desired device
-        input_tensor = batch.to(self._DEVICE)
+        input_tensor = batch.type(torch.float32).to(self._DEVICE)
 
         # Sample random noises
         noise = torch.randn(input_tensor.shape).to(self._DEVICE)
