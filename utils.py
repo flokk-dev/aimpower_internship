@@ -34,6 +34,10 @@ def size_of(tensor: torch.Tensor) -> float:
     return total / 1e6
 
 
+def str_to_tensor(string: str):
+    return torch.Tensor([int(string)])
+
+
 def adjust_image_colors(image):
     values = torch.unique(image)
     if min(values) >= 0 and max(values) <= 255:
