@@ -75,7 +75,7 @@ class Learner:
         # Pipeline
         self._pipeline: diffusers.DiffusionPipeline = PipelineManager(params)(
             params["pipeline_id"], weights_path, params["model_id"]
-        )
+        ).to(self._DEVICE)
 
         # Optimizer and learning rate
         self._optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
