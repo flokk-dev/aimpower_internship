@@ -36,10 +36,11 @@ class DataSet(torch.utils.data.Dataset):
     def __init__(
             self,
             params: Dict[str, Any],
-            inputs: List[str]
+            inputs: List[str],
+            dataset_info: List[Dict[str, Any]]
     ):
         """
-        Instantiates a DataSet.
+        Instantiates a InfoDataSet.
 
         Parameters
         ----------
@@ -47,24 +48,24 @@ class DataSet(torch.utils.data.Dataset):
                 parameters needed to adjust the program behaviour
             inputs : List[str]
                 input tensors' paths
+            dataset_info : List[Dict[str, Any]]
+                additional info about the data
         """
         # Mother Class
         super(DataSet, self).__init__()
 
         # Attributes
         self._params: Dict[str, Any] = params
+        self._info: List[Dict[str, Any]] = dataset_info
+
         self._inputs: List[Union[str, torch.Tensor]] = inputs
 
+        # Data pre-processing
         self._pre_process = transforms.Compose([
             transforms.Resize((params["img_size"], params["img_size"]), antialias=True),
             transforms.RandomHorizontalFlip(),
             transforms.Normalize([0.5], [0.5]),
         ])
-
-        # Lazy loading
-        if not params["lazy_loading"]:
-            for idx, file_path in enumerate(tqdm(self._inputs, desc="loading the data in RAM.")):
-                self._inputs[idx] = self._load_image(file_path)
 
     def _load_image(
             self,
@@ -102,11 +103,13 @@ class DataSet(torch.utils.data.Dataset):
         ----------
             torch.Tensor
                 the dataset's element as a tensor
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
         """
-        if not self._params["lazy_loading"]:
-            return self._inputs[idx]
-        else:
-            return self._load_image(self._inputs[idx])
+        raise NotImplementedError()
 
     def __len__(self) -> int:
         """

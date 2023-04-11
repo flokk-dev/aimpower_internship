@@ -13,7 +13,7 @@ import json
 # IMPORT: projet
 import paths
 
-from src.training import LossTrainer
+from src.training import Trainer
 
 
 class Parser(argparse.ArgumentParser):
@@ -34,10 +34,6 @@ class Parser(argparse.ArgumentParser):
         )
 
 
-TASKS = {
-    "loss": LossTrainer, "reward": None
-}
-
 if __name__ == "__main__":
     # Training arguments
     parser = Parser()
@@ -48,5 +44,5 @@ if __name__ == "__main__":
         training_parameters = json.load(json_file)
 
     # Launch training
-    trainer = TASKS[training_parameters["loss_type"]](params=training_parameters)
+    trainer = Trainer(params=training_parameters)
     trainer(dataset_path=args.dataset, weights_path=args.weights)
