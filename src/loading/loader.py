@@ -133,4 +133,4 @@ class Loader:
             Dict[str, DataLoader]
                 the data loaders containing training data
         """
-        return self._generate_data_loaders(self._parse_dataset(dataset_path))
+        return self._generate_data_loaders(*self._parse_dataset(dataset_path))
