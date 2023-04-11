@@ -90,7 +90,6 @@ class GuidedLearner(Learner):
         # Put input data on desired device
         input_tensor: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
         cond_tensor: torch.Tensor = batch[1].type(torch.int32).to(self._DEVICE)
-        print(input_tensor.shape, cond_tensor.shape)
 
         # Sample random noise
         noise: torch.Tensor = torch.randn(input_tensor.shape).to(self._DEVICE)
