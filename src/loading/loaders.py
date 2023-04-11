@@ -16,12 +16,13 @@ import pandas as pd
 from torch.utils.data import DataLoader
 
 # IMPORT: project
-from .dataset import DataSet
+from .dataset import GuidedDataSet
+from .loader import Loader
 
 
-class Loader:
+class GuidedLoader(Loader):
     """
-    Represents a Loader, that will be modified depending on the use case.
+    Represents a GuidedLoader.
 
     Attributes
     ----------
@@ -43,20 +44,20 @@ class Loader:
             params: Dict[str, Any]
     ):
         """
-        Instantiates a Loader.
+        Instantiates a GuidedLoader.
 
         Parameters
         ----------
             params : Dict[str, Any]
                 parameters needed to adjust the program behaviour
         """
-        # Attributes
-        self._params: Dict[str, Any] = params
+        # Mother class
+        super(GuidedLoader, self).__init__(params)
 
     def _parse_dataset(
             self,
             dataset_path: str
-    ) -> Dict[str, List[str]]:
+    ) -> Tuple[Dict[str, List[str]], Dict[str, List[Dict[str, Any]]]]:
         """
         Parses the dataset to extract some info
 
@@ -69,6 +70,8 @@ class Loader:
         ----------
             Dict[str, List[str]]
                 file paths within the dataset
+            Dict[str, List[Dict[str, Any]]]
+                additional info about the data
         """
         # Parses dataset info via a csv fileordonner
         dataset_info: Dict[int, Dict[str, Any]] = pd.read_csv(
@@ -77,15 +80,20 @@ class Loader:
 
         # Extracts and uses the info
         file_paths: Dict[str, List[str]] = {"train": list(), "valid": list()}
+        data_info: Dict[str, List[Dict[str, Any]]] = {"train": list(), "valid": list()}
+
         for data_idx, row in dataset_info.items():
             step = "train" if data_idx < int(self._params["num_data"] * 0.95) else "valid"
-            file_paths[step].append(os.path.join(dataset_path, row["image_path"]))
 
-        return file_paths
+            file_paths[step].append(os.path.join(dataset_path, row["image_path"]))
+            data_info[step].append(row)
+
+        return file_paths, data_info
 
     def _generate_data_loaders(
             self,
-            file_paths: Dict[str, List[str]]
+            file_paths: Dict[str, List[str]],
+            data_info: Dict[str, List[Dict[str, Any]]]
     ) -> Dict[str, DataLoader]:
         """
         Generates data loaders using the extracted file paths.
@@ -94,6 +102,8 @@ class Loader:
         ----------
             file_paths : Dict[str, List[str]]
                 file paths within the dataset
+            data_info : Dict[str, List[Dict[str, Any]]]
+                additional info about the data
 
         Returns
         ----------
@@ -102,11 +112,11 @@ class Loader:
         """
         return {
             "train": DataLoader(
-                DataSet(self._params, file_paths["train"]),
+                GuidedDataSet(self._params, file_paths["train"], data_info["train"]),
                 batch_size=self._params["batch_size"], shuffle=True, drop_last=True
             ),
             "valid": DataLoader(
-                DataSet(self._params, file_paths["valid"]),
+                GuidedDataSet(self._params, file_paths["valid"], data_info["valid"]),
                 batch_size=self._params["batch_size"], shuffle=True, drop_last=True
             ),
         }
@@ -123,4 +133,4 @@ class Loader:
             Dict[str, DataLoader]
                 the data loaders containing training data
         """
-        return self._generate_data_loaders(self._parse_dataset(dataset_path))
+        return self._generate_data_loaders(*self._parse_dataset(dataset_path))

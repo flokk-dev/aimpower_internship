@@ -8,6 +8,7 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
+from tqdm import tqdm
 
 # IMPORT: data loading
 from PIL import Image
@@ -18,7 +19,7 @@ from torchvision import transforms
 
 class DataSet(torch.utils.data.Dataset):
     """
-    Represents a general dataset, that will be derived depending on the use case.
+    Represents a general DataSet, that will be modified depending on the use case.
 
     Attributes
     ----------
@@ -32,7 +33,11 @@ class DataSet(torch.utils.data.Dataset):
         _load_image : torch.Tensor
             Loads an image from path
     """
-    def __init__(self, params: Dict[str, Any], inputs: List[str]):
+    def __init__(
+            self,
+            params: Dict[str, Any],
+            inputs: List[str]
+    ):
         """
         Instantiates a DataSet.
 
@@ -56,7 +61,15 @@ class DataSet(torch.utils.data.Dataset):
             transforms.Normalize([0.5], [0.5]),
         ])
 
-    def _load_image(self, path: str):
+        # Lazy loading
+        if not params["lazy_loading"]:
+            for idx, file_path in enumerate(tqdm(self._inputs, desc="loading the data in RAM.")):
+                self._inputs[idx] = self._load_image(file_path)
+
+    def _load_image(
+            self,
+            path: str
+    ):
         """
         Loads an image from path.
 
@@ -75,19 +88,25 @@ class DataSet(torch.utils.data.Dataset):
 
         return self._pre_process(tensor).type(torch.float16)
 
-    def __getitem__(self, idx: int) -> torch.Tensor:
+    def __getitem__(
+            self,
+            idx: int
+    ) -> torch.Tensor:
         """
         Parameters
         ----------
             idx : int
                 index of the item to get within the dataset
 
-        Raises
+        Returns
         ----------
-            NotImplementedError
-                function isn't implemented yet
+            torch.Tensor
+                the dataset's element as a tensor
         """
-        raise NotImplementedError()
+        if not self._params["lazy_loading"]:
+            return self._inputs[idx]
+        else:
+            return self._load_image(self._inputs[idx])
 
     def __len__(self) -> int:
         """

@@ -10,7 +10,6 @@ Purpose:
 from typing import *
 
 import os
-import shutil
 import time
 
 import json
@@ -21,15 +20,12 @@ from PIL import Image
 import torch
 from torch.utils.data import DataLoader
 
-import diffusers
-from diffusers import DDPMPipeline, DDPMScheduler, DDIMPipeline, DDIMScheduler
-
 # IMPORT: project
 import paths
 import utils
 
 from src.loading import Loader
-from .models import UNet
+from .learner import Learner
 from .dashboard import Dashboard
 
 
@@ -43,14 +39,6 @@ class Trainer:
             parameters needed to adjust the program behaviour
         _data_loaders : Dict[str: DataLoader]
             training and validation data loaders
-        _pipeline : Union[DDPMPipeline, DDIMPipeline]
-            diffusion pipeline
-        _optimizer : torch.optim.Optimizer
-            pipeline's optimizer
-        _scheduler : torch.nn.Module
-            optimizer's scheduler
-        _loss : Loss
-            training's loss function
 
     Methods
     ----------
@@ -85,49 +73,11 @@ class Trainer:
         with open(os.path.join(self._path, "config.json"), 'w') as file_content:
             json.dump(self._params, file_content)
 
-        # Loading
+        # Components
         self._data_loaders: Dict[str: DataLoader] = None
+        self._learner: Learner = None
 
-        # Pipeline
-        self._pipeline: Union[DDPMPipeline, DDIMPipeline] = None
-
-        # Optimizer and learning rate
-        self._optimizer: diffusers.optimization.Optimizer = None
-        self._scheduler: torch.nn.Module = None
-
-        # Loss
-        self._loss: torch.nn.Module = torch.nn.MSELoss().to(self._DEVICE)
-
-        # Dashboard
-        self._dashboard: Dashboard = Dashboard(params, train_id=os.path.basename(self._path))
-
-    def _init_pipeline(self, weights_path: str) -> Union[DDPMPipeline, DDIMPipeline]:
-        """
-        Initializes the training's pipeline.
-
-        Parameters
-        ----------
-            weights_path : str
-                path to the model's weights
-
-        Returns
-        ----------
-            Union[DDPMPipeline, DDIMPipeline]
-                training's pipeline
-        """
-        # Get pipeline class
-        pipeline_class = DDPMPipeline if self._params["pipeline_id"] == "DDPM" else DDIMPipeline
-        scheduler_class = DDPMScheduler if self._params["pipeline_id"] == "DDPM" else DDIMScheduler
-
-        # If pretrained load weights
-        if weights_path is not None:
-            return pipeline_class.from_pretrained(weights_path)
-
-        # Else instantiate from scratch
-        return pipeline_class(
-            unet=UNet(self._params),
-            scheduler=scheduler_class(num_train_timesteps=1000),
-        ).to(self._DEVICE)
+        self._dashboard: Dashboard = None
 
     def _launch(self):
         """ Launches the training. """
@@ -135,15 +85,15 @@ class Trainer:
 
         p_bar: tqdm = tqdm(total=self._params["num_epochs"], desc="training in progress")
         for epoch in range(self._params["num_epochs"]):
-            # Clear cache
+            # Clears cache
             torch.cuda.empty_cache()
 
-            # Learn
+            # Learns
             self._run_epoch(p_bar, step="train")
             self._run_epoch(p_bar, step="valid")
 
-            # Update
-            self._dashboard.upload_values(self._scheduler.get_last_lr()[0])
+            # Updates
+            self._dashboard.upload_values(self._learner.scheduler.get_last_lr()[0])
             if (epoch+1) % 10 == 0:
                 self._checkpoint(epoch+1)
 
@@ -171,45 +121,20 @@ class Trainer:
         for batch_idx, batch in enumerate(self._data_loaders[step]):
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}")
 
-            # Learn on batch
-            loss, images = self._learn_on_batch(batch, batch_idx, learn=learning_allowed)
+            # Learns on batch
+            loss, images = self._learner(batch, learn=learning_allowed)
 
-            # Store the loss value
+            # Stores the loss value
             epoch_loss.append(loss)
 
-            # Upload images generated using the batch on WandB
+            # Uploads images generated using the batch on WandB
             batch_modulo = num_batch // 2 if num_batch // 2 > 0 else 1
             if batch_idx % batch_modulo == 0:
                 # self._dashboard.upload_images(images, step=step)
                 pass
 
-        # Store the results
+        # Stores the results
         self._dashboard.update_loss(epoch_loss, step)
-
-    def _learn_on_batch(self, batch: torch.Tensor, batch_idx: int, learn: bool = True):
-        """
-        Learns using data within a batch.
-
-        Parameters
-        ----------
-            batch : torch.Tensor
-                batch of tensors
-            batch_idx : int
-                batch's index
-            learn : bool
-                boolean indicating whether to train
-
-        Returns
-        ----------
-            torch.Float
-                loss calculated using batch's data
-
-        Raises
-        ----------
-            NotImplementedError
-                function isn't implemented yet
-        """
-        raise NotImplementedError()
 
     def _checkpoint(self, epoch: int):
         """
@@ -220,22 +145,19 @@ class Trainer:
             epoch : int
                 the current epoch idx
         """
+        # Saves pipeline
+        self._learner.pipeline.save_pretrained(os.path.join(self._path, "pipeline"))
+
         # Generates checkpoint images
-        images: List[Image.Image] = self._pipeline(
+        images: List[Image.Image] = self._learner.pipeline(
             batch_size=8, generator=torch.manual_seed(0)
         ).images
 
-        # Upload checkpoint images to WandB
+        # Uploads checkpoint images to WandB
         self._dashboard.upload_inference(images)
 
         # Saves checkpoint image on disk
         utils.save_image_as_plt(images, os.path.join(self._path, "images", f"epoch_{epoch}.png"))
-
-        # Saves pipeline
-        if os.path.exists(os.path.join(self._path, "pipeline")):
-            shutil.rmtree(os.path.join(self._path, "pipeline"))
-
-        self._pipeline.save_pretrained(os.path.join(self._path, "pipeline"))
 
     def __call__(self, dataset_path: str, weights_path: str):
         """
@@ -244,24 +166,17 @@ class Trainer:
             dataset_path : str
                 path to the dataset
             weights_path : str
-                path to the model's weights
+                path to the pipeline's weights
         """
         # Loading
-        loader: Loader = Loader(self._params)
-        self._data_loaders: Dict[str: DataLoader] = loader(dataset_path)
+        loader = Loader(self._params)
+        self._data_loaders = loader(dataset_path)
 
-        # Pipeline
-        self._pipeline: Union[DDPMPipeline, DDIMPipeline] = self._init_pipeline(weights_path)
+        # Learner
+        self._learner = Learner(self._params, len(self._data_loaders["train"]), weights_path)
 
-        # Optimizer and learning rate
-        self._optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
-            self._pipeline.unet.parameters(), lr=self._params["lr"]
-        )
-        self._scheduler: torch.nn.Module = diffusers.optimization.get_cosine_schedule_with_warmup(
-            optimizer=self._optimizer,
-            num_warmup_steps=self._params["lr_warmup_steps"],
-            num_training_steps=(len(self._data_loaders["train"]) * self._params["num_epochs"]),
-        )
+        # Dashboard
+        self._dashboard = Dashboard(self._params, train_id=os.path.basename(self._path))
 
-        # Launch the training procedure
+        # Launches the training procedure
         self._launch()

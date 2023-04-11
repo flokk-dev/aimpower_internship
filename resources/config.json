@@ -1,16 +1,13 @@
 {
   "lazy_loading": false,
 
-  "model": "unet",
-  "loss_type": "loss",
-  "loss": "mse",
+  "pipeline_id": "ddpm",
+  "model_id": "unet",
 
   "num_data": 5000,
   "img_size": 32,
   "num_epochs": 100,
   "batch_size": 32,
   "lr": 1e-4,
-  "lr_warmup_steps": 500,
-
-  "pipeline_id": "DDPM"
+  "lr_warmup_steps": 500
 }

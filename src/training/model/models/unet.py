@@ -25,7 +25,7 @@ class UNet(UNet2DModel):
 
     def __init__(self, params: Dict[str, Any]):
         """
-        Instantiates a U-Net.
+        Instantiates a UNet.
 
         Parameters
         ----------

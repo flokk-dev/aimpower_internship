@@ -19,7 +19,7 @@ from src.training import LossTrainer
 class Parser(argparse.ArgumentParser):
     def __init__(self):
         # Mother class
-        super(Parser, self).__init__(description="Get models training parameters.")
+        super(Parser, self).__init__(description="Get model training parameters.")
 
         # dataset
         self.add_argument(
@@ -30,7 +30,7 @@ class Parser(argparse.ArgumentParser):
         # weights
         self.add_argument(
             "-w", "--weights", type=str, nargs="?", default=None,
-            help="path to the model's weights"
+            help="path to the pipeline's weights"
         )
 
 
