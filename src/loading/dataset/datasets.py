@@ -54,7 +54,7 @@ class LazyDataSet(DataSet):
     def __getitem__(
             self,
             idx: int
-    ) -> Tuple[torch.Tensor, Dict[str, Any]]:
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Parameters
         ----------
@@ -65,10 +65,11 @@ class LazyDataSet(DataSet):
         ----------
             torch.Tensor
                 the dataset's element as a tensor
-            Dict[str, Any]
+            torch.Tensor
                 additional info about the data
         """
-        return self._load_image(self._inputs[idx]), self._info[idx]
+        return self._load_image(self._inputs[idx]), \
+            torch.Tensor(int(self._info[idx]["label"]))
 
 
 class TensorDataSet(DataSet):
@@ -111,7 +112,7 @@ class TensorDataSet(DataSet):
     def __getitem__(
             self,
             idx: int
-    ) -> Tuple[torch.Tensor, Dict[str, Any]]:
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Parameters
         ----------
@@ -122,7 +123,8 @@ class TensorDataSet(DataSet):
         ----------
             torch.Tensor
                 the dataset's element as a tensor
-            Dict[str, Any]
+            torch.Tensor
                 additional info about the data
         """
-        return self._inputs[idx], self._info[idx]
+        return self._inputs[idx], \
+            torch.Tensor(int(self._info[idx]["label"]))

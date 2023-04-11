@@ -1,9 +1,9 @@
 {
   "lazy_loading": false,
-  "train_type": "basic",
+  "train_type": "guided",
 
   "pipeline_id": "ddpm",
-  "model_id": "unet",
+  "model_id": "guided unet",
 
   "num_data": 5000,
   "img_size": 32,

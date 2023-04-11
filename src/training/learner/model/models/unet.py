@@ -14,14 +14,7 @@ from diffusers import UNet2DModel
 
 
 class UNet(UNet2DModel):
-    """
-    Represents a U-Net model.
-
-    Attributes
-    ----------
-        _name : str
-            the model's name
-    """
+    """ Represents a U-Net model. """
 
     def __init__(self, params: Dict[str, Any]):
         """
@@ -75,9 +68,6 @@ class UNet(UNet2DModel):
             ),
         )
 
-        # Attributes
-        self._name: str = "U-Net"
-
     def __str__(self) -> str:
         """
         Returns
@@ -85,4 +75,4 @@ class UNet(UNet2DModel):
             str
                 the model's name
         """
-        return self._name
+        return "U-Net"
