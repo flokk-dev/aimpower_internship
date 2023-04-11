@@ -128,6 +128,5 @@ class TensorDataSet(DataSet):
             torch.Tensor
                 additional info about the data
         """
-        print(utils.str_to_tensor(self._info[idx]["label"]).type(torch.uint8).shape)
         return self._inputs[idx], \
             utils.str_to_tensor(self._info[idx]["label"]).type(torch.uint8)
