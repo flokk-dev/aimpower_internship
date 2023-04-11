@@ -137,7 +137,7 @@ class Learner:
 
     def _learn(
             self,
-            batch: torch.Tensor,
+            batch: Tuple[torch.Tensor, Dict[str, Any]],
             learn: bool = True
     ) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
         """
@@ -156,7 +156,7 @@ class Learner:
                 loss calculated using batch's data
         """
         # Put input data on desired device
-        input_tensor: torch.Tensor = batch.type(torch.float32).to(self._DEVICE)
+        input_tensor: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
 
         # Sample random noise
         noise: torch.Tensor = torch.randn(input_tensor.shape).to(self._DEVICE)
