@@ -78,7 +78,7 @@ class GuidedUNet(nn.Module):
         b, h, w, h = noisy_input.shape
 
         # Generates the additional input channels
-        cond_channels = self.class_emb(class_labels)
+        cond_channels = self._class_emb(class_labels)
         cond_channels = cond_channels.view(
             b, cond_channels.shape[1], 1, 1
         ).expand(b, cond_channels.shape[1], w, h)
@@ -87,7 +87,7 @@ class GuidedUNet(nn.Module):
         cond_input = torch.cat((noisy_input, cond_channels), 1)
 
         # Forwards it through the U-Net
-        return self.model(cond_input, timesteps)
+        return self._model(cond_input, timesteps)
 
     def __str__(self) -> str:
         """
