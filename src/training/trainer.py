@@ -74,7 +74,7 @@ class Trainer:
             json.dump(self._params, file_content)
 
         # Components
-        self._data_loaders: Dict[str: DataLoader] = None
+        self._data_loader: DataLoader = None
         self._learner: Learner = None
 
         self._dashboard: Dashboard = None
@@ -89,7 +89,7 @@ class Trainer:
             torch.cuda.empty_cache()
 
             # Learns
-            self._run_epoch(p_bar, step="train")
+            self._run_epoch(p_bar)
 
             # Updates
             self._dashboard.upload_values(self._learner.scheduler.get_last_lr()[0])
@@ -102,7 +102,7 @@ class Trainer:
         time.sleep(10)
         self._dashboard.shutdown()
 
-    def _run_epoch(self, p_bar: tqdm, step: str = "train"):
+    def _run_epoch(self, p_bar: tqdm):
         """
         Runs an epoch.
 
@@ -110,18 +110,15 @@ class Trainer:
         ----------
             p_bar : tqdm
                 the training's progress bar
-            step : str
-                training step
         """
-        num_batch: int = len(self._data_loaders[step])
-        learning_allowed: bool = step == "train"
+        num_batch: int = len(self._data_loader)
 
         epoch_loss: list = list()
-        for batch_idx, batch in enumerate(self._data_loaders[step]):
+        for batch_idx, batch in enumerate(self._data_loader):
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}")
 
             # Learns on batch
-            loss, images = self._learner(batch, learn=learning_allowed)
+            loss, images = self._learner(batch, learn=True)
 
             # Stores the loss value
             epoch_loss.append(loss)
@@ -168,11 +165,11 @@ class Trainer:
                 path to the pipeline's weights
         """
         # Loading
-        self._data_loaders = Loader(self._params)(dataset_path)
+        self._data_loader = Loader(self._params)(dataset_path)
 
         # Learner
         learner_class = Learner if self._params["train_type"] == "basic" else GuidedLearner
-        self._learner = learner_class(self._params, len(self._data_loaders["train"]), weights_path)
+        self._learner = learner_class(self._params, len(self._data_loader), weights_path)
 
         # Dashboard
         self._dashboard = Dashboard(self._params, train_id=os.path.basename(self._path))
