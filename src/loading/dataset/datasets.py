@@ -126,5 +126,6 @@ class TensorDataSet(DataSet):
             torch.Tensor
                 additional info about the data
         """
+        print(torch.Tensor(int(self._info[idx]["label"])).shape)
         return self._inputs[idx], \
             torch.Tensor(int(self._info[idx]["label"]))
