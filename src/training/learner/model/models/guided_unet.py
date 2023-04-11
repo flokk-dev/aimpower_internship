@@ -51,6 +51,8 @@ class GuidedUNet(nn.Module):
             ),
         )
 
+        self.dtype = self._model.dtype
+
     def forward(
         self,
         noisy_input: torch.Tensor,
