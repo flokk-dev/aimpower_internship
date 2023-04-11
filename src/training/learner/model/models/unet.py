@@ -33,6 +33,7 @@ class UNet(UNet2DModel):
                 parameters needed to adjust the program behaviour
         """
         # Mother class
+        """
         super(UNet, self).__init__(
             sample_size=params["img_size"],
             in_channels=params["num_channels"], out_channels=params["num_channels"],
@@ -53,6 +54,24 @@ class UNet(UNet2DModel):
                 "UpBlock2D",
                 "UpBlock2D"
             )
+        )
+        """
+
+        super(UNet, self).__init__(
+            sample_size=params["img_size"],
+            in_channels=params["num_channels"], out_channels=params["num_channels"],
+            layers_per_block=2, block_out_channels=(32, 64, 64),
+
+            down_block_types=(
+                "DownBlock2D",
+                "AttnDownBlock2D",
+                "AttnDownBlock2D",
+            ),
+            up_block_types=(
+                "AttnUpBlock2D",
+                "AttnUpBlock2D",
+                "UpBlock2D"
+            ),
         )
 
         # Attributes
