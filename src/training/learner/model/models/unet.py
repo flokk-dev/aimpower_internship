@@ -44,7 +44,8 @@ class UNet(UNet2DModel):
                 "DownBlock2D",
                 "DownBlock2D",
                 "AttnDownBlock2D",
-                "DownBlock2D"),
+                "DownBlock2D"
+            ),
             up_block_types=(
                 "UpBlock2D",
                 "AttnUpBlock2D",
@@ -58,16 +59,18 @@ class UNet(UNet2DModel):
 
         super(UNet, self).__init__(
             sample_size=params["img_size"], in_channels=1, out_channels=1,
-            layers_per_block=2, block_out_channels=(32, 64, 64),
+            layers_per_block=2, block_out_channels=(32, 32, 64, 64),
 
             down_block_types=(
                 "DownBlock2D",
+                "DownBlock2D",
                 "AttnDownBlock2D",
-                "AttnDownBlock2D",
+                "DownBlock2D",
             ),
             up_block_types=(
+                "UpBlock2D",
                 "AttnUpBlock2D",
-                "AttnUpBlock2D",
+                "UpBlock2D",
                 "UpBlock2D"
             ),
         )
