@@ -34,7 +34,8 @@ class GuidedUNet(UNet2DModel):
         """
         # Mother class
         super(GuidedUNet, self).__init__(
-            sample_size=params["img_size"], in_channels=3, out_channels=3,
+            sample_size=params["img_size"],
+            in_channels=params["num_channels"], out_channels=params["num_channels"],
             layers_per_block=2, block_out_channels=(128, 128, 256, 256, 512, 512),
 
             down_block_types=(
