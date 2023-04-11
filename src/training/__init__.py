@@ -1,1 +1,1 @@
-from .trainers import LossTrainer
+from .trainer import Trainer

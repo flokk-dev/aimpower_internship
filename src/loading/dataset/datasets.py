@@ -17,9 +17,9 @@ import torch
 from .dataset import DataSet
 
 
-class GuidedDataSet(DataSet):
+class InfoDataSet(DataSet):
     """
-    Represents a GuidedDataSet.
+    Represents a InfoDataSet.
 
     Attributes
     ----------
@@ -37,7 +37,7 @@ class GuidedDataSet(DataSet):
             dataset_info: List[Dict[str, Any]]
     ):
         """
-        Instantiates a GuidedDataSet.
+        Instantiates a InfoDataSet.
 
         Parameters
         ----------
@@ -49,7 +49,7 @@ class GuidedDataSet(DataSet):
                 additional info about the data
         """
         # Mother Class
-        super(GuidedDataSet, self).__init__(params, inputs)
+        super(InfoDataSet, self).__init__(params, inputs)
 
         # Attributes
         self._info = dataset_info

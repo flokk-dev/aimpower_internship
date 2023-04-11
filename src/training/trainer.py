@@ -24,8 +24,8 @@ from torch.utils.data import DataLoader
 import paths
 import utils
 
-from src.loading import Loader
-from .learner import Learner
+from src.loading import Loader, InfoLoader
+from .learner import Learner, GuidedLearner
 from .dashboard import Dashboard
 
 
@@ -169,11 +169,12 @@ class Trainer:
                 path to the pipeline's weights
         """
         # Loading
-        loader = Loader(self._params)
-        self._data_loaders = loader(dataset_path)
+        loader_class = Loader if self._params["train_type"] == "basic" else InfoLoader
+        self._data_loaders = loader_class(self._params)(dataset_path)
 
         # Learner
-        self._learner = Learner(self._params, len(self._data_loaders["train"]), weights_path)
+        learner_class = Learner if self._params["train_type"] == "basic" else GuidedLearner
+        self._learner = learner_class(self._params, len(self._data_loaders["train"]), weights_path)
 
         # Dashboard
         self._dashboard = Dashboard(self._params, train_id=os.path.basename(self._path))

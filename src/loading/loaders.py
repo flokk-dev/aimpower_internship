@@ -16,13 +16,13 @@ import pandas as pd
 from torch.utils.data import DataLoader
 
 # IMPORT: project
-from .dataset import GuidedDataSet
+from .dataset import InfoDataSet
 from .loader import Loader
 
 
-class GuidedLoader(Loader):
+class InfoLoader(Loader):
     """
-    Represents a GuidedLoader.
+    Represents a InfoLoader.
 
     Attributes
     ----------
@@ -44,7 +44,7 @@ class GuidedLoader(Loader):
             params: Dict[str, Any]
     ):
         """
-        Instantiates a GuidedLoader.
+        Instantiates a InfoLoader.
 
         Parameters
         ----------
@@ -52,7 +52,7 @@ class GuidedLoader(Loader):
                 parameters needed to adjust the program behaviour
         """
         # Mother class
-        super(GuidedLoader, self).__init__(params)
+        super(InfoLoader, self).__init__(params)
 
     def _parse_dataset(
             self,
@@ -112,11 +112,11 @@ class GuidedLoader(Loader):
         """
         return {
             "train": DataLoader(
-                GuidedDataSet(self._params, file_paths["train"], data_info["train"]),
+                InfoDataSet(self._params, file_paths["train"], data_info["train"]),
                 batch_size=self._params["batch_size"], shuffle=True, drop_last=True
             ),
             "valid": DataLoader(
-                GuidedDataSet(self._params, file_paths["valid"], data_info["valid"]),
+                InfoDataSet(self._params, file_paths["valid"], data_info["valid"]),
                 batch_size=self._params["batch_size"], shuffle=True, drop_last=True
             ),
         }

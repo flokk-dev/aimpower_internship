@@ -1,2 +1,2 @@
 from .dataset import DataSet
-from .datasets import GuidedDataSet
+from .datasets import InfoDataSet

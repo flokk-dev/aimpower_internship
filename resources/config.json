@@ -1,5 +1,6 @@
 {
   "lazy_loading": false,
+  "train_type": "basic",
 
   "pipeline_id": "ddpm",
   "model_id": "unet",
