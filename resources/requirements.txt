@@ -1,7 +1,8 @@
 tqdm
-pytest
+pandas
 wandb
 torch
 torchvision
 diffusers
 torchmetrics
+pytest

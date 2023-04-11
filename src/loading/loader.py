@@ -8,7 +8,9 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
+
 import os
+import pandas as pd
 
 # IMPORT: data loading
 from torch.utils.data import DataLoader
@@ -63,17 +65,15 @@ class Loader:
             Dict[str, List[str]]
                 file paths within the dataset
         """
+        data_info = pd.read_csv(os.path.join(dataset_path, "dataset_info.csv"))
         file_paths: Dict[str, List[str]] = {"train": list(), "valid": list()}
 
         data_idx = 0
-        for root, dirs, files in os.walk(dataset_path, topdown=False):
-            for file_path in map(lambda e: os.path.join(root, e), files):
-                key = "train" if data_idx < int(self._params["num_data"] * 0.95) else "valid"
-                file_paths[key].append(file_path)
+        for idx, row in data_info.iterrows():
+            step = "train" if data_idx < int(self._params["num_data"] * 0.95) else "valid"
+            file_paths[step].append(row["image_path"])
 
-                data_idx += 1
-                if data_idx >= self._params["num_data"]:
-                    break
+            data_idx += 1
 
         return file_paths
 
