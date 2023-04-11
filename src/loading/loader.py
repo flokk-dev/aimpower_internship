@@ -71,7 +71,7 @@ class Loader:
         data_idx = 0
         for idx, row in data_info.iterrows():
             step = "train" if data_idx < int(self._params["num_data"] * 0.95) else "valid"
-            file_paths[step].append(row["image_path"])
+            file_paths[step].append(os.path.join(dataset_path, row["image_path"]))
 
             data_idx += 1
 
