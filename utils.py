@@ -35,7 +35,7 @@ def size_of(tensor: torch.Tensor) -> float:
 
 
 def str_to_tensor(string: str):
-    return torch.Tensor([int(string)])
+    return torch.tensor(int(string))
 
 
 def adjust_image_colors(image):
