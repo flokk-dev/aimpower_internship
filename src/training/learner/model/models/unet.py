@@ -35,8 +35,7 @@ class UNet(UNet2DModel):
         # Mother class
         """
         super(UNet, self).__init__(
-            sample_size=params["img_size"],
-            in_channels=params["num_channels"], out_channels=params["num_channels"],
+            sample_size=params["img_size"], in_channels=1, out_channels=1,
             layers_per_block=2, block_out_channels=(128, 128, 256, 256, 512, 512),
 
             down_block_types=(
@@ -58,8 +57,7 @@ class UNet(UNet2DModel):
         """
 
         super(UNet, self).__init__(
-            sample_size=params["img_size"],
-            in_channels=params["num_channels"], out_channels=params["num_channels"],
+            sample_size=params["img_size"], in_channels=1, out_channels=1,
             layers_per_block=2, block_out_channels=(32, 64, 64),
 
             down_block_types=(
