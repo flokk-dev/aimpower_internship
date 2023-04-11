@@ -126,11 +126,11 @@ class Trainer:
             # Uploads images generated using the batch on WandB
             batch_modulo = num_batch // 2 if num_batch // 2 > 0 else 1
             if batch_idx % batch_modulo == 0:
-                # self._dashboard.upload_images(images, step=step)
+                # self._dashboard.upload_images(images)
                 pass
 
         # Stores the results
-        self._dashboard.update_loss(epoch_loss, step)
+        self._dashboard.update_loss(epoch_loss)
 
     def _checkpoint(self, epoch: int):
         """

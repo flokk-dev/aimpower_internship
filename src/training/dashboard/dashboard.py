@@ -29,7 +29,7 @@ class Dashboard:
 
     Attributes
     ----------
-        _loss : Dict[str, List[float]]
+        _loss : List[float]
             history of the loss value during training
         _tensor_to_pil: torchvision.transforms.Transform
             transform tensor to PIL image
@@ -68,7 +68,7 @@ class Dashboard:
         wandb.config = params
 
         # Attributes
-        self._loss: Dict[str, List[float]] = {"train": list(), "valid": list()}
+        self._loss: List[float] = list()
         self._tensor_to_pil = transforms.ToPILImage()
 
     @staticmethod
@@ -88,7 +88,7 @@ class Dashboard:
         """ Shutdowns the dashboard. """
         wandb.finish()
 
-    def update_loss(self, loss: List[float], step: str):
+    def update_loss(self, loss: List[float]):
         """
         Updates the history of loss.
 
@@ -96,12 +96,10 @@ class Dashboard:
         ----------
             loss : List[float]
                 loss values during an epoch
-            step : str
-                training step
         """
         # Update the loss
         current_loss = sum(loss) / len(loss)
-        self._loss[step].append(current_loss)
+        self._loss.append(current_loss)
 
     def upload_values(self, lr):
         """
@@ -115,8 +113,7 @@ class Dashboard:
         result = dict()
 
         # LOSSES
-        result["train loss"] = self._loss["train"][-1]
-        result["valid loss"] = self._loss["valid"][-1]
+        result["loss"] = self._loss[-1]
 
         # LEARNING RATE
         result["lr"] = lr
@@ -124,7 +121,7 @@ class Dashboard:
         # LOG ON WANDB
         wandb.log(result)
 
-    def upload_images(self, images: Dict[str, torch.Tensor], step: str):
+    def upload_images(self, images: Dict[str, torch.Tensor]):
         """
         Uploads examples of results.
 
@@ -132,8 +129,6 @@ class Dashboard:
         ----------
             images : Dict[str, torch.Tensor]
                 images generated during the training
-            step : str
-                training step
 
         Raises
         ----------
@@ -142,7 +137,7 @@ class Dashboard:
         """
         images_wandb = dict()
         for image_id, image in images.items():
-            images_wandb[f"{image_id}_{step}"] = wandb.Image(
+            images_wandb[f"{image_id}"] = wandb.Image(
                 self._tensor_to_pil(
                         utils.adjust_image_colors(image)
                 )
