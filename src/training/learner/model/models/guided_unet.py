@@ -34,7 +34,7 @@ class GuidedUNet(nn.Module):
         # Attributes
         self._class_emb = nn.Embedding(10, 4)
         self._model = UNet2DModel(
-            sample_size=params["img_size"], in_channels=1, out_channels=1,
+            sample_size=params["img_size"], in_channels=5, out_channels=5,
             layers_per_block=2, block_out_channels=(64, 64, 128, 128),
 
             down_block_types=(
