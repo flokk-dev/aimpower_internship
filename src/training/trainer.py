@@ -146,7 +146,7 @@ class Trainer:
                 the current epoch idx
         """
         # Saves pipeline
-        self._learner.pipeline.save_pretrained(os.path.join(self._path, "pipeline"))
+        self._learner.pipeline.save_pretrained(os.path.join(self._path, "learner/pipeline"))
 
         # Generates checkpoint images
         images: List[Image.Image] = self._learner.pipeline(

@@ -13,11 +13,9 @@ from typing import *
 import torch
 
 import diffusers
-from diffusers import DDPMPipeline, DDIMPipeline, \
-    DDPMScheduler, DDIMScheduler
 
 # IMPORT: project
-from src.training.pipeline import PipelineManager
+from src.training.learner.pipeline import PipelineManager
 
 
 class Learner:
@@ -75,7 +73,7 @@ class Learner:
         self._loss: torch.nn.Module = torch.nn.MSELoss().to(self._DEVICE)
 
         # Pipeline
-        self._pipeline: diffusers.DiffusionPipeline = PipelineManager()(
+        self._pipeline: diffusers.DiffusionPipeline = PipelineManager(params)(
             params["pipeline_id"], weights_path, params["model_id"]
         )
 

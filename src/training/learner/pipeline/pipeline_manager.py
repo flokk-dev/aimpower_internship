@@ -7,13 +7,14 @@ Purpose:
 """
 
 # IMPORT: utils
+from typing import *
 import diffusers
 
 # IMPORT: project
 from .pipelines import load_ddpm, init_ddpm, \
     load_ddim, init_ddim
 
-from src.training.model import ModelManager
+from src.training.learner.model import ModelManager
 
 
 class PipelineManager(dict):
@@ -22,12 +23,24 @@ class PipelineManager(dict):
 
     Attributes
     ----------
+        _params : Dict[str, Any]
+            parameters needed to adjust the program behaviour
         _model_manager : ModelManager
             the model manager
     """
 
-    def __init__(self):
-        """ Instantiates a PipelineManager. """
+    def __init__(
+            self,
+            params: Dict[str, Any]
+    ):
+        """
+        Instantiates a PipelineManager.
+
+        Parameters
+        ----------
+            params : Dict[str, Any]
+                parameters needed to adjust the program behaviour
+        """
         # Mother class
         super(PipelineManager, self).__init__({
             "ddpm": lambda arg: load_ddpm(arg) if isinstance(arg, str) else init_ddpm(arg),
@@ -35,7 +48,8 @@ class PipelineManager(dict):
         })
 
         # Attributes
-        self._model_manager = ModelManager()
+        self._params: Dict[str, Any] = params
+        self._model_manager: ModelManager = ModelManager(params)
 
     def __call__(
             self,

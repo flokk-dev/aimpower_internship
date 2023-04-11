@@ -7,6 +7,7 @@ Purpose:
 """
 
 # IMPORT: utils
+from typing import *
 import torch
 
 # IMPORT: project
@@ -14,14 +15,35 @@ from .models import UNet, GuidedUNet
 
 
 class ModelManager(dict):
-    """ Represents a model manager. """
+    """
+    Represents a model manager.
 
-    def __init__(self):
-        """ Instantiates a ModelManager. """
+    Attributes
+    ----------
+        _params : Dict[str, Any]
+            parameters needed to adjust the program behaviour
+    """
+
+    def __init__(
+            self,
+            params: Dict[str, Any]
+    ):
+        """
+        Instantiates a ModelManager.
+
+        Parameters
+        ----------
+            params : Dict[str, Any]
+                parameters needed to adjust the program behaviour
+        """
+        # Mother class
         super(ModelManager, self).__init__({
             "unet": UNet,
             "guided unet": GuidedUNet,
         })
+
+        # Attributes
+        self._params: Dict[str, Any] = params
 
     def __call__(self, model_id: str) -> torch.nn.Module:
         """
@@ -36,6 +58,6 @@ class ModelManager(dict):
                 model associated to the model id
         """
         try:
-            return self[model_id]()
+            return self[model_id](self._params)
         except KeyError:
             raise KeyError(f"The {model_id} isn't handled by the model manager.")
