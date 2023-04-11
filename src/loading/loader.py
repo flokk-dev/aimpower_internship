@@ -54,10 +54,10 @@ class Loader:
         self._params: Dict[str, Any] = params
         self._dataset_class = LazyDataSet if params["lazy_loading"] else TensorDataSet
 
+    @staticmethod
     def _parse_dataset(
-            self,
             dataset_path: str
-    ) -> Tuple[Dict[str, List[str]], Dict[str, List[Dict[str, Any]]]]:
+    ) -> Tuple[List[str], List[Dict[str, Any]]]:
         """
         Parses the dataset to extract some info
 
@@ -68,33 +68,31 @@ class Loader:
 
         Returns
         ----------
-            Dict[str, List[str]]
+            List[str]
                 file paths within the dataset
-            Dict[str, List[Dict[str, Any]]]
+            List[Dict[str, Any]]
                 additional info about the data
         """
-        # Parses dataset info via a csv fileordonner
+        # Parses dataset info via a csv file
         dataset_info: Dict[int, Dict[str, Any]] = pd.read_csv(
             os.path.join(dataset_path, "dataset_info.csv")
         ).to_dict(orient="index")
 
         # Extracts and uses the info
-        file_paths: Dict[str, List[str]] = {"train": list(), "valid": list()}
-        data_info: Dict[str, List[Dict[str, Any]]] = {"train": list(), "valid": list()}
+        file_paths: List[str] = list()
+        data_info: List[Dict[str, Any]] = list()
 
         for data_idx, row in dataset_info.items():
-            step = "train" if data_idx < int(self._params["num_data"] * 0.95) else "valid"
-
-            file_paths[step].append(os.path.join(dataset_path, row["image_path"]))
-            data_info[step].append(row)
+            file_paths.append(os.path.join(dataset_path, row["image_path"]))
+            data_info.append(row)
 
         return file_paths, data_info
 
-    def _generate_data_loaders(
+    def _generate_data_loader(
             self,
-            file_paths: Dict[str, List[str]],
-            data_info: Dict[str, List[Dict[str, Any]]]
-    ) -> Dict[str, DataLoader]:
+            file_paths: List[str],
+            data_info: List[Dict[str, Any]]
+    ) -> DataLoader:
         """
         Generates data loaders using the extracted file paths.
 
@@ -107,21 +105,15 @@ class Loader:
 
         Returns
         ----------
-            Dict[str, DataLoader]
+            DataLoader
                 the data loaders containing training data
         """
-        return {
-            "train": DataLoader(
-                self._dataset_class(self._params, file_paths["train"], data_info["train"]),
+        return DataLoader(
+                self._dataset_class(self._params, file_paths, data_info),
                 batch_size=self._params["batch_size"], shuffle=True, drop_last=True
-            ),
-            "valid": DataLoader(
-                self._dataset_class(self._params, file_paths["valid"], data_info["valid"]),
-                batch_size=self._params["batch_size"], shuffle=True, drop_last=True
-            ),
-        }
+        )
 
-    def __call__(self, dataset_path: str) -> Dict[str, DataLoader]:
+    def __call__(self, dataset_path: str) -> DataLoader:
         """
         Parameters
         ----------
@@ -133,4 +125,4 @@ class Loader:
             Dict[str, DataLoader]
                 the data loaders containing training data
         """
-        return self._generate_data_loaders(*self._parse_dataset(dataset_path))
+        return self._generate_data_loader(*self._parse_dataset(dataset_path))

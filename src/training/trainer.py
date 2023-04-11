@@ -90,7 +90,6 @@ class Trainer:
 
             # Learns
             self._run_epoch(p_bar, step="train")
-            self._run_epoch(p_bar, step="valid")
 
             # Updates
             self._dashboard.upload_values(self._learner.scheduler.get_last_lr()[0])
@@ -103,7 +102,7 @@ class Trainer:
         time.sleep(10)
         self._dashboard.shutdown()
 
-    def _run_epoch(self, p_bar: tqdm, step: str):
+    def _run_epoch(self, p_bar: tqdm, step: str = "train"):
         """
         Runs an epoch.
 
