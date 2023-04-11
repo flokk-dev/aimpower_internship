@@ -79,8 +79,6 @@ class GuidedUNet(nn.Module):
 
         # Generates the additional input channels
         cond_channels = self._class_emb(class_labels)
-        print(noisy_input.shape)
-        print(cond_channels.shape)
         cond_channels = cond_channels.view(
             b, cond_channels.shape[1], 1, 1
         ).expand(b, cond_channels.shape[1], w, h)
