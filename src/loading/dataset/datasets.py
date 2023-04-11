@@ -69,7 +69,7 @@ class LazyDataSet(DataSet):
                 additional info about the data
         """
         return self._load_image(self._inputs[idx]), \
-            torch.Tensor(int(self._info[idx]["label"]))
+            torch.Tensor([int(self._info[idx]["label"])])
 
 
 class TensorDataSet(DataSet):
@@ -126,6 +126,5 @@ class TensorDataSet(DataSet):
             torch.Tensor
                 additional info about the data
         """
-        print(torch.Tensor(int(self._info[idx]["label"])).shape)
         return self._inputs[idx], \
-            torch.Tensor(int(self._info[idx]["label"]))
+            torch.Tensor([int(self._info[idx]["label"])])
