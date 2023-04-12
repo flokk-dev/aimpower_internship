@@ -136,16 +136,16 @@ class Trainer:
         tensors: Dict[str, torch.Tensor] = self._learner.inference(to_dict=True)
 
         # Uploads and saves qualitative results
-        checkpoint_path = os.path.join(self._path, "images", str(epoch))
-        if not os.path.exists(checkpoint_path):
-            os.makedirs(checkpoint_path)
-
         for key, tensor in tensors.items():
+            key_path = os.path.join(self._path, "images", key)
+            if not os.path.exists(key_path):
+                os.makedirs(key_path)
+
             # Uploads checkpoint images to WandB
             self._dashboard.upload_inference(key, tensor)
 
             # Saves checkpoint image on disk
-            utils.save_plt(tensor, os.path.join(checkpoint_path, f"{key}.png"))
+            utils.save_plt(tensor, os.path.join(key_path, f"epoch_{epoch}.png"))
 
     def __call__(self, dataset_path: str, weights_path: str):
         """
