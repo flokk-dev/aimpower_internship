@@ -14,7 +14,6 @@ import time
 
 import json
 from tqdm import tqdm
-from PIL import Image
 
 # IMPORT: deep learning
 import torch
@@ -31,7 +30,7 @@ from .dashboard import Dashboard
 
 class Trainer:
     """
-    Represents a Trainer, that will be derived depending on the use case.
+    Represents a Trainer, which will be modified depending on the use case.
 
     Attributes
     ----------
@@ -42,14 +41,12 @@ class Trainer:
 
     Methods
     ----------
-        _init_pipeline
-            Initializes the training's pipeline
         _launch
             Launches the training
         _run_epoch
             Runs an epoch
-        _learn_on_batch
-            Learns using data within a batch
+        _checkpoint
+            Saves pipeline's weights
     """
     _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 

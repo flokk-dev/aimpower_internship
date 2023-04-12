@@ -13,6 +13,7 @@ from tqdm import tqdm
 # IMPORT: data loading
 import torch
 
+# IMPORT: project
 from .dataset import DataSet
 
 
@@ -24,10 +25,12 @@ class LazyDataSet(DataSet):
     ----------
         _params : Dict[str, Any]
             parameters needed to adjust the program behaviour
-        _inputs : List[torch.Tensor]
+        _inputs : List[Union[str, torch.Tensor]]
             input tensors
         _info : List[Dict[str, Any]]
             additional info about the data
+        _pre_process: transforms.Compose
+            pre-processing to apply on each data
     """
     def __init__(
             self,
@@ -78,10 +81,12 @@ class TensorDataSet(DataSet):
     ----------
         _params : Dict[str, Any]
             parameters needed to adjust the program behaviour
-        _inputs : List[torch.Tensor]
+        _inputs : List[Union[str, torch.Tensor]]
             input tensors
         _info : List[Dict[str, Any]]
             additional info about the data
+        _pre_process: transforms.Compose
+            pre-processing to apply on each data
     """
     def __init__(
             self,

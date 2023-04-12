@@ -11,16 +11,19 @@ from typing import *
 
 # IMPORT: deep learning
 import torch
-from torch import nn
-
-from diffusers import UNet2DModel
 from diffusers.models.unet_2d import UNet2DOutput
 
+# IMPORT: project
+from .unet import UNet
 
-class GuidedUNet(UNet2DModel):
+
+class GuidedUNet(UNet):
     """ Represents a guided U-Net model. """
 
-    def __init__(self, params: Dict[str, Any]):
+    def __init__(
+            self,
+            params: Dict[str, Any]
+    ):
         """
         Instantiates a GuidedUNet.
 
@@ -30,27 +33,10 @@ class GuidedUNet(UNet2DModel):
                 parameters needed to adjust the program behaviour
         """
         # Mother class
-        super(GuidedUNet, self).__init__(
-            sample_size=params["img_size"],
-            in_channels=params["num_channels"] + 4, out_channels=params["num_channels"],
-            layers_per_block=2, block_out_channels=(64, 64, 128, 128),
-
-            down_block_types=(
-                "DownBlock2D",
-                "DownBlock2D",
-                "AttnDownBlock2D",
-                "DownBlock2D",
-            ),
-            up_block_types=(
-                "UpBlock2D",
-                "AttnUpBlock2D",
-                "UpBlock2D",
-                "UpBlock2D"
-            ),
-        )
+        super(GuidedUNet, self).__init__(params)
 
         # Attributes
-        self._class_emb = nn.Embedding(params["num_classes"], 4)
+        self._class_emb = torch.nn.Embedding(params["num_classes"], 4)
 
     def forward(
         self,

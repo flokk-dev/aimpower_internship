@@ -19,7 +19,7 @@ from torchvision import transforms
 
 class DataSet(torch.utils.data.Dataset):
     """
-    Represents a general DataSet, that will be modified depending on the use case.
+    Represents a general DataSet, which will be modified depending on the use case.
 
     Attributes
     ----------

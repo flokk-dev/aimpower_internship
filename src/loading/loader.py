@@ -21,7 +21,7 @@ from .dataset import LazyDataSet, TensorDataSet
 
 class Loader:
     """
-    Represents a Loader, that will be modified depending on the use case.
+    Represents a Loader, which will be modified depending on the use case.
 
     Attributes
     ----------
@@ -32,11 +32,10 @@ class Loader:
     ----------
         _parse_dataset : List[str]
             Parses the dataset to extract some info
-        _file_depth : int
-            Calculates the depth of the file within the dataset
         _generate_data_loaders : Dict[str, DataLoader]
-            Verifies the tensor's shape according to the desired dimension
+            Generates a data loaders using extracted file paths
     """
+    _DATASETS = {"basic": TensorDataSet, "lazy": LazyDataSet}
 
     def __init__(
             self,
@@ -52,14 +51,13 @@ class Loader:
         """
         # Attributes
         self._params: Dict[str, Any] = params
-        self._dataset_class = LazyDataSet if params["lazy_loading"] else TensorDataSet
 
     @staticmethod
     def _parse_dataset(
             dataset_path: str
     ) -> Tuple[List[str], List[Dict[str, Any]]]:
         """
-        Parses the dataset to extract some info
+        Parses the dataset to extract some info.
 
         Parameters
         ----------
@@ -94,7 +92,7 @@ class Loader:
             data_info: List[Dict[str, Any]]
     ) -> DataLoader:
         """
-        Generates data loaders using the extracted file paths.
+        Generates a data loader using extracted file paths.
 
         Parameters
         ----------
@@ -106,11 +104,13 @@ class Loader:
         Returns
         ----------
             DataLoader
-                the data loaders containing training data
+                data loader containing training data
         """
         return DataLoader(
-                self._dataset_class(self._params, file_paths, data_info),
-                batch_size=self._params["batch_size"], shuffle=True, drop_last=True
+            self._DATASETS[self._params["lazy_loading"]](
+                self._params, file_paths, data_info
+            ),
+            batch_size=self._params["batch_size"], shuffle=True, drop_last=True
         )
 
     def __call__(self, dataset_path: str) -> DataLoader:
@@ -123,6 +123,6 @@ class Loader:
         Returns
         ----------
             Dict[str, DataLoader]
-                the data loaders containing training data
+                data loaders containing training data
         """
         return self._generate_data_loader(*self._parse_dataset(dataset_path))

@@ -1,5 +1,5 @@
 {
-  "lazy_loading": false,
+  "loading_method": "lazy",
   "train_type": "basic",
 
   "pipeline_id": "ddpm",

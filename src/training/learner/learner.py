@@ -11,7 +11,6 @@ from typing import *
 
 # IMPORT: deep learning
 import torch
-
 import diffusers
 
 # IMPORT: project
@@ -20,7 +19,7 @@ from src.training.learner.pipeline import PipelineManager
 
 class Learner:
     """
-    Represents a Learner, that will be modified depending on the use case.
+    Represents a Learner, which will be modified depending on the use case.
 
     Attributes
     ----------
@@ -37,10 +36,14 @@ class Learner:
 
     Methods
     ----------
+        _learn
+            Learns on a batch of data
         _forward
-            Launches the training
+            Extracts noise within the noisy image using the pipeline
         _add_noise
-            Runs an epoch
+            Adds noise to a given tensor
+        inference
+            Generates and image using the training's pipeline
     """
     _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -86,8 +89,10 @@ class Learner:
     def _learn(
             self,
             batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
-    ):
+    ) -> float:
         """
+        Learns on a batch of data.
+
         Parameters
         ----------
             batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
@@ -156,7 +161,7 @@ class Learner:
             torch.Tensor
                 added noise
             torch.Tensor
-                noise timestep
+                noise's timestep
         """
         # Sample random noise
         noise: torch.Tensor = torch.randn(tensor.shape).to(self._DEVICE)
@@ -177,7 +182,7 @@ class Learner:
             self,
     ) -> torch.Tensor:
         """
-        Extracts noise within the noisy image using the pipeline.
+        Generates and image using the training's pipeline.
 
         Returns
         ----------

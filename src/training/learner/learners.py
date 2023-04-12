@@ -39,10 +39,14 @@ class BasicLearner(Learner):
 
     Methods
     ----------
+        _learn
+            Learns on a batch of data
         _forward
-            Launches the training
+            Extracts noise within the noisy image using the pipeline
         _add_noise
-            Runs an epoch
+            Adds noise to a given tensor
+        inference
+            Generates and image using the training's pipeline
     """
     _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -97,7 +101,7 @@ class BasicLearner(Learner):
             self,
     ) -> torch.Tensor:
         """
-        Extracts noise within the noisy image using the pipeline.
+        Generates and image using the training's pipeline.
 
         Returns
         ----------
@@ -114,7 +118,7 @@ class BasicLearner(Learner):
         # Sampling loop
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
             # Generates a prediction
-            residual = self.pipeline.unet(image, timestep).sample
+            residual = self.pipeline.unet(image, timestep)
 
             # Updates by making a step
             image = self.pipeline.scheduler.step(
@@ -151,10 +155,14 @@ class GuidedLearner(Learner):
 
     Methods
     ----------
+        _learn
+            Learns on a batch of data
         _forward
-            Launches the training
+            Extracts noise within the noisy image using the pipeline
         _add_noise
-            Runs an epoch
+            Adds noise to a given tensor
+        inference
+            Generates and image using the training's pipeline
     """
     _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -210,7 +218,7 @@ class GuidedLearner(Learner):
             self,
     ) -> torch.Tensor:
         """
-        Extracts noise within the noisy image using the pipeline.
+        Generates and image using the training's pipeline.
 
         Returns
         ----------

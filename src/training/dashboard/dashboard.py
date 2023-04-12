@@ -30,7 +30,6 @@ class Dashboard:
         _tensor_to_pil: torchvision.transforms.Transform
             transform tensor to PIL image
 
-
     Methods
     ----------
         collect_info
@@ -41,8 +40,8 @@ class Dashboard:
             Updates the history of loss
         upload_values
             Uploads the history of learning rate and loss
-        upload_images
-            Uploads examples of results
+        upload_inference
+            Uploads examples of image generation
     """
 
     def __init__(
@@ -60,6 +59,8 @@ class Dashboard:
                 parameters needed to adjust the program behaviour
             train_id : str
                 id of the training
+            mode : str
+                WandB display mode
         """
         # Initialize the wandb entity
         os.environ["WANDB_SILENT"] = "false"
@@ -82,7 +83,7 @@ class Dashboard:
         Parameters
         ----------
             model : torch.nn.Module
-                model to follow.
+                model to follow
         """
         wandb.watch(model)
 
@@ -112,30 +113,24 @@ class Dashboard:
             lr: float
     ):
         """
-        Uploads the history of learning rate, loss and metrics.
+        Uploads the history of learning rate and loss.
 
         Parameters
         ----------
             lr : float
                 learning rate value during the epoch
         """
-        result = dict()
-
-        # LOSSES
-        result["loss"] = self._loss[-1]
-
-        # LEARNING RATE
-        result["lr"] = lr
-
-        # LOG ON WANDB
-        wandb.log(result)
+        wandb.log({
+            "loss": self._loss[-1],
+            "lr": lr
+        })
 
     def upload_inference(
             self,
             tensor: torch.Tensor
     ):
         """
-        Uploads examples of results.
+        Uploads examples of image generation.
 
         Parameters
         ----------

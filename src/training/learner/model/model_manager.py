@@ -45,7 +45,10 @@ class ModelManager(dict):
         # Attributes
         self._params: Dict[str, Any] = params
 
-    def __call__(self, model_id: str) -> torch.nn.Module:
+    def __call__(
+            self,
+            model_id: str
+    ) -> torch.nn.Module:
         """
         Parameters
         ----------
