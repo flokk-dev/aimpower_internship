@@ -114,12 +114,12 @@ class BasicLearner(Learner):
             self.pipeline.unet.sample_size, self.pipeline.unet.sample_size,
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
+        print(image.shape)
 
         # Sampling loop
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
             # Generates a prediction
-            residual = self.pipeline.unet(image, timestep)
-            print(type(residual))
+            residual = self.pipeline.unet(image, timestep).sample
 
             # Updates by making a step
             image = self.pipeline.scheduler.step(
