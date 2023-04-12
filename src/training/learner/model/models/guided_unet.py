@@ -31,7 +31,8 @@ class GuidedUNet(UNet2DModel):
         """
         # Mother class
         super(GuidedUNet, self).__init__(
-            sample_size=params["img_size"], in_channels=5, out_channels=5,
+            sample_size=params["img_size"],
+            in_channels=params["num_channels"] + 4, out_channels=params["num_channels"],
             layers_per_block=2, block_out_channels=(64, 64, 128, 128),
 
             down_block_types=(
@@ -49,7 +50,7 @@ class GuidedUNet(UNet2DModel):
         )
 
         # Attributes
-        self._class_emb = nn.Embedding(10, 4)
+        self._class_emb = nn.Embedding(params["num_classes"], 4)
 
     def forward(
         self,
@@ -62,13 +63,13 @@ class GuidedUNet(UNet2DModel):
         Parameters
         ----------
             sample : torch.Tensor
-                pass
+                noisy inputs tensor
             timestep : Union[torch.Tensor, float, int]
-                pass
+                timesteps
             class_labels : Optional[torch.Tensor]
-                pass
+                optional class labels for conditioning
             return_dict : bool
-                pass
+                whether or not to return a dictionary
 
         Returns
         ----------

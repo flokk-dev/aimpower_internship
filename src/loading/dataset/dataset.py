@@ -8,12 +8,12 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
-from tqdm import tqdm
 
 # IMPORT: data loading
 from PIL import Image
-
 import torch
+
+# IMPORT: data processing
 from torchvision import transforms
 
 
@@ -27,6 +27,10 @@ class DataSet(torch.utils.data.Dataset):
             parameters needed to adjust the program behaviour
         _inputs : List[Union[str, torch.Tensor]]
             input tensors
+        _info : List[Dict[str, Any]]
+            additional info about the data
+        _pre_process: transforms.Compose
+            pre-processing to apply on each data
 
     Methods
     ----------
@@ -56,12 +60,12 @@ class DataSet(torch.utils.data.Dataset):
 
         # Attributes
         self._params: Dict[str, Any] = params
-        self._info: List[Dict[str, Any]] = dataset_info
-
         self._inputs: List[Union[str, torch.Tensor]] = inputs
 
+        self._info: List[Dict[str, Any]] = dataset_info
+
         # Data pre-processing
-        self._pre_process = transforms.Compose([
+        self._pre_process: transforms.Compose = transforms.Compose([
             transforms.Resize((params["img_size"], params["img_size"]), antialias=True),
             transforms.RandomHorizontalFlip(),
             transforms.Normalize([0.5], [0.5]),

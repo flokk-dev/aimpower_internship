@@ -25,7 +25,7 @@ import paths
 import utils
 
 from src.loading import Loader
-from .learner import Learner, GuidedLearner
+from .learner import Learner, BasicLearner, GuidedLearner
 from .dashboard import Dashboard
 
 
@@ -37,8 +37,8 @@ class Trainer:
     ----------
         _params : Dict[str, Any]
             parameters needed to adjust the program behaviour
-        _data_loaders : Dict[str: DataLoader]
-            training and validation data loaders
+        _data_loader : Dict[str: DataLoader]
+            loader containing training's data
 
     Methods
     ----------
@@ -118,16 +118,7 @@ class Trainer:
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}")
 
             # Learns on batch
-            loss, images = self._learner(batch, learn=True)
-
-            # Stores the loss value
-            epoch_loss.append(loss)
-
-            # Uploads images generated using the batch on WandB
-            batch_modulo = num_batch // 2 if num_batch // 2 > 0 else 1
-            if batch_idx % batch_modulo == 0:
-                # self._dashboard.upload_images(images)
-                pass
+            epoch_loss.append(self._learner(batch))
 
         # Stores the results
         self._dashboard.update_loss(epoch_loss)
@@ -145,15 +136,13 @@ class Trainer:
         self._learner.pipeline.save_pretrained(os.path.join(self._path, "pipeline"))
 
         # Generates checkpoint images
-        images: List[Image.Image] = self._learner.pipeline(
-            batch_size=8, generator=torch.manual_seed(0)
-        ).images
+        tensor: torch.Tensor = self._learner.inference()
 
         # Uploads checkpoint images to WandB
-        self._dashboard.upload_inference(images)
+        self._dashboard.upload_inference(tensor)
 
         # Saves checkpoint image on disk
-        utils.save_image_as_plt(images, os.path.join(self._path, "images", f"epoch_{epoch}.png"))
+        utils.save_plt(tensor, os.path.join(self._path, "images", f"epoch_{epoch}.png"))
 
     def __call__(self, dataset_path: str, weights_path: str):
         """
@@ -168,7 +157,7 @@ class Trainer:
         self._data_loader = Loader(self._params)(dataset_path)
 
         # Learner
-        learner_class = Learner if self._params["train_type"] == "basic" else GuidedLearner
+        learner_class = BasicLearner if self._params["train_type"] == "basic" else GuidedLearner
         self._learner = learner_class(self._params, len(self._data_loader), weights_path)
 
         # Dashboard

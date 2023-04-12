@@ -5,6 +5,9 @@
   "pipeline_id": "ddpm",
   "model_id": "guided unet",
 
+  "num_classes": 10,
+  "num_channels": 1,
+
   "num_data": 5000,
   "img_size": 32,
   "num_epochs": 100,

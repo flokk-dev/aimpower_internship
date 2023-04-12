@@ -1,2 +1,2 @@
 from .learner import Learner
-from .learners import GuidedLearner
+from .learners import BasicLearner, GuidedLearner
