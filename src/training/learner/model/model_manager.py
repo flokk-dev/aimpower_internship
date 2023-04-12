@@ -38,8 +38,23 @@ class ModelManager(dict):
         """
         # Mother class
         super(ModelManager, self).__init__({
-            "unet": UNet,
-            "guided unet": GuidedUNet,
+            "unet": {
+                "class": UNet,
+                "params": {
+                    "img_size": params["img_size"],
+                    "in_channels": params["num_channels"],
+                    "out_channels": params["num_channels"]
+                }
+            },
+            "guided unet": {
+                "class": GuidedUNet,
+                "params": {
+                    "img_size": params["img_size"],
+                    "in_channels": params["num_channels"],
+                    "out_channels": params["num_channels"],
+                    "num_classes": params["num_classes"]
+                }
+            }
         })
 
         # Attributes
@@ -61,6 +76,6 @@ class ModelManager(dict):
                 model associated to the model id
         """
         try:
-            return self[model_id](self._params)
+            return self[model_id]["class"](**self[model_id]["params"])
         except KeyError:
             raise KeyError(f"The {model_id} isn't handled by the model manager.")

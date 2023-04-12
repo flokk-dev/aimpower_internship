@@ -22,21 +22,33 @@ class GuidedUNet(UNet):
 
     def __init__(
             self,
-            params: Dict[str, Any]
+            img_size: int,
+            in_channels: int,
+            out_channels: int,
+            num_classes: int = 10,
+            emb_size: int = 4
     ):
         """
         Instantiates a GuidedUNet.
 
         Parameters
         ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
+            img_size : int
+                the size of the input image
+            in_channels : int
+                the number of input channels
+            out_channels : int
+                the number of output channels
+            num_classes : int
+                the number of classes within the dataset
+            emb_size : int
+                size of the text embedding
         """
         # Mother class
-        super(GuidedUNet, self).__init__(params)
+        super(GuidedUNet, self).__init__(img_size, in_channels + emb_size, out_channels)
 
         # Attributes
-        self._class_emb = torch.nn.Embedding(params["num_classes"], 4)
+        self._class_emb = torch.nn.Embedding(num_classes, 4)
 
     def forward(
         self,
@@ -51,7 +63,7 @@ class GuidedUNet(UNet):
             sample : torch.Tensor
                 noisy inputs tensor
             timestep : Union[torch.Tensor, float, int]
-                timesteps
+                noise's timestep
             class_labels : Optional[torch.Tensor]
                 optional class labels for conditioning
             return_dict : bool

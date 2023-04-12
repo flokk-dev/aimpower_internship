@@ -18,20 +18,26 @@ class UNet(UNet2DModel):
 
     def __init__(
             self,
-            params: Dict[str, Any]
+            img_size: int,
+            in_channels: int,
+            out_channels: int
     ):
         """
         Instantiates a UNet.
 
         Parameters
         ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
+            img_size : int
+                the size of the input image
+            in_channels : int
+                the number of input channels
+            out_channels : int
+                the number of output channels
         """
         # Mother class
         super(UNet, self).__init__(
-            sample_size=params["img_size"],
-            in_channels=params["num_channels"], out_channels=params["num_channels"],
+            sample_size=img_size,
+            in_channels=in_channels, out_channels=out_channels,
             layers_per_block=2, block_out_channels=(64, 64, 128, 128),
 
             down_block_types=(
