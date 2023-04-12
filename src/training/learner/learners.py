@@ -149,14 +149,14 @@ class BasicLearner(Learner):
             image = torch.randn(image_shape, device=self._DEVICE)
 
         # set step values
-        self.scheduler.set_timesteps(1000)
+        self.pipeline.scheduler.set_timesteps(1000)
 
-        for t in tqdm(self.scheduler.timesteps):
+        for t in tqdm(self.pipeline.scheduler.timesteps):
             # 1. predict noise model_output
             model_output = self.pipeline.unet(image, t).sample
 
             # 2. compute previous image: x_t -> x_t-1
-            image = self.scheduler.step(model_output, t, image).prev_sample
+            image = self.pipeline.scheduler.step(model_output, t, image).prev_sample
 
         image = (image / 2 + 0.5).clamp(0, 1)
         image = image.cpu().permute(0, 2, 3, 1).numpy()
