@@ -1,9 +1,9 @@
 {
   "loading_method": "basic",
-  "train_type": "guided",
+  "train_type": "basic",
 
   "pipeline_id": "ddpm",
-  "model_id": "guided unet",
+  "model_id": "unet",
 
   "num_classes": 10,
   "num_channels": 1,
