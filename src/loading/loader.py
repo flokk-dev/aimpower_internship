@@ -107,7 +107,7 @@ class Loader:
                 data loader containing training data
         """
         return DataLoader(
-            self._DATASETS[self._params["lazy_loading"]](
+            self._DATASETS[self._params["loading_method"]](
                 self._params, file_paths, data_info
             ),
             batch_size=self._params["batch_size"], shuffle=True, drop_last=True
