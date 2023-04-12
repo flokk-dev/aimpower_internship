@@ -225,18 +225,16 @@ class GuidedLearner(Learner):
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                num_samples * self._params["num_classes"], self.pipeline.unet.in_channels,
+                num_samples * self._params["num_classes"], self.pipeline.unet.out_channels,
                 self.pipeline.unet.sample_size, self.pipeline.unet.sample_size
             ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
-        print(image.shape)
 
         # Generates classes to guide the generation
         image_classes: torch.Tensor = torch.tensor(
             [[i] * num_samples for i in range(10)]
         ).flatten().to(self._DEVICE)
-        print(image_classes.shape)
 
         # Generates an image based on the gaussian noise
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
