@@ -136,11 +136,13 @@ class BasicLearner(Learner):
 
         return image.cpu()"""
         # Sample gaussian noise to begin loop
-        image_shape = (
-            10, self.pipeline.unet.in_channels,
-            self.pipeline.unet.sample_size, self.pipeline.unet.sample_size
-        )
-        image = torch.randn(image_shape, generator=torch.manual_seed(0)).to(self._DEVICE)
+        image = torch.randn(
+            (
+                10, self.pipeline.unet.in_channels,
+                self.pipeline.unet.sample_size, self.pipeline.unet.sample_size
+            ),
+            generator=torch.manual_seed(0)
+        ).to(self._DEVICE)
 
         # set step values
         self.pipeline.scheduler.set_timesteps(1000)
@@ -153,7 +155,7 @@ class BasicLearner(Learner):
             # 2. compute previous image: x_t -> x_t-1
             image = self.pipeline.scheduler.step(model_output, t, image).prev_sample
 
-        image = (image / 2 + 0.5).clamp(0, 1)
+        # image = (image / 2 + 0.5).clamp(0, 1)
         image = image.cpu().permute(0, 2, 3, 1).numpy()
         image = utils.numpy_to_pil(image)
 
