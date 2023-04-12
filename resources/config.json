@@ -11,7 +11,7 @@
   "num_data": 5000,
   "img_size": 128,
   "num_epochs": 100,
-  "batch_size": 1,
+  "batch_size": 2,
   "lr": 1e-4,
   "lr_warmup_steps": 500
 }

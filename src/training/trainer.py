@@ -112,7 +112,6 @@ class Trainer:
 
         epoch_loss: list = list()
         for batch_idx, batch in enumerate(self._data_loader):
-            print(batch[0].shape)
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}")
 
             # Learns on batch
