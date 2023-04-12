@@ -135,8 +135,6 @@ class BasicLearner(Learner):
         image = torch.stack([pil_to_tensor(image) for image in image])
 
         return image.cpu()"""
-        generator = torch.manual_seed(0)
-
         # Sample gaussian noise to begin loop
         if isinstance(self.pipeline.unet.sample_size, int):
             image_shape = (8, self.pipeline.unet.in_channels, self.pipeline.unet.sample_size, self.pipeline.unet.sample_size)
@@ -145,10 +143,10 @@ class BasicLearner(Learner):
 
         if self._DEVICE.type == "mps":
             # randn does not work reproducibly on mps
-            image = torch.randn(image_shape, generator=generator)
+            image = torch.randn(image_shape)
             image = image.to(self._DEVICE)
         else:
-            image = torch.randn(image_shape, generator=generator, device=self._DEVICE)
+            image = torch.randn(image_shape, device=self._DEVICE)
 
         # set step values
         self.scheduler.set_timesteps(1000)
@@ -158,7 +156,7 @@ class BasicLearner(Learner):
             model_output = self.pipeline.unet(image, t).sample
 
             # 2. compute previous image: x_t -> x_t-1
-            image = self.scheduler.step(model_output, t, image, generator=generator).prev_sample
+            image = self.scheduler.step(model_output, t, image).prev_sample
 
         image = (image / 2 + 0.5).clamp(0, 1)
         image = image.cpu().permute(0, 2, 3, 1).numpy()
