@@ -145,16 +145,16 @@ class BasicLearner(Learner):
         ).to(self._DEVICE)
 
         # set step values
-        self.pipeline.scheduler.set_timesteps(1000)
+        # self.pipeline.scheduler.set_timesteps(1000)
 
-        for t in tqdm(self.pipeline.scheduler.timesteps):
-            # 1. predict noise model_output
+        for timestep in tqdm(self.pipeline.scheduler.timesteps):
+            # Generates a prediction
             with torch.no_grad():
-                model_output = self.pipeline.unet(image, t).sample
+                residual = self.pipeline.unet(image, timestep).sample
 
-            # 2. compute previous image: x_t -> x_t-1
+            # De-noises the image using the prediction
             image = self.pipeline.scheduler.step(
-                model_output, t, image,
+                residual, timestep, image,
                 generator=torch.manual_seed(0)
             ).prev_sample
 
