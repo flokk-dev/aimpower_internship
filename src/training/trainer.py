@@ -145,7 +145,7 @@ class Trainer:
             self._dashboard.upload_inference(key, tensor)
 
             # Saves checkpoint image on disk
-            utils.save_plt(tensors, os.path.join(checkpoint_path, f"{key}.png"))
+            utils.save_plt(tensor, os.path.join(checkpoint_path, f"{key}.png"))
 
     def __call__(self, dataset_path: str, weights_path: str):
         """

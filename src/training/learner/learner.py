@@ -168,7 +168,7 @@ class Learner:
 
         # Sample random timesteps
         timestep: torch.Tensor = torch.randint(
-            0, self.pipeline.scheduler.num_train_timesteps, (noise.shape[0],)
+            0, self.pipeline.scheduler.config.num_train_timesteps, (noise.shape[0],)
         ).to(self._DEVICE)
 
         # Add noise to the input data
