@@ -6,9 +6,6 @@ Version: 1.0
 Purpose:
 """
 
-# IMPORT: utils
-from typing import *
-
 # IMPORT: deep learning
 from diffusers import UNet2DModel
 

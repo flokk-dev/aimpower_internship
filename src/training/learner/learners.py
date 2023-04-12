@@ -111,8 +111,8 @@ class BasicLearner(Learner):
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                10, self.pipeline.unet.in_channels,
-                self.pipeline.unet.sample_size, self.pipeline.unet.sample_size
+                10, self._params["num_channels"],
+                self._params["num_classes"], self._params["num_classes"]
             ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
@@ -225,8 +225,8 @@ class GuidedLearner(Learner):
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                num_samples * self._params["num_classes"], self.pipeline.unet.out_channels,
-                self.pipeline.unet.sample_size, self.pipeline.unet.sample_size
+                num_samples * self._params["num_classes"], self._params["num_channels"],
+                self._params["num_classes"], self._params["num_classes"]
             ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
