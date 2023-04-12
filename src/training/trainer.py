@@ -93,8 +93,8 @@ class Trainer:
 
             # Updates
             self._dashboard.upload_values(self._learner.scheduler.get_last_lr()[0])
-            if (epoch+1) % 10 == 0:
-                self._checkpoint(epoch+1)
+            if epoch > 0 and epoch % 10 == 0:
+                self._checkpoint(epoch)
 
             p_bar.update(1)
 

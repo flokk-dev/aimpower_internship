@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 # IMPORT: deep learning
 import torch
+import torchvision
 
 # IMPORT: project
 import utils
@@ -124,7 +125,7 @@ class BasicLearner(Learner):
         image = (image / 2 + 0.5).clamp(0, 1)
         image = image.cpu().permute(0, 2, 3, 1).numpy()
         image = utils.numpy_to_pil(image)
-        import torchvision
+
         pil_to_tensor = torchvision.transforms.PILToTensor()
         image = torch.stack([pil_to_tensor(image) for image in image])
 
