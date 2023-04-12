@@ -122,12 +122,12 @@ class BasicLearner(Learner):
                 generator=torch.manual_seed(0)
             ).prev_sample
 
-        image = (image / 2 + 0.5).clamp(0, 1)
+        """image = (image / 2 + 0.5).clamp(0, 1)
         image = image.cpu().permute(0, 2, 3, 1).numpy()
         image = utils.numpy_to_pil(image)
 
         pil_to_tensor = torchvision.transforms.PILToTensor()
-        image = torch.stack([pil_to_tensor(image) for image in image])
+        image = torch.stack([pil_to_tensor(image) for image in image])"""
 
         return image.cpu()
 
