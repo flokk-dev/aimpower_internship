@@ -153,7 +153,8 @@ class BasicLearner(Learner):
 
         for t in tqdm(self.pipeline.scheduler.timesteps):
             # 1. predict noise model_output
-            model_output = self.pipeline.unet(image, t).sample
+            with torch.no_grad():
+                model_output = self.pipeline.unet(image, t).sample
 
             # 2. compute previous image: x_t -> x_t-1
             image = self.pipeline.scheduler.step(model_output, t, image).prev_sample
