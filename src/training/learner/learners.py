@@ -108,28 +108,25 @@ class BasicLearner(Learner):
             torch.Tensor
                 generated image
         """
-        import time
+        torch.set_grad_enabled(False)
+
         # Generates random samples
         image = torch.randn(
             10, self.pipeline.unet.in_channels,
             self.pipeline.unet.sample_size, self.pipeline.unet.sample_size,
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
-        print(image.shape)
 
         # Sampling loop
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
-            time.sleep(3)
             # Generates a prediction
-            residual = self.pipeline.unet(image, timestep).sample
-            print(residual.shape)
+            residual = self.pipeline.unet(image, timestep).sample.detach()
 
             # Updates by making a step
             image = self.pipeline.scheduler.step(
                 residual, timestep, image,
                 generator=torch.manual_seed(0)
-            ).prev_sample
-            print(image.shape)
+            ).prev_sample.detach()
 
         image = (image / 2 + 0.5).clamp(0, 1)
         image = image.cpu().permute(0, 2, 3, 1).numpy()
