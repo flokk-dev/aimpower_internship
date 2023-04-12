@@ -108,34 +108,7 @@ class BasicLearner(Learner):
             torch.Tensor
                 generated image
         """
-        """# Generates random samples
-        image = torch.randn(
-            10, self.pipeline.unet.in_channels,
-            self.pipeline.unet.sample_size, self.pipeline.unet.sample_size,
-            generator=torch.manual_seed(0)
-        ).to(self._DEVICE)
-
-        # Sampling loop
-        for timestep in tqdm(self.pipeline.scheduler.timesteps):
-            # Generates a prediction
-            with torch.no_grad():
-                residual = self.pipeline.unet(image, timestep).sample
-
-            # Updates by making a step
-            image = self.pipeline.scheduler.step(
-                residual, timestep, image,
-                generator=torch.manual_seed(0)
-            ).prev_sample
-
-        image = (image / 2 + 0.5).clamp(0, 1)
-        image = image.cpu().permute(0, 2, 3, 1).numpy()
-        image = utils.numpy_to_pil(image)
-
-        pil_to_tensor = torchvision.transforms.PILToTensor()
-        image = torch.stack([pil_to_tensor(image) for image in image])
-
-        return image.cpu()"""
-        # Sample gaussian noise to begin loop
+        # Samples gaussian noise
         image = torch.randn(
             (
                 10, self.pipeline.unet.in_channels,
@@ -144,20 +117,14 @@ class BasicLearner(Learner):
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
 
-        # set step values
-        self.pipeline.scheduler.set_timesteps(1000)
-
-        for t in tqdm(self.pipeline.scheduler.timesteps):
+        # Generates an image based on the gaussian noise
+        for timestep in tqdm(self.pipeline.scheduler.timesteps):
             # Predicts the residual noise
             with torch.no_grad():
-                model_output = self.pipeline.unet(image, t).sample
+                residual = self.pipeline.unet(image, timestep).sample
 
             # De-noises using the prediction
-            image = self.pipeline.scheduler.step(
-                model_output, t, image,
-            ).prev_sample
-
-        print(torch.unique(image))
+            image = self.pipeline.scheduler.step(residual, timestep, image).prev_sample
 
         return utils.adjust_image_colors(image.cpu())
 
@@ -253,10 +220,12 @@ class GuidedLearner(Learner):
         """
         num_samples = 3
 
-        # Generates random samples
+        # Samples gaussian noise
         image = torch.randn(
-            num_samples * self._params["num_classes"], self.pipeline.unet.in_channels,
-            self.pipeline.unet.sample_size, self.pipeline.unet.sample_size,
+            (
+                num_samples * self._params["num_classes"], self.pipeline.unet.in_channels,
+                self.pipeline.unet.sample_size, self.pipeline.unet.sample_size
+            ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
 
@@ -265,16 +234,13 @@ class GuidedLearner(Learner):
             [[i] * num_samples for i in range(10)]
         ).flatten().to(self._DEVICE)
 
-        # Sampling loop
+        # Generates an image based on the gaussian noise
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
-            # Get model pred
+            # Predicts the residual noise
             with torch.no_grad():
                 residual = self.pipeline.unet(image, timestep, image_classes).sample
 
-            # Update sample with step
-            image = self.pipeline.scheduler.step(
-                residual, timestep, image,
-                generator=torch.manual_seed(0)
-            ).prev_sample.sample
+            # De-noises using the prediction
+            image = self.pipeline.scheduler.step(residual, timestep, image).prev_sample
 
-        return image.cpu()
+        return utils.adjust_image_colors(image.cpu())
