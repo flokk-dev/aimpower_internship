@@ -133,13 +133,19 @@ class Trainer:
         self._learner.pipeline.save_pretrained(os.path.join(self._path, "pipeline"))
 
         # Generates checkpoint images
-        tensor: torch.Tensor = self._learner.inference()
+        tensors: Dict[str, torch.Tensor] = self._learner.inference(to_dict=True)
 
-        # Uploads checkpoint images to WandB
-        self._dashboard.upload_inference(tensor)
+        # Uploads and saves qualitative results
+        checkpoint_path = os.path.join(self._path, "images", str(epoch))
+        if not os.path.exists(checkpoint_path):
+            os.makedirs(checkpoint_path)
 
-        # Saves checkpoint image on disk
-        utils.save_plt(tensor, os.path.join(self._path, "images", f"epoch_{epoch}.png"))
+        for key, tensor in tensors.items():
+            # Uploads checkpoint images to WandB
+            self._dashboard.upload_inference(key, tensor)
+
+            # Saves checkpoint image on disk
+            utils.save_plt(tensors, os.path.join(checkpoint_path, f"{key}.png"))
 
     def __call__(self, dataset_path: str, weights_path: str):
         """

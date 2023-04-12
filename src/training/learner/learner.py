@@ -180,19 +180,20 @@ class Learner:
 
     def inference(
             self,
-    ) -> torch.Tensor:
+            to_dict: bool = False
+    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
         """
         Generates and image using the training's pipeline.
+
+        Parameters
+        ----------
+            to_dict : bool
+                wether or not to return a dictionary
 
         Returns
         ----------
             torch.Tensor
                 generated image
-
-        Raises
-        ----------
-            NotImplementedError
-                function isn't implemented yet
         """
         raise NotImplementedError()
 

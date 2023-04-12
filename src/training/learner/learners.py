@@ -99,9 +99,15 @@ class BasicLearner(Learner):
 
     def inference(
             self,
-    ) -> torch.Tensor:
+            to_dict: bool = False
+    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
         """
         Generates and image using the training's pipeline.
+
+        Parameters
+        ----------
+            to_dict : bool
+                wether or not to return a dictionary
 
         Returns
         ----------
@@ -128,7 +134,12 @@ class BasicLearner(Learner):
                 residual, timestep, image
             ).prev_sample
 
-        return utils.adjust_image_colors(image.cpu())
+        image = utils.adjust_image_colors(image.cpu())
+
+        # Returns
+        if to_dict:
+            return {"image": image}
+        return image
 
 
 class GuidedLearner(Learner):
@@ -211,9 +222,15 @@ class GuidedLearner(Learner):
 
     def inference(
             self,
-    ) -> torch.Tensor:
+            to_dict: bool = False
+    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
         """
         Generates and image using the training's pipeline.
+
+        Parameters
+        ----------
+            to_dict : bool
+                wether or not to return a dictionary
 
         Returns
         ----------
@@ -247,4 +264,13 @@ class GuidedLearner(Learner):
                 residual, timestep, image
             ).prev_sample
 
-        return utils.adjust_image_colors(image.cpu())
+        image = utils.adjust_image_colors(image.cpu())
+
+        # Returns
+        if to_dict:
+            return {
+                str(class_idx): image[class_idx*num_samples:(class_idx+1)*num_samples]
+                for class_idx
+                in range(image.shape[0] // num_samples)
+            }
+        return image
