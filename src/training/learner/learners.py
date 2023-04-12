@@ -119,6 +119,7 @@ class BasicLearner(Learner):
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
             # Generates a prediction
             residual = self.pipeline.unet(image, timestep)
+            print(type(residual))
 
             # Updates by making a step
             image = self.pipeline.scheduler.step(
