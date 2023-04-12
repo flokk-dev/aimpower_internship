@@ -13,9 +13,6 @@ from tqdm import tqdm
 # IMPORT: data loading
 import torch
 
-# IMPORT: project
-import utils
-
 from .dataset import DataSet
 
 
@@ -70,8 +67,7 @@ class LazyDataSet(DataSet):
             torch.Tensor
                 additional info about the data
         """
-        return self._load_image(self._inputs[idx]), \
-            utils.str_to_tensor(self._info[idx]["label"]).type(torch.uint8)
+        return self._load_image(self._inputs[idx]), self._info[idx]["label"]
 
 
 class TensorDataSet(DataSet):
@@ -128,5 +124,4 @@ class TensorDataSet(DataSet):
             torch.Tensor
                 additional info about the data
         """
-        return self._inputs[idx], \
-            utils.str_to_tensor(self._info[idx]["label"]).type(torch.uint8)
+        return self._inputs[idx], self._info[idx]["label"]

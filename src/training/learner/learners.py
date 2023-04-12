@@ -14,6 +14,8 @@ from tqdm import tqdm
 import torch
 
 # IMPORT: project
+import utils
+
 from .learner import Learner
 
 
@@ -187,10 +189,11 @@ class GuidedLearner(Learner):
         """
         # Puts data on desired device
         image: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
+        image_classes = utils.str_to_tensor(batch[1]).type(torch.int32).to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timesteps = self._add_noise(image)
-        return noise, self.pipeline.unet(noisy_image, timesteps).sample
+        return noise, self.pipeline.unet(noisy_image, timesteps, image_classes).sample
 
     def inference(
             self,
