@@ -47,10 +47,6 @@ def adjust_image_colors(image):
 
 
 def save_plt(tensor, path):
-    # Converts images into tensors
-    pil_to_tensor = transforms.PILToTensor()
-    tensor = torch.stack([pil_to_tensor(image) for image in tensor])
-
     # Adds the subplots
     num_images = tensor.shape[0]
 

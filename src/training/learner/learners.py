@@ -103,9 +103,13 @@ class BasicLearner(Learner):
             torch.Tensor
                 generated image
         """
-        return self.pipeline(
+        import torchvision
+        images = self.pipeline(
             batch_size=8, generator=torch.manual_seed(0)
         ).images
+
+        pil_to_tensor = torchvision.transforms.PILToTensor()
+        return torch.stack([pil_to_tensor(image) for image in images])
 """        # Generates random samples
         image = torch.randn(
             10, self.pipeline.unet.in_channels,
