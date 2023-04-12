@@ -113,7 +113,7 @@ class BasicLearner(Learner):
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
             # Get model pred
             with torch.no_grad():
-                residual = self.pipeline.unet(images, timestep)
+                residual = self.pipeline.unet(images, timestep).sample
 
             # Update sample with step
             images = self.pipeline.scheduler.step(residual, timestep, images).prev_sample
@@ -223,9 +223,9 @@ class GuidedLearner(Learner):
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
             # Get model pred
             with torch.no_grad():
-                residual = self.pipeline.unet(images, timestep, images_classes)
+                residual = self.pipeline.unet(images, timestep, images_classes).sample
 
             # Update sample with step
-            images = self.pipeline.scheduler.step(residual, timestep, images).prev_sample
+            images = self.pipeline.scheduler.step(residual, timestep, images).prev_sample.sample
 
         return images
