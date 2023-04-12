@@ -10,6 +10,7 @@ Purpose:
 from typing import *
 
 import os
+import random
 import pandas as pd
 
 # IMPORT: data loading
@@ -52,8 +53,8 @@ class Loader:
         # Attributes
         self._params: Dict[str, Any] = params
 
-    @staticmethod
     def _parse_dataset(
+            self,
             dataset_path: str
     ) -> Tuple[List[str], List[Dict[str, Any]]]:
         """
@@ -80,7 +81,10 @@ class Loader:
         file_paths: List[str] = list()
         data_info: List[Dict[str, Any]] = list()
 
-        for data_idx, row in dataset_info.items():
+        if self._params["num_data"] > len(dataset_info):
+            self._params["num_data"] = len(dataset_info)
+
+        for data_idx, row in random.sample(dataset_info.keys(), k=self._params["num_data"]):
             file_paths.append(os.path.join(dataset_path, row["image_path"]))
             data_info.append(row)
 
