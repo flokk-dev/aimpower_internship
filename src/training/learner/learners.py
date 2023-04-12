@@ -136,17 +136,8 @@ class BasicLearner(Learner):
 
         return image.cpu()"""
         # Sample gaussian noise to begin loop
-        if isinstance(self.pipeline.unet.sample_size, int):
-            image_shape = (8, self.pipeline.unet.in_channels, self.pipeline.unet.sample_size, self.pipeline.unet.sample_size)
-        else:
-            image_shape = (8, self.pipeline.unet.in_channels, *self.pipeline.unet.sample_size)
-
-        if self._DEVICE.type == "mps":
-            # randn does not work reproducibly on mps
-            image = torch.randn(image_shape)
-            image = image.to(self._DEVICE)
-        else:
-            image = torch.randn(image_shape, device=self._DEVICE)
+        image_shape = (8, self.pipeline.unet.in_channels, self.pipeline.unet.sample_size, self.pipeline.unet.sample_size)
+        image = torch.randn(image_shape, device=self._DEVICE)
 
         # set step values
         self.pipeline.scheduler.set_timesteps(1000)
