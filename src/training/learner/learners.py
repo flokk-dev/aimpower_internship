@@ -103,8 +103,11 @@ class BasicLearner(Learner):
             torch.Tensor
                 generated image
         """
-        # Generates random samples
-        images = torch.randn(
+        return self.pipeline(
+            batch_size=8, generator=torch.manual_seed(0)
+        ).images
+"""        # Generates random samples
+        image = torch.randn(
             10, self.pipeline.unet.in_channels,
             self.pipeline.unet.sample_size, self.pipeline.unet.sample_size,
             generator=torch.manual_seed(0)
@@ -112,17 +115,16 @@ class BasicLearner(Learner):
 
         # Sampling loop
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
-            # Get model pred
-            with torch.no_grad():
-                residual = self.pipeline.unet(images, timestep).sample
+            # Generates a prediction
+            residual = self.pipeline.unet(image, timestep).sample
 
-            # Update sample with step
-            images = self.pipeline.scheduler.step(
-                residual, timestep, images,
+            # Updates by making a step
+            image = self.pipeline.scheduler.step(
+                residual, timestep, image,
                 generator=torch.manual_seed(0)
             ).prev_sample
 
-        return images.cpu()
+        return image.cpu()"""
 
 
 class GuidedLearner(Learner):
@@ -213,27 +215,26 @@ class GuidedLearner(Learner):
         num_samples = 3
 
         # Generates random samples
-        images = torch.randn(
+        image = torch.randn(
             num_samples * self._params["num_classes"], self.pipeline.unet.in_channels,
             self.pipeline.unet.sample_size, self.pipeline.unet.sample_size,
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
 
         # Generates classes to guide the generation
-        images_classes = torch.tensor(
+        image_classes = torch.tensor(
             [[i] * num_samples for i in range(10)]
         ).flatten().to(self._DEVICE)
 
         # Sampling loop
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
             # Get model pred
-            with torch.no_grad():
-                residual = self.pipeline.unet(images, timestep, images_classes).sample
+            residual = self.pipeline.unet(image, timestep, image_classes).sample
 
             # Update sample with step
-            images = self.pipeline.scheduler.step(
-                residual, timestep, images,
+            image = self.pipeline.scheduler.step(
+                residual, timestep, image,
                 generator=torch.manual_seed(0)
             ).prev_sample.sample
 
-        return images.cpu()
+        return image.cpu()
