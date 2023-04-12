@@ -38,6 +38,10 @@ def str_to_tensor(string: str):
     return torch.tensor(int(string))
 
 
+def as_tensor(elems: list):
+    return torch.Tensor([int(e) for e in elems])
+
+
 def adjust_image_colors(image):
     values = torch.unique(image)
 
@@ -63,19 +67,3 @@ def save_plt(tensor, path):
 
     # Plot the images
     plt.savefig(path, bbox_inches="tight")
-
-
-def numpy_to_pil(images):
-    """
-    Convert a numpy image or a batch of images to a PIL image.
-    """
-    if images.ndim == 3:
-        images = images[None, ...]
-    images = (images * 255).round().astype("uint8")
-    if images.shape[-1] == 1:
-        # special case for grayscale (single channel) images
-        pil_images = [Image.fromarray(image.squeeze(), mode="L") for image in images]
-    else:
-        pil_images = [Image.fromarray(image) for image in images]
-
-    return pil_images

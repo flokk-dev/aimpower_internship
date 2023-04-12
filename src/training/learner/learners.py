@@ -182,14 +182,14 @@ class GuidedLearner(Learner):
 
     def _forward(
             self,
-            batch: Tuple[torch.Tensor, str],
+            batch: Tuple[torch.Tensor,  List[str]],
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Extracts noise within the noisy image using the pipeline.
 
         Parameters
         ----------
-            batch : Tuple[torch.Tensor, str]
+            batch : Tuple[torch.Tensor, List[str]]
                 batch of data
 
         Returns
@@ -201,7 +201,10 @@ class GuidedLearner(Learner):
         """
         # Puts data on desired device
         image: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
-        image_classes = utils.str_to_tensor(batch[1]).type(torch.int32).to(self._DEVICE)
+        print(type(batch[1]))
+        image_classes = utils.as_tensor(batch[1]).type(torch.int32).to(self._DEVICE)
+
+        print(image_classes.shape)
 
         # Predicts added noise
         noisy_image, noise, timesteps = self._add_noise(image)
