@@ -155,7 +155,6 @@ class BasicLearner(Learner):
             # De-noises using the prediction
             image = self.pipeline.scheduler.step(
                 model_output, t, image,
-                generator=torch.manual_seed(0)
             ).prev_sample
 
         print(torch.unique(image))
