@@ -145,7 +145,7 @@ class BasicLearner(Learner):
         ).to(self._DEVICE)
 
         # set step values
-        # self.pipeline.scheduler.set_timesteps(1000)
+        self.pipeline.scheduler.set_timesteps(1000)
 
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
             # Generates a prediction
@@ -157,16 +157,6 @@ class BasicLearner(Learner):
                 residual, timestep, image,
                 generator=torch.manual_seed(0)
             ).prev_sample
-
-        print(torch.unique(image))
-
-        """image = (image / 2 + 0.5).clamp(0, 1)
-        print(torch.unique(image))
-        image = image.cpu().permute(0, 2, 3, 1).numpy()
-        image = utils.numpy_to_pil(image)
-
-        pil_to_tensor = torchvision.transforms.PILToTensor()
-        image = torch.stack([pil_to_tensor(image) for image in image])"""
 
         return utils.adjust_image_colors(image.cpu())
 
