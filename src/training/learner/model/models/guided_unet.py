@@ -87,6 +87,7 @@ class GuidedUNet(UNet):
         cond_input: torch.Tensor = torch.cat((sample, cond_channels), 1)
 
         # Forwards it through the U-Net
+        print(cond_input.shape)
         return super().forward(cond_input, timestep, return_dict=return_dict)
 
     def __str__(self) -> str:

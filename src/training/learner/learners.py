@@ -94,8 +94,8 @@ class BasicLearner(Learner):
         image: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
 
         # Predicts added noise
-        noisy_image, noise, timesteps = self._add_noise(image)
-        return noise, self.pipeline.unet(noisy_image, timesteps).sample
+        noisy_image, noise, timestep = self._add_noise(image)
+        return noise, self.pipeline.unet(noisy_image, timestep).sample
 
     def inference(
             self,
@@ -109,7 +109,7 @@ class BasicLearner(Learner):
                 generated image
         """
         # Samples gaussian noise
-        image = torch.randn(
+        image: torch.Tensor = torch.randn(
             (
                 10, self.pipeline.unet.in_channels,
                 self.pipeline.unet.sample_size, self.pipeline.unet.sample_size
@@ -121,10 +121,12 @@ class BasicLearner(Learner):
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
             # Predicts the residual noise
             with torch.no_grad():
-                residual = self.pipeline.unet(image, timestep).sample
+                residual: torch.Tensor = self.pipeline.unet(image, timestep).sample
 
             # De-noises using the prediction
-            image = self.pipeline.scheduler.step(residual, timestep, image).prev_sample
+            image: torch.Tensor = self.pipeline.scheduler.step(
+                residual, timestep, image
+            ).prev_sample
 
         return utils.adjust_image_colors(image.cpu())
 
@@ -201,11 +203,11 @@ class GuidedLearner(Learner):
         """
         # Puts data on desired device
         image: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
-        image_classes = utils.as_tensor(batch[1]).type(torch.int32).to(self._DEVICE)
+        image_classes: torch.Tensor = utils.as_tensor(batch[1]).type(torch.int32).to(self._DEVICE)
 
         # Predicts added noise
-        noisy_image, noise, timesteps = self._add_noise(image)
-        return noise, self.pipeline.unet(noisy_image, timesteps, image_classes).sample
+        noisy_image, noise, timestep = self._add_noise(image)
+        return noise, self.pipeline.unet(noisy_image, timestep, image_classes).sample
 
     def inference(
             self,
@@ -218,29 +220,33 @@ class GuidedLearner(Learner):
             torch.Tensor
                 generated image
         """
-        num_samples = 3
+        num_samples: int = 5
 
         # Samples gaussian noise
-        image = torch.randn(
+        image: torch.Tensor = torch.randn(
             (
                 num_samples * self._params["num_classes"], self.pipeline.unet.in_channels,
                 self.pipeline.unet.sample_size, self.pipeline.unet.sample_size
             ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
+        print(image.shape)
 
         # Generates classes to guide the generation
-        image_classes = torch.tensor(
+        image_classes: torch.Tensor = torch.tensor(
             [[i] * num_samples for i in range(10)]
         ).flatten().to(self._DEVICE)
+        print(image_classes.shape)
 
         # Generates an image based on the gaussian noise
         for timestep in tqdm(self.pipeline.scheduler.timesteps):
             # Predicts the residual noise
             with torch.no_grad():
-                residual = self.pipeline.unet(image, timestep, image_classes).sample
+                residual: torch.Tensor = self.pipeline.unet(image, timestep, image_classes).sample
 
             # De-noises using the prediction
-            image = self.pipeline.scheduler.step(residual, timestep, image).prev_sample
+            image: torch.Tensor = self.pipeline.scheduler.step(
+                residual, timestep, image
+            ).prev_sample
 
         return utils.adjust_image_colors(image.cpu())

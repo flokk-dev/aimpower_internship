@@ -167,16 +167,16 @@ class Learner:
         noise: torch.Tensor = torch.randn(tensor.shape).to(self._DEVICE)
 
         # Sample random timesteps
-        timesteps: torch.Tensor = torch.randint(
+        timestep: torch.Tensor = torch.randint(
             0, self.pipeline.scheduler.num_train_timesteps, (noise.shape[0],)
         ).to(self._DEVICE)
 
         # Add noise to the input data
         noisy_input: torch.Tensor = self.pipeline.scheduler.add_noise(
-            tensor, noise, timesteps
+            tensor, noise, timestep
         ).to(self._DEVICE)
 
-        return noisy_input, noise, timesteps
+        return noisy_input, noise, timestep
 
     def inference(
             self,
