@@ -112,7 +112,7 @@ class BasicLearner(Learner):
         image: torch.Tensor = torch.randn(
             (
                 10, self._params["num_channels"],
-                self._params["num_classes"], self._params["num_classes"]
+                self._params["img_size"], self._params["img_size"]
             ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
@@ -226,7 +226,7 @@ class GuidedLearner(Learner):
         image: torch.Tensor = torch.randn(
             (
                 num_samples * self._params["num_classes"], self._params["num_channels"],
-                self._params["num_classes"], self._params["num_classes"]
+                self._params["img_size"], self._params["img_size"]
             ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
