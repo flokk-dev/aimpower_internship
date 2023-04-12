@@ -155,7 +155,10 @@ class BasicLearner(Learner):
             # 2. compute previous image: x_t -> x_t-1
             image = self.pipeline.scheduler.step(model_output, t, image).prev_sample
 
-        # image = (image / 2 + 0.5).clamp(0, 1)
+        print(torch.unique(image))
+
+        image = (image / 2 + 0.5).clamp(0, 1)
+        print(torch.unique(image))
         image = image.cpu().permute(0, 2, 3, 1).numpy()
         image = utils.numpy_to_pil(image)
 
