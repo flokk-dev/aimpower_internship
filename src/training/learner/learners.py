@@ -122,7 +122,7 @@ class BasicLearner(Learner):
                 generator=torch.manual_seed(0)
             ).prev_sample
 
-        return images
+        return images.cpu()
 
 
 class GuidedLearner(Learner):
@@ -236,4 +236,4 @@ class GuidedLearner(Learner):
                 generator=torch.manual_seed(0)
             ).prev_sample.sample
 
-        return images
+        return images.cpu()
