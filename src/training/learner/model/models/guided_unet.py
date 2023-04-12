@@ -48,7 +48,7 @@ class GuidedUNet(UNet):
         super(GuidedUNet, self).__init__(img_size, in_channels + emb_size, out_channels)
 
         # Attributes
-        self._class_emb = torch.nn.Embedding(num_classes, 4)
+        self._class_emb = torch.nn.Embedding(num_classes, emb_size)
 
     def forward(
         self,
