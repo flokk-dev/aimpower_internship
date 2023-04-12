@@ -35,7 +35,7 @@ class UNet(UNet2DModel):
         super(UNet, self).__init__(
             sample_size=img_size,
             in_channels=in_channels, out_channels=out_channels,
-            layers_per_block=2, block_out_channels=(64, 64, 128, 128),
+            layers_per_block=2, block_out_channels=(256, 256, 512, 512),
 
             down_block_types=(
                 "DownBlock2D",
