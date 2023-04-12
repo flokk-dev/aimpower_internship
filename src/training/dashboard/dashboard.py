@@ -146,6 +146,6 @@ class Dashboard:
             "test": [
                 wandb.Image(self._tensor_to_pil(tensor[batch_idx]))
                 for batch_idx
-                in tensor.shape[0]
+                in range(tensor.shape[0])
             ]
         })

@@ -105,8 +105,9 @@ class BasicLearner(Learner):
         """
         # Generates random samples
         images = torch.randn(
-            self._params["num_classes"], self._params["num_channels"],
-            self._params["img_size"], self._params["img_size"]
+            10, self.pipeline.unet.in_channels,
+            self.pipeline.unet.sample_size, self.pipeline.unet.sample_size,
+            generator=torch.manual_seed(0)
         ).to(self._DEVICE)
 
         # Sampling loop
@@ -116,7 +117,10 @@ class BasicLearner(Learner):
                 residual = self.pipeline.unet(images, timestep).sample
 
             # Update sample with step
-            images = self.pipeline.scheduler.step(residual, timestep, images).prev_sample
+            images = self.pipeline.scheduler.step(
+                residual, timestep, images,
+                generator=torch.manual_seed(0)
+            ).prev_sample
 
         return images
 
@@ -210,8 +214,9 @@ class GuidedLearner(Learner):
 
         # Generates random samples
         images = torch.randn(
-            num_samples * self._params["num_classes"], self._params["num_channels"],
-            self._params["img_size"], self._params["img_size"]
+            num_samples * self._params["num_classes"], self.pipeline.unet.in_channels,
+            self.pipeline.unet.sample_size, self.pipeline.unet.sample_size,
+            generator=torch.manual_seed(0)
         ).to(self._DEVICE)
 
         # Generates classes to guide the generation
@@ -226,6 +231,9 @@ class GuidedLearner(Learner):
                 residual = self.pipeline.unet(images, timestep, images_classes).sample
 
             # Update sample with step
-            images = self.pipeline.scheduler.step(residual, timestep, images).prev_sample.sample
+            images = self.pipeline.scheduler.step(
+                residual, timestep, images,
+                generator=torch.manual_seed(0)
+            ).prev_sample.sample
 
         return images
