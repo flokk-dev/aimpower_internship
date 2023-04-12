@@ -8,6 +8,7 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
+import time
 
 import os
 import torch
@@ -124,6 +125,7 @@ class Dashboard:
             "loss": self._loss[-1],
             "lr": lr
         })
+        time.sleep(1)
 
     def upload_inference(
             self,
@@ -147,3 +149,4 @@ class Dashboard:
                 in range(tensor.shape[0])
             ]
         })
+        time.sleep(1)
