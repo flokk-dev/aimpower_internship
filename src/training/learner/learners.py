@@ -136,8 +136,11 @@ class BasicLearner(Learner):
 
         return image.cpu()"""
         # Sample gaussian noise to begin loop
-        image_shape = (8, self.pipeline.unet.in_channels, self.pipeline.unet.sample_size, self.pipeline.unet.sample_size)
-        image = torch.randn(image_shape, device=self._DEVICE)
+        image_shape = (
+            10, self.pipeline.unet.in_channels,
+            self.pipeline.unet.sample_size, self.pipeline.unet.sample_size
+        )
+        image = torch.randn(image_shape, generator=torch.manual_seed(0)).to(self._DEVICE)
 
         # set step values
         self.pipeline.scheduler.set_timesteps(1000)
