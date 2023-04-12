@@ -108,8 +108,6 @@ class BasicLearner(Learner):
             torch.Tensor
                 generated image
         """
-        torch.set_grad_enabled(False)
-
         # Generates random samples
         image = torch.randn(
             10, self.pipeline.unet.in_channels,
