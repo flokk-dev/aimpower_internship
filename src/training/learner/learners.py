@@ -153,7 +153,10 @@ class BasicLearner(Learner):
                 model_output = self.pipeline.unet(image, t).sample
 
             # 2. compute previous image: x_t -> x_t-1
-            image = self.pipeline.scheduler.step(model_output, t, image).prev_sample
+            image = self.pipeline.scheduler.step(
+                model_output, t, image,
+                generator=torch.manual_seed(0)
+            ).prev_sample
 
         print(torch.unique(image))
 
