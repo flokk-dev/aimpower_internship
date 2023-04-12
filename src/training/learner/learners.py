@@ -103,14 +103,7 @@ class BasicLearner(Learner):
             torch.Tensor
                 generated image
         """
-        import torchvision
-        images = self.pipeline(
-            batch_size=8, generator=torch.manual_seed(0)
-        ).images
-
-        pil_to_tensor = torchvision.transforms.PILToTensor()
-        return torch.stack([pil_to_tensor(image) for image in images])
-"""        # Generates random samples
+        # Generates random samples
         image = torch.randn(
             10, self.pipeline.unet.in_channels,
             self.pipeline.unet.sample_size, self.pipeline.unet.sample_size,
@@ -128,7 +121,14 @@ class BasicLearner(Learner):
                 generator=torch.manual_seed(0)
             ).prev_sample
 
-        return image.cpu()"""
+        image = (image / 2 + 0.5).clamp(0, 1)
+        image = image.cpu().permute(0, 2, 3, 1).numpy()
+        image = utils.numpy_to_pil(image)
+        import torchvision
+        pil_to_tensor = torchvision.transforms.PILToTensor()
+        image = torch.stack([pil_to_tensor(image) for image in image])
+
+        return image.cpu()
 
 
 class GuidedLearner(Learner):
