@@ -9,7 +9,7 @@
   "num_channels": 3,
 
   "num_data": 5000,
-  "img_size": 256,
+  "img_size": 128,
   "num_epochs": 100,
   "batch_size": 4,
   "lr": 1e-4,
