@@ -201,10 +201,7 @@ class GuidedLearner(Learner):
         """
         # Puts data on desired device
         image: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
-        print(type(batch[1]))
         image_classes = utils.as_tensor(batch[1]).type(torch.int32).to(self._DEVICE)
-
-        print(image_classes.shape)
 
         # Predicts added noise
         noisy_image, noise, timesteps = self._add_noise(image)
