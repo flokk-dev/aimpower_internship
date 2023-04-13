@@ -91,6 +91,7 @@ class Learner:
     def _learn(
             self,
             batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
+            batch_idx: int
     ) -> float:
         """
         Learns on a batch of data.
@@ -99,6 +100,8 @@ class Learner:
         ----------
             batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
                 batch of data
+            batch_idx : int
+                batch's index
 
         Returns
         ----------
@@ -111,10 +114,10 @@ class Learner:
         # Update the training components
         loss_value.backward()
 
-        self.optimizer.step()
-        self.optimizer.zero_grad()
-
-        self.lr_scheduler.step()
+        if batch_idx % 2 == 0:
+            self.optimizer.step()
+            self.lr_scheduler.step()
+            self.optimizer.zero_grad()
 
         return loss_value.detach().item()
 

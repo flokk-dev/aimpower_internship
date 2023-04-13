@@ -137,6 +137,7 @@ class Trainer:
 
         # Uploads and saves qualitative results
         for key, tensor in tensors.items():
+            # Creates destination directory
             key_path = os.path.join(self._path, "images", key)
             if not os.path.exists(key_path):
                 os.makedirs(key_path)
