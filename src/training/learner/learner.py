@@ -205,16 +205,19 @@ class Learner:
     def __call__(
             self,
             batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
-    ):
+            batch_idx: int
+    ) -> float:
         """
         Parameters
         ----------
             batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
                 batch of data
+            batch_idx : int
+                batch's index
 
         Returns
         ----------
             float
                 loss value computed using batch's data
         """
-        return self._learn(batch)
+        return self._learn(batch, batch_idx)
