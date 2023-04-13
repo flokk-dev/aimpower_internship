@@ -9,7 +9,7 @@
   "block_out_channels": [64, 64, 128, 128],
   "num_classes": 10,
 
-  "num_data": 5000,
+  "num_data": 1000,
   "img_size": 32,
   "num_epochs": 100,
   "batch_size": 32,
