@@ -106,15 +106,17 @@ class Learner:
             float
                 loss value computed using batch's data
         """
+        acc_step = 2
+
         # Forward batch to the pipeline
         noise, noise_pred = self._forward(batch)
 
         # Loss backward
-        loss_value: torch.Tensor = self.loss(noise_pred, noise)
+        loss_value: torch.Tensor = self.loss(noise_pred, noise) / acc_step
         loss_value.backward()
 
         # Update the training components
-        if batch_idx % 1 == 0:
+        if batch_idx % acc_step == 0:
             self.optimizer.step()
             self.lr_scheduler.step()
             self.optimizer.zero_grad()

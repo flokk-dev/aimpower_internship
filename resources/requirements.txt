@@ -4,6 +4,5 @@ wandb
 torch
 torchvision
 diffusers
-accelerate
 torchmetrics
 pytest
