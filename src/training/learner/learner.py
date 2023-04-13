@@ -11,7 +11,9 @@ from typing import *
 
 # IMPORT: deep learning
 import torch
+
 import diffusers
+from accelerate import Accelerator
 
 # IMPORT: project
 from src.training.learner.pipeline import PipelineManager
@@ -80,10 +82,16 @@ class Learner:
         self.optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
             self.pipeline.unet.parameters(), lr=self._params["lr"]
         )
-        self.scheduler: torch.nn.Module = diffusers.optimization.get_cosine_schedule_with_warmup(
+        self.lr_scheduler: torch.nn.Module = diffusers.optimization.get_cosine_schedule_with_warmup(
             optimizer=self.optimizer,
             num_warmup_steps=params["lr_warmup_steps"],
             num_training_steps=(num_batches * params["num_epochs"]),
+        )
+
+        # Accelerator
+        self._accelerator = Accelerator()
+        self.pipeline.unet, self.optimizer, self.lr_scheduler = self._accelerator.prepare(
+            self.pipeline.unet, self.optimizer, self.lr_scheduler
         )
 
     def _learn(
@@ -106,13 +114,21 @@ class Learner:
         noise, noise_pred = self._forward(batch)
         loss_value: torch.Tensor = self.loss(noise_pred, noise)
 
+        """
         # Update the training components
         self.optimizer.zero_grad()
         with torch.set_grad_enabled(True):
             loss_value.backward()
 
             self.optimizer.step()
-            self.scheduler.step()
+            self.lr_scheduler.step()
+        """
+
+        self._accelerator.backward(loss_value)
+
+        self.optimizer.step()
+        self.lr_scheduler.step()
+        self.optimizer.zero_grad()
 
         return loss_value.detach().item()
 

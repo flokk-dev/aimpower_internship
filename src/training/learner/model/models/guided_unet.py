@@ -25,27 +25,32 @@ class GuidedUNet(UNet):
             img_size: int,
             in_channels: int,
             out_channels: int,
+            block_out_channels: Tuple[int],
             num_classes: int = 10,
             emb_size: int = 4
     ):
         """
-        Instantiates a GuidedUNet.
+        Instantiates a UNet.
 
         Parameters
         ----------
             img_size : int
-                the size of the input image
+                size of the input image
             in_channels : int
-                the number of input channels
+                number of input channels
             out_channels : int
-                the number of output channels
+                number of output channels
+            block_out_channels : int
+                output size of the blocks.
             num_classes : int
                 the number of classes within the dataset
             emb_size : int
                 size of the text embedding
         """
         # Mother class
-        super(GuidedUNet, self).__init__(img_size, in_channels + emb_size, out_channels)
+        super(GuidedUNet, self).__init__(
+            img_size, in_channels + emb_size, out_channels, block_out_channels
+        )
 
         # Attributes
         self._class_emb = torch.nn.Embedding(num_classes, emb_size)

@@ -6,6 +6,9 @@ Version: 1.0
 Purpose:
 """
 
+# IMPORT: utils
+from typing import *
+
 # IMPORT: deep learning
 from diffusers import UNet2DModel
 
@@ -17,7 +20,8 @@ class UNet(UNet2DModel):
             self,
             img_size: int,
             in_channels: int,
-            out_channels: int
+            out_channels: int,
+            block_out_channels: Tuple[int]
     ):
         """
         Instantiates a UNet.
@@ -25,17 +29,19 @@ class UNet(UNet2DModel):
         Parameters
         ----------
             img_size : int
-                the size of the input image
+                size of the input image
             in_channels : int
-                the number of input channels
+                number of input channels
             out_channels : int
-                the number of output channels
+                number of output channels
+            block_out_channels : int
+                output size of the blocks.
         """
         # Mother class
         super(UNet, self).__init__(
             sample_size=img_size,
             in_channels=in_channels, out_channels=out_channels,
-            layers_per_block=2, block_out_channels=(128, 128, 256, 256),
+            layers_per_block=2, block_out_channels=block_out_channels,
 
             down_block_types=(
                 "DownBlock2D",
