@@ -5,12 +5,12 @@
   "pipeline_id": "ddpm",
   "model_id": "unet",
 
+  "img_size": 64,
   "num_channels": 1,
   "block_out_channels": [64, 64, 128, 128],
-  "num_classes": 10,
 
   "num_data": 256,
-  "img_size": 64,
+  "num_classes": 10,
   "num_epochs": 100,
   "batch_size": 32,
   "lr": 1e-4,

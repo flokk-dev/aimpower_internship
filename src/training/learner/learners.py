@@ -91,7 +91,7 @@ class BasicLearner(Learner):
                 extracted noise
         """
         # Puts data on desired device
-        image: torch.Tensor = batch[0].type(torch.float16).to(self._DEVICE)
+        image: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(image)
