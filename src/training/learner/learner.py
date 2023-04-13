@@ -88,10 +88,15 @@ class Learner:
             num_training_steps=(num_batches * params["num_epochs"]),
         )
 
+        # Accelerator
+        self._accelerator = Accelerator(mixed_precision="fp16", gradient_accumulation_steps=2)
+        self.pipeline.unet, self.optimizer, self.lr_scheduler = self._accelerator.prepare(
+            self.pipeline.unet, self.optimizer, self.lr_scheduler
+        )
+
     def _learn(
             self,
             batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
-            batch_idx: int
     ) -> float:
         """
         Learns on a batch of data.
@@ -100,28 +105,22 @@ class Learner:
         ----------
             batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
                 batch of data
-            batch_idx : int
-                batch's index
 
         Returns
         ----------
             float
                 loss value computed using batch's data
         """
-        # Forward batch to the pipeline
-        noise, noise_pred = self._forward(batch)
+        with self._accelerator.accumulate(self.pipeline.unet):
+            noise, noise_pred = self._forward(batch)
+            loss_value: torch.Tensor = self.loss(noise_pred, noise)
 
-        # Loss backward
-        loss_value: torch.Tensor = self.loss(noise_pred, noise)
-        loss_value.backward()
+            self._accelerator.backward(loss_value)
 
-        # Update the training components
-        if batch_idx % 1 == 0:
             self.optimizer.step()
             self.lr_scheduler.step()
             self.optimizer.zero_grad()
 
-        # Returns
         return loss_value.detach().item()
 
     def _forward(
@@ -208,19 +207,16 @@ class Learner:
     def __call__(
             self,
             batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
-            batch_idx: int
-    ) -> float:
+    ):
         """
         Parameters
         ----------
             batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
                 batch of data
-            batch_idx : int
-                batch's index
 
         Returns
         ----------
             float
                 loss value computed using batch's data
         """
-        return self._learn(batch, batch_idx)
+        return self._learn(batch)
