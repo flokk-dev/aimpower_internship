@@ -2,7 +2,7 @@
   "loading_method": "basic",
   "train_type": "basic",
 
-  "pipeline_id": "ddim",
+  "pipeline_id": "ddpm",
   "model_id": "unet",
 
   "img_size": 32,
