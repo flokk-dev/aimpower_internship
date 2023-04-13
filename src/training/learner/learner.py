@@ -33,7 +33,7 @@ class Learner:
             diffusion pipeline
         optimizer : torch.optim.Optimizer
             pipeline's optimizer
-        scheduler : torch.nn.Module
+        lr_scheduler : torch.nn.Module
             optimizer's scheduler
 
     Methods
@@ -88,12 +88,6 @@ class Learner:
             num_training_steps=(num_batches * params["num_epochs"]),
         )
 
-        # Accelerator
-        self._accelerator = Accelerator()
-        self.pipeline.unet, self.optimizer, self.lr_scheduler = self._accelerator.prepare(
-            self.pipeline.unet, self.optimizer, self.lr_scheduler
-        )
-
     def _learn(
             self,
             batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
@@ -114,21 +108,13 @@ class Learner:
         noise, noise_pred = self._forward(batch)
         loss_value: torch.Tensor = self.loss(noise_pred, noise)
 
-        """
         # Update the training components
-        self.optimizer.zero_grad()
-        with torch.set_grad_enabled(True):
-            loss_value.backward()
-
-            self.optimizer.step()
-            self.lr_scheduler.step()
-        """
-
-        self._accelerator.backward(loss_value)
+        loss_value.backward()
 
         self.optimizer.step()
-        self.lr_scheduler.step()
         self.optimizer.zero_grad()
+
+        self.lr_scheduler.step()
 
         return loss_value.detach().item()
 
