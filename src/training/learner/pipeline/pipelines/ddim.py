@@ -48,7 +48,10 @@ def init_ddim(
         DDIMPipeline
             training's pipeline
     """
-    return DDIMPipeline(
+    pipeline = DDIMPipeline(
         unet=model,
         scheduler=DDIMScheduler(num_train_timesteps=50),
     )
+    pipeline.scheduler.set_timesteps(50)
+
+    return pipeline
