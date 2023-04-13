@@ -91,7 +91,7 @@ class BasicLearner(Learner):
                 extracted noise
         """
         # Puts data on desired device
-        image: torch.Tensor = batch[0].type(torch.float16).to(self._DEVICE)
+        image: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(image)
@@ -214,7 +214,7 @@ class GuidedLearner(Learner):
         """
         # Puts data on desired device
         image: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
-        image_classes: torch.Tensor = utils.as_tensor(batch[1]).type(torch.int32).to(self._DEVICE)
+        image_classes: torch.Tensor = utils.as_tensor(batch[1]).type(torch.int8).to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(image)

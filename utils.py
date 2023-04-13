@@ -34,11 +34,12 @@ def size_of(tensor: torch.Tensor) -> float:
     return total / 1e6
 
 
-def print_gpu_utilization():
+def gpu_utilization():
     nvmlInit()
     handle = nvmlDeviceGetHandleByIndex(0)
     info = nvmlDeviceGetMemoryInfo(handle)
-    print(f"GPU memory occupied: {info.used//1024**2} MB.")
+
+    return f"{info.used // 1024**3}Go"
 
 
 def str_to_tensor(elem: str):

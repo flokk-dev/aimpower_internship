@@ -89,7 +89,7 @@ class Learner:
         )
 
         # Accelerator
-        self._accelerator = Accelerator(mixed_precision="fp16", gradient_accumulation_steps=2)
+        self._accelerator = Accelerator(gradient_accumulation_steps=2)
         self.pipeline.unet, self.optimizer, self.lr_scheduler = self._accelerator.prepare(
             self.pipeline.unet, self.optimizer, self.lr_scheduler
         )

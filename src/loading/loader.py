@@ -84,7 +84,7 @@ class Loader:
             file_paths.append(os.path.join(dataset_path, row["image_path"]))
             data_info.append(row)
 
-            if idx > self._params["num_data"]:
+            if idx >= self._params["num_data"] - 1:
                 break
 
         return file_paths, data_info

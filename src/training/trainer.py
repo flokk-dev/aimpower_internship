@@ -112,8 +112,7 @@ class Trainer:
 
         epoch_loss: list = list()
         for batch_idx, batch in enumerate(self._data_loader):
-            utils.print_gpu_utilization()
-            p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}")
+            p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}", gpu=utils.gpu_utilization())
 
             # Learns on batch
             epoch_loss.append(self._learner(batch))
