@@ -115,7 +115,7 @@ class Trainer:
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}")
 
             # Learns on batch
-            epoch_loss.append(self._learner(batch, batch_idx=batch_idx))
+            epoch_loss.append(self._learner(batch))
 
         # Stores the results
         self._dashboard.update_loss(epoch_loss)
