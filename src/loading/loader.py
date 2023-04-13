@@ -10,7 +10,6 @@ Purpose:
 from typing import *
 
 import os
-import random
 import pandas as pd
 
 # IMPORT: data loading
@@ -81,12 +80,12 @@ class Loader:
         file_paths: List[str] = list()
         data_info: List[Dict[str, Any]] = list()
 
-        if self._params["num_data"] > len(dataset_info):
-            self._params["num_data"] = len(dataset_info)
+        for idx, row in dataset_info.items():
+            file_paths.append(os.path.join(dataset_path, row["image_path"]))
+            data_info.append(row)
 
-        for key in random.sample(dataset_info.keys(), k=self._params["num_data"]):
-            file_paths.append(os.path.join(dataset_path, dataset_info[key]["image_path"]))
-            data_info.append(dataset_info[key])
+            if idx > self._params["num_data"]:
+                break
 
         return file_paths, data_info
 
