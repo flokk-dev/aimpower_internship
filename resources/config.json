@@ -2,10 +2,10 @@
   "loading_method": "basic",
   "train_type": "basic",
 
-  "pipeline_id": "ddpm",
+  "pipeline_id": "ddim",
   "model_id": "unet",
 
-  "img_size": 64,
+  "img_size": 32,
   "num_channels": 1,
   "block_out_channels": [64, 64, 128, 128],
 
