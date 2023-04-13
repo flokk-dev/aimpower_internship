@@ -75,3 +75,4 @@ def save_plt(tensor, path):
 
     # Plot the images
     plt.savefig(path, bbox_inches="tight")
+    plt.close()
