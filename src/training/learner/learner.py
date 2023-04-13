@@ -106,7 +106,7 @@ class Learner:
             float
                 loss value computed using batch's data
         """
-        acc_step = 2
+        acc_step = 1
 
         # Forward batch to the pipeline
         noise, noise_pred = self._forward(batch)
@@ -174,7 +174,7 @@ class Learner:
         # Sample random noise
         noise: torch.Tensor = torch.randn(tensor.shape).to(self._DEVICE)
 
-        # Sample random timesteps
+        # Sample random timestep
         timestep: torch.Tensor = torch.randint(
             0, self.pipeline.scheduler.config.num_train_timesteps, (noise.shape[0],)
         ).to(self._DEVICE)
