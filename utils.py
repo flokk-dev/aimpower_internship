@@ -39,7 +39,7 @@ def gpu_utilization():
     handle = nvmlDeviceGetHandleByIndex(0)
     info = nvmlDeviceGetMemoryInfo(handle)
 
-    return f"{info.used // 1024**3}Go"
+    return f"{(info.used / 1024**3):.3f}Go"
 
 
 def str_to_tensor(elem: str):
