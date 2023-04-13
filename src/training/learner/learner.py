@@ -50,7 +50,7 @@ class Learner:
     def __init__(
             self,
             params: Dict[str, Any],
-            num_batches: int,
+            num_batchs: int,
             weights_path: str
     ):
         """
@@ -60,7 +60,7 @@ class Learner:
         ----------
             params : Dict[str, Any]
                 parameters needed to adjust the program behaviour
-            num_batches : int
+            num_batchs : int
                 number of batches within the data loader
             weights_path : str
                 path to the pipeline's weights
@@ -77,13 +77,13 @@ class Learner:
         ).to(self._DEVICE)
 
         # Optimizer and learning rate
-        self.optimizer: diffusers.optimization.Optimizer = torch.optim.Adamax(
+        self.optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
             self.pipeline.unet.parameters(), lr=self._params["lr"]
         )
         self.lr_scheduler: torch.nn.Module = diffusers.optimization.get_cosine_schedule_with_warmup(
             optimizer=self.optimizer,
             num_warmup_steps=params["lr_warmup_steps"],
-            num_training_steps=(num_batches * params["num_epochs"]),
+            num_training_steps=(num_batchs * params["num_epochs"]),
         )
 
     def _learn(
