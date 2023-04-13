@@ -75,7 +75,6 @@ class Learner:
         self.pipeline: diffusers.DiffusionPipeline = PipelineManager(params)(
             params["pipeline_id"], weights_path, params["model_id"]
         ).to(self._DEVICE)
-        self.pipeline.unet.gradient_checkpointing_enable()
 
         # Optimizer and learning rate
         self.optimizer: diffusers.optimization.Optimizer = torch.optim.Adamax(
