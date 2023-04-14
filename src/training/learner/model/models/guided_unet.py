@@ -10,14 +10,10 @@ Purpose:
 from typing import *
 
 # IMPORT: deep learning
-import torch
-from diffusers.models.unet_2d import UNet2DOutput
-
-# IMPORT: project
-from .unet import UNet
+from diffusers import UNet2DConditionModel
 
 
-class GuidedUNet(UNet):
+class GuidedUNet(UNet2DConditionModel):
     """ Represents a guided U-Net model. """
 
     def __init__(
@@ -26,8 +22,7 @@ class GuidedUNet(UNet):
             in_channels: int,
             out_channels: int,
             block_out_channels: Tuple[int],
-            num_classes: int = 10,
-            emb_size: int = 4
+            num_class_embeds: int = 10,
     ):
         """
         Instantiates a UNet.
@@ -42,57 +37,16 @@ class GuidedUNet(UNet):
                 number of output channels
             block_out_channels : int
                 output size of the blocks.
-            num_classes : int
-                the number of classes within the dataset
-            emb_size : int
-                size of the text embedding
+            num_class_embeds : int
+                number of classes needed to setup the embedding
         """
         # Mother class
         super(GuidedUNet, self).__init__(
-            img_size, in_channels + emb_size, out_channels, block_out_channels
+            sample_size=img_size,
+            in_channels=in_channels, out_channels=out_channels,
+            layers_per_block=2, block_out_channels=block_out_channels,
+            num_class_embeds=num_class_embeds
         )
-
-        # Attributes
-        self._class_emb = torch.nn.Embedding(num_classes, emb_size)
-
-    def forward(
-        self,
-        sample: torch.FloatTensor,
-        timestep: Union[torch.Tensor, float, int],
-        class_labels: Optional[torch.Tensor] = None,
-        return_dict: bool = True,
-    ) -> Union[UNet2DOutput, Tuple]:
-        """
-        Parameters
-        ----------
-            sample : torch.Tensor
-                noisy inputs tensor
-            timestep : Union[torch.Tensor, float, int]
-                noise's timestep
-            class_labels : Optional[torch.Tensor]
-                optional class labels for conditioning
-            return_dict : bool
-                whether or not to return a dictionary
-
-        Returns
-        ----------
-            torch.nn.Tensor
-                noise prediction
-        """
-        # Stores the shape of the noisy input
-        b, h, w, h = sample.shape
-
-        # Generates the additional input channels
-        cond_channels: torch.Tensor = self._class_emb(class_labels)
-        cond_channels: torch.Tensor = cond_channels.view(
-            b, cond_channels.shape[1], 1, 1
-        ).expand(b, cond_channels.shape[1], w, h)
-
-        # Concatenates noisy input and conditional channels
-        cond_input: torch.Tensor = torch.cat((sample, cond_channels), 1)
-
-        # Forwards it through the U-Net
-        return super().forward(cond_input, timestep, return_dict=return_dict)
 
     def __str__(self) -> str:
         """
