@@ -48,13 +48,14 @@ class ModelManager(dict):
                 }
             },
             "guided unet": {
-                "class": GuidedUNet,
+                "class": UNet,
                 "params": {
                     "img_size": params["img_size"],
                     "in_channels": params["num_channels"],
                     "out_channels": params["num_channels"],
                     "block_out_channels": params["block_out_channels"],
-                    "num_classes": params["num_classes"]
+                    "class_embed_type": "timestep"
+                    # "num_classes": params["num_classes"]
                 }
             }
         })
