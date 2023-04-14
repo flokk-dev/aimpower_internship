@@ -22,7 +22,7 @@ class GuidedUNet(UNet2DModel):
             in_channels: int,
             out_channels: int,
             block_out_channels: Tuple[int],
-            class_embed_type: str,
+            num_class_embeds: int,
     ):
         """
         Instantiates a UNet.
@@ -45,7 +45,7 @@ class GuidedUNet(UNet2DModel):
             sample_size=img_size,
             in_channels=in_channels, out_channels=out_channels,
             layers_per_block=2, block_out_channels=block_out_channels,
-            class_embed_type=class_embed_type
+            num_class_embeds=num_class_embeds
         )
 
     def __str__(self) -> str:
