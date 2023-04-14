@@ -10,10 +10,10 @@ Purpose:
 from typing import *
 
 # IMPORT: deep learning
-from diffusers import UNet2DConditionModel
+from diffusers import UNet2DModel, UNet2DConditionModel
 
 
-class GuidedUNet(UNet2DConditionModel):
+class GuidedUNet(UNet2DModel):
     """ Represents a guided U-Net model. """
 
     def __init__(
@@ -22,7 +22,7 @@ class GuidedUNet(UNet2DConditionModel):
             in_channels: int,
             out_channels: int,
             block_out_channels: Tuple[int],
-            num_class_embeds: int = 10,
+            class_embed_type: str,
     ):
         """
         Instantiates a UNet.
@@ -45,7 +45,7 @@ class GuidedUNet(UNet2DConditionModel):
             sample_size=img_size,
             in_channels=in_channels, out_channels=out_channels,
             layers_per_block=2, block_out_channels=block_out_channels,
-            num_class_embeds=num_class_embeds
+            class_embed_type=class_embed_type
         )
 
     def __str__(self) -> str:
