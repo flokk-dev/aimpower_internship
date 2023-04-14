@@ -54,7 +54,6 @@ class ModelManager(dict):
                     "in_channels": params["num_channels"],
                     "out_channels": params["num_channels"],
                     "block_out_channels": params["block_out_channels"],
-                    # "class_embed_type": "timestep"
                     "num_class_embeds": params["num_classes"]
                 }
             }

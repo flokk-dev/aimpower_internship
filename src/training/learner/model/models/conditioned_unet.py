@@ -10,10 +10,10 @@ Purpose:
 from typing import *
 
 # IMPORT: deep learning
-from diffusers import UNet2DModel
+from diffusers import UNet2DConditionModel
 
 
-class GuidedUNet(UNet2DModel):
+class GuidedUNet(UNet2DConditionModel):
     """ Represents a guided U-Net model. """
 
     def __init__(
