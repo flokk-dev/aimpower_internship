@@ -43,7 +43,8 @@ class ModelManager(dict):
                 "params": {
                     "img_size": params["img_size"],
                     "in_channels": params["num_channels"],
-                    "out_channels": params["num_channels"]
+                    "out_channels": params["num_channels"],
+                    "block_out_channels": params["block_out_channels"]
                 }
             },
             "guided unet": {
@@ -52,7 +53,8 @@ class ModelManager(dict):
                     "img_size": params["img_size"],
                     "in_channels": params["num_channels"],
                     "out_channels": params["num_channels"],
-                    "num_classes": params["num_classes"]
+                    "block_out_channels": params["block_out_channels"],
+                    "num_class_embeds": params["num_classes"]
                 }
             }
         })

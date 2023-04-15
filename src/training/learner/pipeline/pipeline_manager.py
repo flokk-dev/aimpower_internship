@@ -11,8 +11,10 @@ from typing import *
 import diffusers
 
 # IMPORT: project
-from .pipelines import load_ddpm, init_ddpm, \
-    load_ddim, init_ddim
+from .pipelines import \
+    load_ddpm, init_ddpm, \
+    load_ddim, init_ddim, \
+    load_stable_diffusion, init_stable_diffusion
 
 from src.training.learner.model import ModelManager
 
@@ -43,8 +45,18 @@ class PipelineManager(dict):
         """
         # Mother class
         super(PipelineManager, self).__init__({
-            "ddpm": lambda arg: load_ddpm(arg) if isinstance(arg, str) else init_ddpm(arg),
-            "ddim": lambda arg: load_ddim(arg) if isinstance(arg, str) else init_ddim(arg),
+            "ddpm":
+                lambda arg: load_ddpm(arg)
+                if isinstance(arg, str)
+                else init_ddpm(arg),
+            "ddim":
+                lambda arg:
+                load_ddim(arg) if isinstance(arg, str)
+                else init_ddim(arg),
+            "stable_diffusion":
+                lambda arg:
+                load_stable_diffusion(arg) if isinstance(arg, str)
+                else init_stable_diffusion(),
         })
 
         # Attributes

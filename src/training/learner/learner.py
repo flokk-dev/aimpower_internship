@@ -31,7 +31,7 @@ class Learner:
             diffusion pipeline
         optimizer : torch.optim.Optimizer
             pipeline's optimizer
-        scheduler : torch.nn.Module
+        lr_scheduler : torch.nn.Module
             optimizer's scheduler
 
     Methods
@@ -50,7 +50,7 @@ class Learner:
     def __init__(
             self,
             params: Dict[str, Any],
-            num_batches: int,
+            num_batchs: int,
             weights_path: str
     ):
         """
@@ -60,7 +60,7 @@ class Learner:
         ----------
             params : Dict[str, Any]
                 parameters needed to adjust the program behaviour
-            num_batches : int
+            num_batchs : int
                 number of batches within the data loader
             weights_path : str
                 path to the pipeline's weights
@@ -80,15 +80,16 @@ class Learner:
         self.optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
             self.pipeline.unet.parameters(), lr=self._params["lr"]
         )
-        self.scheduler: torch.nn.Module = diffusers.optimization.get_cosine_schedule_with_warmup(
+        self.lr_scheduler: torch.nn.Module = diffusers.optimization.get_cosine_schedule_with_warmup(
             optimizer=self.optimizer,
             num_warmup_steps=params["lr_warmup_steps"],
-            num_training_steps=(num_batches * params["num_epochs"]),
+            num_training_steps=(num_batchs * params["num_epochs"]),
         )
 
     def _learn(
             self,
             batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
+            batch_idx: int
     ) -> float:
         """
         Learns on a batch of data.
@@ -97,23 +98,27 @@ class Learner:
         ----------
             batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
                 batch of data
+            batch_idx : int
+                batch's index
 
         Returns
         ----------
             float
                 loss value computed using batch's data
         """
+        # Forward batch to the pipeline
         noise, noise_pred = self._forward(batch)
+
+        # Loss backward
         loss_value: torch.Tensor = self.loss(noise_pred, noise)
+        loss_value.backward()
 
         # Update the training components
+        self.optimizer.step()
+        self.lr_scheduler.step()
         self.optimizer.zero_grad()
-        with torch.set_grad_enabled(True):
-            loss_value.backward()
 
-            self.optimizer.step()
-            self.scheduler.step()
-
+        # Returns
         return loss_value.detach().item()
 
     def _forward(
@@ -166,7 +171,7 @@ class Learner:
         # Sample random noise
         noise: torch.Tensor = torch.randn(tensor.shape).to(self._DEVICE)
 
-        # Sample random timesteps
+        # Sample random timestep
         timestep: torch.Tensor = torch.randint(
             0, self.pipeline.scheduler.config.num_train_timesteps, (noise.shape[0],)
         ).to(self._DEVICE)
@@ -200,16 +205,19 @@ class Learner:
     def __call__(
             self,
             batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
-    ):
+            batch_idx: int
+    ) -> float:
         """
         Parameters
         ----------
             batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
                 batch of data
+            batch_idx : int
+                batch's index
 
         Returns
         ----------
             float
                 loss value computed using batch's data
         """
-        return self._learn(batch)
+        return self._learn(batch, batch_idx)

@@ -10,18 +10,19 @@ Purpose:
 from typing import *
 
 # IMPORT: deep learning
-from diffusers import UNet2DModel
+from diffusers import UNet2DConditionModel
 
 
-class UNet(UNet2DModel):
-    """ Represents a U-Net model. """
+class GuidedUNet(UNet2DConditionModel):
+    """ Represents a guided U-Net model. """
 
     def __init__(
             self,
             img_size: int,
             in_channels: int,
             out_channels: int,
-            block_out_channels: Tuple[int]
+            block_out_channels: Tuple[int],
+            num_class_embeds: int,
     ):
         """
         Instantiates a UNet.
@@ -36,21 +37,22 @@ class UNet(UNet2DModel):
                 number of output channels
             block_out_channels : int
                 output size of the blocks.
+            num_class_embeds : int
+                number of classes needed to setup the embedding
         """
         # Mother class
-        super(UNet, self).__init__(
+        super(GuidedUNet, self).__init__(
             sample_size=img_size,
             in_channels=in_channels, out_channels=out_channels,
             layers_per_block=2, block_out_channels=block_out_channels,
+            num_class_embeds=num_class_embeds
         )
 
-    def __str__(
-            self
-    ) -> str:
+    def __str__(self) -> str:
         """
         Returns
         ----------
             str
                 the model's name
         """
-        return "U-Net"
+        return "guided U-Net"

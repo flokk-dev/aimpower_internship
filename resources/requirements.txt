@@ -3,7 +3,6 @@ pandas
 wandb
 torch
 torchvision
-transformers
 diffusers
 torchmetrics
 pytest

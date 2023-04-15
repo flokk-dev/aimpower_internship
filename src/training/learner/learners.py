@@ -12,7 +12,6 @@ from tqdm import tqdm
 
 # IMPORT: deep learning
 import torch
-import torchvision
 
 # IMPORT: project
 import utils
@@ -34,7 +33,7 @@ class BasicLearner(Learner):
             diffusion pipeline
         optimizer : torch.optim.Optimizer
             pipeline's optimizer
-        scheduler : torch.nn.Module
+        lr_scheduler : torch.nn.Module
             optimizer's scheduler
 
     Methods
@@ -156,7 +155,7 @@ class GuidedLearner(Learner):
             diffusion pipeline
         optimizer : torch.optim.Optimizer
             pipeline's optimizer
-        scheduler : torch.nn.Module
+        lr_scheduler : torch.nn.Module
             optimizer's scheduler
 
     Methods

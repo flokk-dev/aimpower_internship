@@ -89,7 +89,7 @@ class Trainer:
             self._run_epoch(p_bar)
 
             # Updates
-            self._dashboard.upload_values(self._learner.scheduler.get_last_lr()[0])
+            self._dashboard.upload_values(self._learner.lr_scheduler.get_last_lr()[0])
             if (epoch + 1) % 10 == 0:
                 self._checkpoint(epoch + 1)
 
@@ -112,10 +112,10 @@ class Trainer:
 
         epoch_loss: list = list()
         for batch_idx, batch in enumerate(self._data_loader):
-            p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}")
+            p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}", gpu=utils.gpu_utilization())
 
             # Learns on batch
-            epoch_loss.append(self._learner(batch))
+            epoch_loss.append(self._learner(batch, batch_idx=batch_idx))
 
         # Stores the results
         self._dashboard.update_loss(epoch_loss)
@@ -137,6 +137,7 @@ class Trainer:
 
         # Uploads and saves qualitative results
         for key, tensor in tensors.items():
+            # Creates destination directory
             key_path = os.path.join(self._path, "images", key)
             if not os.path.exists(key_path):
                 os.makedirs(key_path)

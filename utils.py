@@ -8,10 +8,10 @@ Purpose:
 
 # IMPORT: utils
 import datetime
+from pynvml import *
 
 # IMPORT: dataset processing
 import torch
-from PIL import Image
 
 # IMPORT: data visualization
 import matplotlib.pyplot as plt
@@ -34,8 +34,16 @@ def size_of(tensor: torch.Tensor) -> float:
     return total / 1e6
 
 
-def str_to_tensor(string: str):
-    return torch.tensor(int(string))
+def gpu_utilization():
+    nvmlInit()
+    handle = nvmlDeviceGetHandleByIndex(0)
+    info = nvmlDeviceGetMemoryInfo(handle)
+
+    return f"{(info.used / 1024**3):.3f}Go"
+
+
+def str_to_tensor(elem: str):
+    return torch.tensor(int(elem))
 
 
 def as_tensor(elems: list):
@@ -67,3 +75,4 @@ def save_plt(tensor, path):
 
     # Plot the images
     plt.savefig(path, bbox_inches="tight")
+    plt.close()
