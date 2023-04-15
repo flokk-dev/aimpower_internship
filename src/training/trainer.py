@@ -24,7 +24,7 @@ import paths
 import utils
 
 from src.loading import Loader
-from .learner import Learner, BasicLearner, GuidedLearner
+from .learner import Learner, BasicLearner, GuidedLearner, ConditionedLearner
 from .dashboard import Dashboard
 
 
@@ -46,9 +46,9 @@ class Trainer:
         _run_epoch
             Runs an epoch
         _checkpoint
-            Saves pipeline's weights
+            Saves noise_scheduler's weights
     """
-    _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    _LEARNERS = {"basic": BasicLearner, "guided": GuidedLearner, "conditioned": ConditionedLearner}
 
     def __init__(self, params: Dict[str, Any]):
         """
@@ -89,7 +89,7 @@ class Trainer:
             self._run_epoch(p_bar)
 
             # Updates
-            self._dashboard.upload_values(self._learner.lr_scheduler.get_last_lr()[0])
+            self._dashboard.upload_values(self._learner.components.lr_scheduler.get_last_lr()[0])
             if (epoch + 1) % 10 == 0:
                 self._checkpoint(epoch + 1)
 
@@ -115,14 +115,14 @@ class Trainer:
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}", gpu=utils.gpu_utilization())
 
             # Learns on batch
-            epoch_loss.append(self._learner(batch, batch_idx=batch_idx))
+            epoch_loss.append(self._learner(batch))
 
         # Stores the results
         self._dashboard.update_loss(epoch_loss)
 
     def _checkpoint(self, epoch: int):
         """
-        Saves pipeline's weights.
+        Saves noise_scheduler's weights.
 
         Parameters
         ----------
@@ -130,7 +130,7 @@ class Trainer:
                 the current epoch idx
         """
         # Saves pipeline
-        self._learner.pipeline.save_pretrained(os.path.join(self._path, "pipeline"))
+        # self._learner.save(os.path.join(self._path, "pipeline"))
 
         # Generates checkpoint images
         tensors: Dict[str, torch.Tensor] = self._learner.inference(to_dict=True)
@@ -155,14 +155,15 @@ class Trainer:
             dataset_path : str
                 path to the dataset
             weights_path : str
-                path to the pipeline's weights
+                path to the noise_scheduler's weights
         """
         # Loading
         self._data_loader = Loader(self._params)(dataset_path)
 
         # Learner
-        learner_class = BasicLearner if self._params["train_type"] == "basic" else GuidedLearner
-        self._learner = learner_class(self._params, len(self._data_loader), weights_path)
+        self._learner = self._LEARNERS[self._params["train_type"]](
+            self._params, len(self._data_loader), weights_path
+        )
 
         # Dashboard
         self._dashboard = Dashboard(self._params, train_id=os.path.basename(self._path))

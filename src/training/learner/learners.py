@@ -2,7 +2,6 @@
 Creator: Flokk
 Date: 09/04/2023
 Version: 1.0
-
 Purpose:
 """
 
@@ -17,6 +16,7 @@ import torch
 import utils
 
 from .learner import Learner
+from .components import Components, ConditionedComponents
 
 
 class BasicLearner(Learner):
@@ -27,28 +27,22 @@ class BasicLearner(Learner):
     ----------
         _params : Dict[str, Any]
             parameters needed to adjust the program behaviour
-        loss : Loss
+        _loss : Loss
             training's loss function
-        pipeline : diffusers.DiffusionPipeline
-            diffusion pipeline
-        optimizer : torch.optim.Optimizer
-            pipeline's optimizer
-        lr_scheduler : torch.nn.Module
-            optimizer's scheduler
+        _components : Components
+            training's components
 
     Methods
     ----------
         _learn
             Learns on a batch of data
         _forward
-            Extracts noise within the noisy image using the pipeline
+            Extracts noise within the noisy image using the noise_scheduler
         _add_noise
             Adds noise to a given tensor
         inference
-            Generates and image using the training's pipeline
+            Generates and image using the training's noise_scheduler
     """
-    _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
     def __init__(
             self,
             params: Dict[str, Any],
@@ -68,7 +62,10 @@ class BasicLearner(Learner):
                 path to the pipeline's weights
         """
         # Mother class
-        super(BasicLearner, self).__init__(params, num_batches, weights_path)
+        super(BasicLearner, self).__init__(params)
+
+        # Components
+        self._components = Components(params, weights_path, num_batches)
 
     def _forward(
             self,
@@ -94,7 +91,7 @@ class BasicLearner(Learner):
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(image)
-        return noise, self.pipeline.unet(noisy_image, timestep).sample
+        return noise, self._components.model(noisy_image, timestep).sample
 
     def inference(
             self,
@@ -123,13 +120,13 @@ class BasicLearner(Learner):
         ).to(self._DEVICE)
 
         # Generates an image based on the gaussian noise
-        for timestep in tqdm(self.pipeline.scheduler.timesteps):
+        for timestep in tqdm(self._components.noise_scheduler.timesteps):
             # Predicts the residual noise
             with torch.no_grad():
-                residual: torch.Tensor = self.pipeline.unet(image, timestep).sample
+                residual: torch.Tensor = self._components.model(image, timestep).sample
 
             # De-noises using the prediction
-            image: torch.Tensor = self.pipeline.scheduler.step(
+            image: torch.Tensor = self._components.noise_scheduler.step(
                 residual, timestep, image
             ).prev_sample
 
@@ -149,28 +146,22 @@ class GuidedLearner(Learner):
     ----------
         _params : Dict[str, Any]
             parameters needed to adjust the program behaviour
-        loss : Loss
+        _loss : Loss
             training's loss function
-        pipeline : diffusers.DiffusionPipeline
-            diffusion pipeline
-        optimizer : torch.optim.Optimizer
-            pipeline's optimizer
-        lr_scheduler : torch.nn.Module
-            optimizer's scheduler
+        _components : Components
+            training's components
 
     Methods
     ----------
         _learn
             Learns on a batch of data
         _forward
-            Extracts noise within the noisy image using the pipeline
+            Extracts noise within the noisy image using the noise_scheduler
         _add_noise
             Adds noise to a given tensor
         inference
-            Generates and image using the training's pipeline
+            Generates and image using the training's noise_scheduler
     """
-    _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
     def __init__(
             self,
             params: Dict[str, Any],
@@ -190,7 +181,10 @@ class GuidedLearner(Learner):
                 path to the pipeline's weights
         """
         # Mother class
-        super(GuidedLearner, self).__init__(params, num_batches, weights_path)
+        super(GuidedLearner, self).__init__(params)
+
+        # Components
+        self._components = Components(params, weights_path, num_batches)
 
     def _forward(
             self,
@@ -217,7 +211,7 @@ class GuidedLearner(Learner):
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(image)
-        return noise, self.pipeline.unet(noisy_image, timestep, image_classes).sample
+        return noise, self._components.model(noisy_image, timestep, image_classes).sample
 
     def inference(
             self,
@@ -253,13 +247,15 @@ class GuidedLearner(Learner):
         ).flatten().to(self._DEVICE)
 
         # Generates an image based on the gaussian noise
-        for timestep in tqdm(self.pipeline.scheduler.timesteps):
+        for timestep in tqdm(self._components.noise_scheduler.timesteps):
             # Predicts the residual noise
             with torch.no_grad():
-                residual: torch.Tensor = self.pipeline.unet(image, timestep, image_classes).sample
+                residual: torch.Tensor = self._components.model(
+                    image, timestep, image_classes
+                ).sample
 
             # De-noises using the prediction
-            image: torch.Tensor = self.pipeline.scheduler.step(
+            image: torch.Tensor = self._components.noise_scheduler.step(
                 residual, timestep, image
             ).prev_sample
 
@@ -273,3 +269,92 @@ class GuidedLearner(Learner):
                 in range(image.shape[0] // num_samples)
             }
         return image
+
+
+class ConditionedLearner(Learner):
+    """
+    Represents a ConditionedLearner.
+
+    Attributes
+    ----------
+        _params : Dict[str, Any]
+            parameters needed to adjust the program behaviour
+        _loss : Loss
+            training's loss function
+        _components : Components
+            training's components
+
+    Methods
+    ----------
+        _learn
+            Learns on a batch of data
+        _forward
+            Extracts noise within the noisy image using the noise_scheduler
+        _add_noise
+            Adds noise to a given tensor
+        inference
+            Generates and image using the training's noise_scheduler
+    """
+    def __init__(
+            self,
+            params: Dict[str, Any],
+            num_batches: int,
+            weights_path: str
+    ):
+        """
+        Instantiates a BasicLearner.
+
+        Parameters
+        ----------
+            params : Dict[str, Any]
+                parameters needed to adjust the program behaviour
+            num_batches : int
+                number of batches within the data loader
+            weights_path : str
+                path to the pipeline's weights
+        """
+        # Mother class
+        super(ConditionedLearner, self).__init__(params)
+
+        # Components
+        self._components = ConditionedComponents(params, weights_path, num_batches)
+
+    def _forward(
+            self,
+            batch: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Extracts noise within the noisy image using the pipeline.
+
+        Parameters
+        ----------
+            batch : torch.Tensor
+                batch of data
+
+        Returns
+        ----------
+            torch.Tensor
+                added noise
+            torch.Tensor
+                extracted noise
+        """
+        pass
+
+    def inference(
+            self,
+            to_dict: bool = False
+    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+        """
+        Generates and image using the training's pipeline.
+
+        Parameters
+        ----------
+            to_dict : bool
+                wether or not to return a dictionary
+
+        Returns
+        ----------
+            torch.Tensor
+                generated image
+        """
+        pass

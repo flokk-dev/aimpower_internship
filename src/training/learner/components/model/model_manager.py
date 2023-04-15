@@ -11,12 +11,14 @@ from typing import *
 import torch
 
 # IMPORT: project
-from .models import UNet, GuidedUNet
+from .models import \
+    load_unet, init_unet, \
+    load_conditioned_unet, init_conditioned_unet
 
 
 class ModelManager(dict):
     """
-    Represents a model manager.
+    Represents a ModelManager.
 
     Attributes
     ----------
@@ -39,23 +41,12 @@ class ModelManager(dict):
         # Mother class
         super(ModelManager, self).__init__({
             "unet": {
-                "class": UNet,
-                "params": {
-                    "img_size": params["img_size"],
-                    "in_channels": params["num_channels"],
-                    "out_channels": params["num_channels"],
-                    "block_out_channels": params["block_out_channels"]
-                }
+                "load": load_unet,
+                "init": init_unet
             },
-            "guided unet": {
-                "class": GuidedUNet,
-                "params": {
-                    "img_size": params["img_size"],
-                    "in_channels": params["num_channels"],
-                    "out_channels": params["num_channels"],
-                    "block_out_channels": params["block_out_channels"],
-                    "num_class_embeds": params["num_classes"]
-                }
+            "conditioned unet": {
+                "load": load_conditioned_unet,
+                "init": init_conditioned_unet
             }
         })
 
@@ -64,13 +55,16 @@ class ModelManager(dict):
 
     def __call__(
             self,
-            model_id: str
+            model_id: str,
+            weights_path: str,
     ) -> torch.nn.Module:
         """
         Parameters
         ----------
             model_id : str
                 id of the model
+            weights_path : str
+                path to the model's weights
 
         Returns
         ----------
@@ -78,6 +72,9 @@ class ModelManager(dict):
                 model associated to the model id
         """
         try:
-            return self[model_id]["class"](**self[model_id]["params"])
+            if weights_path is not None:
+                return self[model_id]["load"](weights_path)
+            return self[model_id]["load"](self._params)
+
         except KeyError:
-            raise KeyError(f"The {model_id} isn't handled by the model manager.")
+            raise KeyError(f"The {model_id} isn't handled by the noise_scheduler manager.")

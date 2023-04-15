@@ -1,2 +1,2 @@
-from .dataset import DataSet
-from .datasets import LazyDataSet, TensorDataSet
+from .dataset import Dataset
+from .datasets import LabelDataset, PromptDataset

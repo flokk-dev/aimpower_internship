@@ -11,10 +11,9 @@ from typing import *
 
 # IMPORT: deep learning
 import torch
-import diffusers
 
 # IMPORT: project
-from src.training.learner.pipeline import PipelineManager
+from .components import Components
 
 
 class Learner:
@@ -25,33 +24,27 @@ class Learner:
     ----------
         _params : Dict[str, Any]
             parameters needed to adjust the program behaviour
-        loss : Loss
+        _loss : Loss
             training's loss function
-        pipeline : diffusers.DiffusionPipeline
-            diffusion pipeline
-        optimizer : torch.optim.Optimizer
-            pipeline's optimizer
-        lr_scheduler : torch.nn.Module
-            optimizer's scheduler
+        _components : Components
+            training's components
 
     Methods
     ----------
         _learn
             Learns on a batch of data
         _forward
-            Extracts noise within the noisy image using the pipeline
+            Extracts noise within the noisy image using the noise_scheduler
         _add_noise
             Adds noise to a given tensor
         inference
-            Generates and image using the training's pipeline
+            Generates and image using the training's noise_scheduler
     """
     _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     def __init__(
             self,
             params: Dict[str, Any],
-            num_batchs: int,
-            weights_path: str
     ):
         """
         Instantiates a Learner.
@@ -60,36 +53,28 @@ class Learner:
         ----------
             params : Dict[str, Any]
                 parameters needed to adjust the program behaviour
-            num_batchs : int
-                number of batches within the data loader
-            weights_path : str
-                path to the pipeline's weights
         """
         # Attributes
         self._params: Dict[str, Any] = params
 
-        # Loss
-        self.loss: torch.nn.Module = torch.nn.MSELoss().to(self._DEVICE)
+        self._loss: torch.nn.Module = torch.nn.MSELoss().to(self._DEVICE)
+        self._components = None
 
-        # Pipeline
-        self.pipeline: diffusers.DiffusionPipeline = PipelineManager(params)(
-            params["pipeline_id"], weights_path, params["model_id"]
-        ).to(self._DEVICE)
+    @property
+    def components(self) -> Components:
+        """
+        Returns the training's components.
 
-        # Optimizer and learning rate
-        self.optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
-            self.pipeline.unet.parameters(), lr=self._params["lr"]
-        )
-        self.lr_scheduler: torch.nn.Module = diffusers.optimization.get_cosine_schedule_with_warmup(
-            optimizer=self.optimizer,
-            num_warmup_steps=params["lr_warmup_steps"],
-            num_training_steps=(num_batchs * params["num_epochs"]),
-        )
+        Returns
+        ----------
+            Components
+                training's components
+        """
+        return self._components
 
     def _learn(
             self,
             batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
-            batch_idx: int
     ) -> float:
         """
         Learns on a batch of data.
@@ -98,25 +83,23 @@ class Learner:
         ----------
             batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
                 batch of data
-            batch_idx : int
-                batch's index
 
         Returns
         ----------
             float
                 loss value computed using batch's data
         """
-        # Forward batch to the pipeline
+        # Forward batch to the noise_scheduler
         noise, noise_pred = self._forward(batch)
 
         # Loss backward
-        loss_value: torch.Tensor = self.loss(noise_pred, noise)
+        loss_value: torch.Tensor = self._loss(noise_pred, noise)
         loss_value.backward()
 
         # Update the training components
-        self.optimizer.step()
-        self.lr_scheduler.step()
-        self.optimizer.zero_grad()
+        self._components.optimizer.step()
+        self._components.lr_scheduler.step()
+        self._components.optimizer.zero_grad()
 
         # Returns
         return loss_value.detach().item()
@@ -126,7 +109,7 @@ class Learner:
             batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Extracts noise within the noisy image using the pipeline.
+        Extracts noise within the noisy image using the noise_scheduler.
 
         Parameters
         ----------
@@ -173,11 +156,11 @@ class Learner:
 
         # Sample random timestep
         timestep: torch.Tensor = torch.randint(
-            0, self.pipeline.scheduler.config.num_train_timesteps, (noise.shape[0],)
+            0, self._components.scheduler.config.num_train_timesteps, (noise.shape[0],)
         ).to(self._DEVICE)
 
         # Add noise to the input data
-        noisy_input: torch.Tensor = self.pipeline.scheduler.add_noise(
+        noisy_input: torch.Tensor = self._components.scheduler.add_noise(
             tensor, noise, timestep
         ).to(self._DEVICE)
 
@@ -188,7 +171,7 @@ class Learner:
             to_dict: bool = False
     ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
         """
-        Generates and image using the training's pipeline.
+        Generates and image using the training's noise_scheduler.
 
         Parameters
         ----------
@@ -205,19 +188,16 @@ class Learner:
     def __call__(
             self,
             batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
-            batch_idx: int
     ) -> float:
         """
         Parameters
         ----------
             batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
                 batch of data
-            batch_idx : int
-                batch's index
 
         Returns
         ----------
             float
                 loss value computed using batch's data
         """
-        return self._learn(batch, batch_idx)
+        return self._learn(batch)
