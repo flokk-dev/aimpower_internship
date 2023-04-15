@@ -52,7 +52,12 @@ class Components:
     """
     _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-    def __init__(self, params: Dict[str, Any], weights_path: str, num_batches: int):
+    def __init__(
+            self,
+            params: Dict[str, Any],
+            weights_path: str,
+            num_batches: int
+    ):
         """
         Instantiates a Components.
 
@@ -69,9 +74,7 @@ class Components:
         self._params: Dict[str, Any] = params
 
         # VAE
-        self._vae = diffusers.AutoencoderKL.from_pretrained(
-            weights_path, subfolder="vae"
-        ).to(self._DEVICE)
+        self._vae = self._init_vae(weights_path).to(self._DEVICE)
 
         # Model
         self._model: torch.nn.Module = ModelManager(self._params)(
@@ -95,7 +98,9 @@ class Components:
             )
 
     @property
-    def vae(self) -> diffusers.AutoencoderKL:
+    def vae(
+            self
+    ) -> diffusers.AutoencoderKL:
         """
         Returns the training's VAE.
 
@@ -106,8 +111,30 @@ class Components:
         """
         return self._vae
 
+    @staticmethod
+    def _init_vae(
+            weights_path: str
+    ):
+        """
+        Instantiates a training's VAE.
+
+        Parameters
+        ----------
+            weights_path : str
+                path to the noise_scheduler's weights
+        """
+        if weights_path is None:
+            weights_path = "CompVis/stable-diffusion-v1-4"
+
+        return diffusers.AutoencoderKL.from_pretrained(
+            pretrained_model_name_or_path=weights_path,
+            subfolder="vae"
+        )
+
     @property
-    def model(self) -> torch.nn.Module:
+    def model(
+            self
+    ) -> torch.nn.Module:
         """
         Returns the training's model.
 
@@ -119,7 +146,9 @@ class Components:
         return self._model
 
     @property
-    def noise_scheduler(self) -> diffusers.SchedulerMixin:
+    def noise_scheduler(
+            self
+    ) -> diffusers.SchedulerMixin:
         """
         Returns the training's noise scheduler.
 
@@ -131,7 +160,9 @@ class Components:
         return self._noise_scheduler
 
     @property
-    def optimizer(self) -> diffusers.optimization.Optimizer:
+    def optimizer(
+            self
+    ) -> diffusers.optimization.Optimizer:
         """
         Returns the training's optimizer.
 
@@ -143,7 +174,9 @@ class Components:
         return self._optimizer
 
     @property
-    def lr_scheduler(self) -> torch.nn.Module:
+    def lr_scheduler(
+            self
+    ) -> torch.nn.Module:
         """
         Returns the learning rate's scheduler.
 

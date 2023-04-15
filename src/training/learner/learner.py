@@ -8,6 +8,7 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
+import diffusers
 
 # IMPORT: deep learning
 import torch
@@ -72,16 +73,36 @@ class Learner:
         """
         return self._components
 
+    def _encode(
+            self,
+            image: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Encodes an image using a VAE.
+
+        Parameters
+        ----------
+            image : torch.Tensor
+                image to encode
+
+        Returns
+        ----------
+            torch.Tensor
+                encoded image
+        """
+        with torch.no_grad():
+            return self._components.vae.encode(image).latent_dist.sample() * 0.18215
+
     def _learn(
             self,
-            batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
+            batch: Dict[str, torch.Tensor],
     ) -> float:
         """
         Learns on a batch of data.
 
         Parameters
         ----------
-            batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
+            batch : Dict[str, torch.Tensor]
                 batch of data
 
         Returns
@@ -90,6 +111,8 @@ class Learner:
                 loss value computed using batch's data
         """
         # Forward batch to the noise_scheduler
+        if self._params["reduce_dimensions"]:
+            batch["image"] = self._encode(batch["image"])
         noise, noise_pred = self._forward(batch)
 
         # Loss backward
@@ -106,14 +129,14 @@ class Learner:
 
     def _forward(
             self,
-            batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
+            batch: Dict[str, torch.Tensor],
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Extracts noise within the noisy image using the noise_scheduler.
 
         Parameters
         ----------
-            batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
+            batch : Dict[str, torch.Tensor]
                 batch of data
 
         Returns

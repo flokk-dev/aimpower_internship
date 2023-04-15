@@ -69,14 +69,14 @@ class BasicLearner(Learner):
 
     def _forward(
             self,
-            batch: torch.Tensor,
+            batch: Dict[str, torch.Tensor],
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Extracts noise within the noisy image using the pipeline.
+        Extracts noise within the noisy image using the noise_scheduler.
 
         Parameters
         ----------
-            batch : torch.Tensor
+            batch : Dict[str, torch.Tensor]
                 batch of data
 
         Returns
@@ -87,10 +87,10 @@ class BasicLearner(Learner):
                 extracted noise
         """
         # Puts data on desired device
-        image: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
+        batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
 
         # Predicts added noise
-        noisy_image, noise, timestep = self._add_noise(image)
+        noisy_image, noise, timestep = self._add_noise(batch["image"])
         return noise, self._components.model(noisy_image, timestep).sample
 
     def inference(
@@ -188,14 +188,14 @@ class GuidedLearner(Learner):
 
     def _forward(
             self,
-            batch: Tuple[torch.Tensor,  List[str]],
+            batch: Dict[str, torch.Tensor],
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Extracts noise within the noisy image using the pipeline.
+        Extracts noise within the noisy image using the noise_scheduler.
 
         Parameters
         ----------
-            batch : Tuple[torch.Tensor, List[str]]
+            batch : Dict[str, torch.Tensor]
                 batch of data
 
         Returns
@@ -206,12 +206,12 @@ class GuidedLearner(Learner):
                 extracted noise
         """
         # Puts data on desired device
-        image: torch.Tensor = batch[0].type(torch.float32).to(self._DEVICE)
-        image_classes: torch.Tensor = utils.as_tensor(batch[1]).type(torch.int32).to(self._DEVICE)
+        batch["image"] = batch["image"].type(torch.float32).to(self._DEVICE)
+        batch["label"] = batch["label"].type(torch.int32).to(self._DEVICE)
 
         # Predicts added noise
-        noisy_image, noise, timestep = self._add_noise(image)
-        return noise, self._components.model(noisy_image, timestep, image_classes).sample
+        noisy_image, noise, timestep = self._add_noise(batch["image"])
+        return noise, self._components.model(noisy_image, timestep, batch["label"]).sample
 
     def inference(
             self,
@@ -321,14 +321,14 @@ class ConditionedLearner(Learner):
 
     def _forward(
             self,
-            batch: torch.Tensor,
+            batch: Dict[str, torch.Tensor],
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Extracts noise within the noisy image using the pipeline.
+        Extracts noise within the noisy image using the noise_scheduler.
 
         Parameters
         ----------
-            batch : torch.Tensor
+            batch : Dict[str, torch.Tensor]
                 batch of data
 
         Returns
@@ -338,7 +338,13 @@ class ConditionedLearner(Learner):
             torch.Tensor
                 extracted noise
         """
-        pass
+        # Puts data on desired device
+        batch["image"] = batch["image"].type(torch.float32).to(self._DEVICE)
+        batch["prompt"] = batch["prompt"].type(torch.float32).to(self._DEVICE)
+
+        # Predicts added noise
+        noisy_image, noise, timestep = self._add_noise(batch["image"])
+        return noise, self._components.model(noisy_image, timestep, batch["prompt"]).sample
 
     def inference(
             self,

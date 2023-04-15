@@ -13,6 +13,7 @@ import torch
 # IMPORT: project
 from .models import \
     load_unet, init_unet, \
+    load_guided_unet, init_guided_unet, \
     load_conditioned_unet, init_conditioned_unet
 
 
@@ -43,6 +44,10 @@ class ModelManager(dict):
             "unet": {
                 "load": load_unet,
                 "init": init_unet
+            },
+            "guided unet": {
+                "load": load_guided_unet,
+                "init": init_guided_unet
             },
             "conditioned unet": {
                 "load": load_conditioned_unet,
