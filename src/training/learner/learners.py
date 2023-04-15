@@ -12,7 +12,6 @@ from tqdm import tqdm
 
 # IMPORT: deep learning
 import torch
-import torchvision
 
 # IMPORT: project
 import utils
