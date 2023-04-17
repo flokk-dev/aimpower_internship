@@ -75,9 +75,9 @@ class BasicTrainer(Trainer):
             ValueError
                 if the configuration isn't conform
         """
-        loading_type = self._params["loader"]["loading_type"]
-        learning_type = self._params["learner"]["learning_type"]
-        model_type = self._params["learner"]["components"]["model"]["type"]
+        loading_type = params["loader"]["loading_type"]
+        learning_type = params["learner"]["learning_type"]
+        model_type = params["learner"]["components"]["model"]["type"]
 
         # Loading
         if loading_type not in ["basic", "label"]:
@@ -164,9 +164,9 @@ class StableTrainer(Trainer):
             ValueError
                 if the configuration isn't conform
         """
-        loading_type = self._params["loader"]["loading_type"]
-        learning_type = self._params["learner"]["learning_type"]
-        model_type = self._params["learner"]["components"]["model"]["type"]
+        loading_type = params["loader"]["loading_type"]
+        learning_type = params["learner"]["learning_type"]
+        model_type = params["learner"]["components"]["model"]["type"]
 
         # Loading
         if loading_type not in ["basic", "prompt"]:
