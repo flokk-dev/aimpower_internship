@@ -208,7 +208,7 @@ class Trainer:
         self._data_loader = Loader(self._params["loader"])(dataset_path)
 
         # Learner
-        self._learner = self._LEARNERS[self._params["training_type"]](
+        self._learner = self._LEARNERS[self._params["learner"]["learning_type"]](
             self._params["learner"], len(self._data_loader), self._params["num_epochs"]
         )
 
