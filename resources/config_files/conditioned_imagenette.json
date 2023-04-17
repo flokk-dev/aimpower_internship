@@ -25,7 +25,7 @@
       "lr_warmup_steps": 500,
 
       "model": {
-        "type": "conditioned",
+        "model_type": "conditioned",
         "pipeline_path": "",
 
         "args": {
@@ -37,7 +37,7 @@
       },
 
       "noise_scheduler": {
-        "type": "ddpm",
+        "noise_scheduler_type": "ddpm",
         "pipeline_path": "",
 
         "args": {
