@@ -1,0 +1,57 @@
+{
+  "training_type": "stable",
+  "num_epochs": 100,
+
+  "loader": {
+    "loading_type": "prompt",
+    "num_data": 5000,
+
+    "data_loader": {
+      "batch_size": 16
+    },
+
+    "dataset": {
+      "lazy_loading": true,
+      "img_size": 512
+    }
+  },
+
+  "learner": {
+    "learning_type": "conditioned",
+    "reduce_dimensions": true,
+
+    "components": {
+      "lr": 1e-4,
+      "lr_warmup_steps": 500,
+
+      "model": {
+        "type": "conditioned",
+        "pipeline_path": "",
+
+        "args": {
+          "sample_size": 64,
+          "in_channels": 1,
+          "out_channels": 1,
+          "block_out_channels": [64, 64, 128, 128]
+        }
+      },
+
+      "noise_scheduler": {
+        "type": "ddpm",
+        "pipeline_path": "",
+
+        "args": {
+          "num_timesteps": 1000
+        }
+      },
+
+      "vae": {
+        "pipeline_path": "CompVis/stable-diffusion-v1-4"
+      },
+
+      "text_encoder": {
+        "pipeline_path": "CompVis/stable-diffusion-v1-4"
+      }
+    }
+  }
+}

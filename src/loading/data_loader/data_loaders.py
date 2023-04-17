@@ -12,6 +12,9 @@ from typing import *
 # IMPORT: data loading
 import torch
 
+# IMPORT: data processing
+from transformers import CLIPTokenizer
+
 # IMPORT: project
 from .data_loader import DataLoader
 from src.loading.dataset import LabelDataset, PromptDataset
@@ -108,6 +111,18 @@ class PromptDataLoader(DataLoader):
         """
         # Mother Class
         super(PromptDataLoader, self).__init__(params, dataset)
+
+    @property
+    def tokenizer(self) -> CLIPTokenizer:
+        """
+        Returns the dataset's tokenizer.
+
+        Returns
+        ----------
+            CLIPTokenizer
+                dataset's tokenizer
+        """
+        return self.dataset.tokenizer
 
     def _collate_fn(
             self,

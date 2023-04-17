@@ -11,7 +11,9 @@ from typing import *
 import torch
 
 # IMPORT: project
-from .models import init_unet, load_unet, init_conditioned_unet, load_conditioned_unet
+from .models import init_unet, load_unet, \
+    init_guided_unet, load_guided_unet, \
+    init_conditioned_unet, load_conditioned_unet
 
 
 class ModelManager(dict):
@@ -23,8 +25,9 @@ class ModelManager(dict):
         """ Instantiates a ModelManager. """
         # Mother class
         super(ModelManager, self).__init__({
-            "unet": {"init": init_unet, "load": load_unet},
-            "conditioned unet": {"init": init_conditioned_unet, "load": load_conditioned_unet}
+            "basic": {"init": init_unet, "load": load_unet},
+            "guided": {"init": init_guided_unet, "load": load_guided_unet},
+            "conditioned": {"init": init_conditioned_unet, "load": load_conditioned_unet}
         })
 
     def __call__(

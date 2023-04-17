@@ -22,7 +22,7 @@ from torchvision import transforms
 
 class Dataset(TorchDataset):
     """
-    Represents a general DataSet, which will be modified depending on the use case.
+    Represents a DataSet, which will be modified depending on the use case.
 
     Attributes
     ----------

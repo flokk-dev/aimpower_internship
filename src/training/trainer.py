@@ -24,8 +24,8 @@ import paths
 import utils
 
 from src.loading import Loader
-from .learner import Learner, BasicLearner, ConditionedLearner
-from .dashboard import Dashboard
+from src.training.learner import Learner
+from src.training.dashboard import Dashboard
 
 
 class Trainer:
@@ -48,9 +48,12 @@ class Trainer:
         _checkpoint
             Saves noise_scheduler's weights
     """
-    _LEARNERS = {"basic": BasicLearner, "guided": BasicLearner, "conditioned": ConditionedLearner}
+    _LEARNERS = dict()
 
-    def __init__(self, params: Dict[str, Any]):
+    def __init__(
+            self,
+            params: Dict[str, Any]
+    ):
         """
         Instantiates a Trainer.
 
@@ -60,8 +63,16 @@ class Trainer:
                 parameters needed to adjust the program behaviour
         """
         # Attributes
+        self._verify_parameters(params)
         self._params: Dict[str, Any] = params
 
+        # Components
+        self._data_loader: DataLoader = None
+        self._learner: Learner = None
+
+        self._dashboard: Dashboard = None
+
+        # Creates training's repository
         self._path = os.path.join(paths.MODELS_PATH, utils.get_datetime())
         if not os.path.exists(self._path):
             os.makedirs(self._path)
@@ -70,13 +81,28 @@ class Trainer:
         with open(os.path.join(self._path, "config.json"), 'w') as file_content:
             json.dump(self._params, file_content)
 
-        # Components
-        self._data_loader: DataLoader = None
-        self._learner: Learner = None
+    def _verify_parameters(
+            self,
+            params: Dict[str, Any]
+    ):
+        """
+        Verifies if the training's configuration is correct.
 
-        self._dashboard: Dashboard = None
+        Parameters
+        ----------
+            params : Dict[str, Any]
+                parameters needed to adjust the program behaviour
 
-    def _launch(self):
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
+        """
+        raise NotImplementedError()
+
+    def _launch(
+            self
+    ):
         """ Launches the training. """
         time.sleep(1)
 
@@ -99,7 +125,10 @@ class Trainer:
         time.sleep(10)
         self._dashboard.shutdown()
 
-    def _run_epoch(self, p_bar: tqdm):
+    def _run_epoch(
+            self,
+            p_bar: tqdm
+    ):
         """
         Runs an epoch.
 
@@ -120,7 +149,10 @@ class Trainer:
         # Stores the results
         self._dashboard.update_loss(epoch_loss)
 
-    def _checkpoint(self, epoch: int):
+    def _checkpoint(
+            self,
+            epoch: int
+    ):
         """
         Saves noise_scheduler's weights.
 
@@ -130,10 +162,10 @@ class Trainer:
                 the current epoch idx
         """
         # Saves pipeline
-        # self._learner.save(os.path.join(self._path, "pipeline"))
+        self._save(os.path.join(self._path, "pipeline"))
 
         # Generates checkpoint images
-        tensors: Dict[str, torch.Tensor] = self._learner.inference(to_dict=True)
+        tensors: Dict[str, torch.Tensor] = self._learner.inference()
 
         # Uploads and saves qualitative results
         for key, tensor in tensors.items():
@@ -147,6 +179,23 @@ class Trainer:
 
             # Saves checkpoint image on disk
             utils.save_plt(tensor, os.path.join(key_path, f"epoch_{epoch}.png"))
+
+    def _save(
+            self,
+            path: str
+    ):
+        """
+        Parameters
+        ----------
+            path : str
+                training's saving path
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
+        """
+        raise NotImplementedError()
 
     def __call__(self, dataset_path: str):
         """

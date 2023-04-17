@@ -1,2 +1,2 @@
 from .components import Components
-from .componentsS import AdvancedComponents
+from .stable_components import StableComponents

@@ -1,1 +1,1 @@
-from .noise_scheduler import NoiseSchedulerManager
+from .noise_scheduler_manager import NoiseSchedulerManager

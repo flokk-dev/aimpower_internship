@@ -10,6 +10,9 @@ Purpose:
 import datetime
 from pynvml import *
 
+import transformers
+import diffusers
+
 # IMPORT: dataset processing
 import torch
 
@@ -17,21 +20,10 @@ import torch
 import matplotlib.pyplot as plt
 
 
+# ---------- INFO ---------- #
+
 def get_datetime():
     return datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-
-
-def get_max_item(dictionary):
-    key = max(dictionary, key=dictionary.get)
-    return key, dictionary[key]
-
-
-def size_of(tensor: torch.Tensor) -> float:
-    total = tensor.element_size()
-    for shape in tensor.shape:
-        total *= float(shape)
-
-    return total / 1e6
 
 
 def gpu_utilization():
@@ -42,13 +34,7 @@ def gpu_utilization():
     return f"{(info.used / 1024**3):.3f}Go"
 
 
-def str_to_tensor(elem: str):
-    return torch.tensor(int(elem))
-
-
-def as_tensor(elems: list):
-    return torch.Tensor([int(e) for e in elems])
-
+# ---------- VISUALIZATION ---------- #
 
 def adjust_image_colors(image):
     values = torch.unique(image)

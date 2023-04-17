@@ -120,15 +120,15 @@ class PromptDataset(Dataset):
             additional info about the data
         _pre_process: transforms.Compose
             pre-processing to apply on each data
-        _tokenizer: CLIPTokenizer
+        tokenizer: CLIPTokenizer
             object needed to tokenize a prompt
 
     Methods
     ----------
-        tokenizer : CLIPTokenizer
-            Returns the dataset's tokenizer
         _load_image : torch.Tensor
             Loads an image from path
+        _init_tokenizer : CLIPTokenizer
+            Instantiates a tokenizer
         _tokenize: torch.Tensor
             Tokenizes a prompt
     """
@@ -154,22 +154,29 @@ class PromptDataset(Dataset):
         super(PromptDataset, self).__init__(params, inputs, info)
 
         # Attributes
-        self._tokenizer: CLIPTokenizer = CLIPTokenizer.from_pretrained(
-            pretrained_model_name_or_path=self._params["tokenizer"]["pipeline_path"],
-            subfolder="tokenizer",
+        self.tokenizer: CLIPTokenizer = self._init_tokenizer(
+            self._params["tokenizer"]["pipeline_path"]
         )
 
-    @property
-    def tokenizer(self) -> CLIPTokenizer:
+    @staticmethod
+    def _init_tokenizer(
+            pipeline_path: str
+    ) -> CLIPTokenizer:
         """
-        Returns the dataset's tokenizer.
+        Instantiates a tokenizer.
 
-        Returns
+        Parameters
         ----------
-            CLIPTokenizer
-                dataset's tokenizer
+            pipeline_path : str
+                path to the pretrained pipeline
         """
-        return self._tokenizer
+        if not pipeline_path:
+            pipeline_path = "CompVis/stable-diffusion-v1-4"
+
+        return CLIPTokenizer.from_pretrained(
+            pretrained_model_name_or_path=pipeline_path,
+            subfolder="tokenizer",
+        )
 
     def _tokenize(
             self,
@@ -188,7 +195,7 @@ class PromptDataset(Dataset):
             torch.Tensor
                 the prompt as a tensor
         """
-        return self._tokenizer(
+        return self.tokenizer(
             prompt,
             padding="do_not_pad",
             truncation=True,

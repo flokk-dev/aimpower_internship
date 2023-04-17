@@ -19,7 +19,7 @@ from src.loading.dataset import Dataset
 
 class DataLoader(TorchDataLoader):
     """
-    Represents a general data loader, that will be derived depending on the use case.
+    Represents a data loader, that will be derived depending on the use case.
 
     Attributes
     ----------

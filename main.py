@@ -7,31 +7,36 @@ Purpose:
 """
 
 # IMPORT: utils
-import argparse
+import os
 import json
+
+import argparse
 
 # IMPORT: project
 import paths
 
-from src.training import Trainer
+from src import BasicTrainer, StableTrainer
 
 
 class Parser(argparse.ArgumentParser):
     def __init__(self):
         # Mother class
-        super(Parser, self).__init__(description="Get noise_scheduler training parameters.")
+        super(Parser, self).__init__(description="Initializes training's parameters.")
 
         # dataset
         self.add_argument(
             "-d", "--dataset", type=str, nargs="?",
-            help="path to the dataset"
+            help="path to the dataset."
         )
 
         # weights
         self.add_argument(
-            "-w", "--weights", type=str, nargs="?", default=None,
-            help="path to the noise_scheduler's weights"
+            "-c", "--config", type=str, nargs="?", default=None,
+            help="path to the config file."
         )
+
+
+TASKS = {"basic": BasicTrainer, "stable": StableTrainer}
 
 
 if __name__ == "__main__":
@@ -40,9 +45,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Training parameters
-    with open(paths.CONFIG_PATH) as json_file:
-        training_parameters = json.load(json_file)
+    with open(os.path.join(paths.CONFIG_PATH, args.config)) as json_file:
+        parameters = json.load(json_file)
 
     # Launch training
-    trainer = Trainer(params=training_parameters)
-    trainer(dataset_path=args.dataset, weights_path=args.weights)
+    trainer = TASKS[parameters["training_type"]](params=parameters)
+    trainer(dataset_path=args.dataset)

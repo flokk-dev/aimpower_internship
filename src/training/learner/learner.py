@@ -9,6 +9,7 @@ Purpose:
 # IMPORT: utils
 from typing import *
 
+import diffusers
 # IMPORT: deep learning
 import torch
 
@@ -26,7 +27,7 @@ class Learner:
             parameters needed to adjust the program behaviour
         _loss : Loss
             training's loss function
-        _components : Components
+        components : Components
             training's components
 
     Methods
@@ -58,39 +59,7 @@ class Learner:
         self._params: Dict[str, Any] = params
 
         self._loss: torch.nn.Module = torch.nn.MSELoss().to(self._DEVICE)
-        self._components = None
-
-    @property
-    def components(self) -> Components:
-        """
-        Returns the training's components.
-
-        Returns
-        ----------
-            Components
-                training's components
-        """
-        return self._components
-
-    def _encode(
-            self,
-            image: torch.Tensor
-    ) -> torch.Tensor:
-        """
-        Encodes an image using a VAE.
-
-        Parameters
-        ----------
-            image : torch.Tensor
-                image to encode
-
-        Returns
-        ----------
-            torch.Tensor
-                encoded image
-        """
-        with torch.no_grad():
-            return self._components.vae.encode(image).latent_dist.sample() * 0.18215
+        self.components = None
 
     def _learn(
             self,
@@ -109,9 +78,6 @@ class Learner:
             float
                 loss value computed using batch's data
         """
-        # Forward batch to the noise_scheduler
-        if self._params["reduce_dimensions"]:
-            batch["image"] = self._encode(batch["image"])
         noise, noise_pred = self._forward(batch)
 
         # Loss backward
@@ -119,9 +85,9 @@ class Learner:
         loss_value.backward()
 
         # Update the training components
-        self._components.optimizer.step()
-        self._components.lr_scheduler.step()
-        self._components.optimizer.zero_grad()
+        self.components.optimizer.step()
+        self.components.lr_scheduler.step()
+        self.components.optimizer.zero_grad()
 
         # Returns
         return loss_value.detach().item()
@@ -178,11 +144,11 @@ class Learner:
 
         # Sample random timestep
         timestep: torch.Tensor = torch.randint(
-            0, self._components.scheduler.config.num_train_timesteps, (noise.shape[0],)
+            0, self.components.scheduler.config.num_train_timesteps, (noise.shape[0],)
         ).to(self._DEVICE)
 
         # Add noise to the input data
-        noisy_input: torch.Tensor = self._components.scheduler.add_noise(
+        noisy_input: torch.Tensor = self.components.scheduler.add_noise(
             tensor, noise, timestep
         ).to(self._DEVICE)
 

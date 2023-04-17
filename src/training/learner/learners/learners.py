@@ -15,8 +15,8 @@ import torch
 # IMPORT: project
 import utils
 
-from .learner import Learner
-from .components import Components, AdvancedComponents
+from src.training.learner.learner import Learner
+from src.training.learner.components import Components
 
 
 class BasicLearner(Learner):
@@ -86,16 +86,11 @@ class BasicLearner(Learner):
             torch.Tensor
                 extracted noise
         """
-        # Inputs
+        # Image
         batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
+
+        # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
-
-        # If guided
-        if self._params["learning_type"] == "guided":
-            batch["label"] = batch["label"].type(torch.int32).to(self._DEVICE)
-            return noise, self._components.model(noisy_image, timestep, batch["label"]).sample
-
-        # Else
         return noise, self._components.model(noisy_image, timestep).sample
 
     def inference(
@@ -109,35 +104,22 @@ class BasicLearner(Learner):
             Dict[str, torch.Tensor]
                 generated image
         """
-        if self._params["learning_type"] == "guided":
-            mul = self._params["learner"]["components"]["model"]["args"]["num_labels"]
-        else:
-            mul = 1
-
-        # Samples gaussian noise
         num_samples = 5
 
+        # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                num_samples * mul, self._params["in_channels"],
+                num_samples, self._params["in_channels"],
                 self._params["img_size"], self._params["img_size"]
             ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
 
-        if self._params["learning_type"] == "guided":
-            labels: torch.Tensor = torch.tensor(
-                [[i] * num_samples for i in range(mul)]
-            ).flatten().to(self._DEVICE)
-
         # Generates an image based on the gaussian noise
         for timestep in tqdm(self._components.noise_scheduler.timesteps):
             # Predicts the residual noise
             with torch.no_grad():
-                if self._params["learning_type"] == "guided":
-                    residual: torch.Tensor = self._components.model(image, timestep, labels).sample
-                else:
-                    residual: torch.Tensor = self._components.model(image, timestep).sample
+                residual: torch.Tensor = self._components.model(image, timestep).sample
 
             # De-noises using the prediction
             image: torch.Tensor = self._components.noise_scheduler.step(
@@ -150,9 +132,9 @@ class BasicLearner(Learner):
         return {"image": image}
 
 
-class ConditionedLearner(Learner):
+class GuidedLearner(Learner):
     """
-    Represents a ConditionedLearner.
+    Represents a GuidedLearner.
 
     Attributes
     ----------
@@ -181,7 +163,7 @@ class ConditionedLearner(Learner):
             num_batches: int
     ):
         """
-        Instantiates a ConditionedLearner.
+        Instantiates a GuidedLearner.
 
         Parameters
         ----------
@@ -193,10 +175,10 @@ class ConditionedLearner(Learner):
                 number of batches within the data loader
         """
         # Mother class
-        super(ConditionedLearner, self).__init__(params)
+        super(GuidedLearner, self).__init__(params)
 
         # Components
-        self._components = AdvancedComponents(params["components"], num_epochs, num_batches)
+        self._components = Components(params["components"], num_epochs, num_batches)
 
     def _forward(
             self,
@@ -217,29 +199,58 @@ class ConditionedLearner(Learner):
             torch.Tensor
                 extracted noise
         """
-        # Puts data on desired device
-        batch["image"] = batch["image"].type(torch.float32).to(self._DEVICE)
-        batch["prompt"] = batch["prompt"].type(torch.float32).to(self._DEVICE)
+        # Image
+        batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
+
+        # Label
+        batch["label"] = batch["label"].type(torch.int32).to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
-        return noise, self._components.model(noisy_image, timestep, batch["prompt"]).sample
+        return noise, self._components.model(noisy_image, timestep, batch["label"]).sample
 
     def inference(
             self,
-            to_dict: bool = False
     ) -> Dict[str, torch.Tensor]:
         """
         Generates and image using the training's pipeline.
-
-        Parameters
-        ----------
-            to_dict : bool
-                wether or not to return a dictionary
 
         Returns
         ----------
             Dict[str, torch.Tensor]
                 generated image
         """
-        pass
+        num_samples = 5
+
+        # Samples gaussian noise
+        image: torch.Tensor = torch.randn(
+            (
+                num_samples * self._params["num_labels"], self._params["in_channels"],
+                self._params["img_size"], self._params["img_size"]
+            ),
+            generator=torch.manual_seed(0)
+        ).to(self._DEVICE)
+
+        labels: torch.Tensor = torch.tensor(
+            [[i] * num_samples for i in range(self._params["num_labels"])]
+        ).flatten().to(self._DEVICE)
+
+        # Generates an image based on the gaussian noise
+        for timestep in tqdm(self._components.noise_scheduler.timesteps):
+            # Predicts the residual noise
+            with torch.no_grad():
+                residual: torch.Tensor = self._components.model(image, timestep, labels).sample
+
+            # De-noises using the prediction
+            image: torch.Tensor = self._components.noise_scheduler.step(
+                residual, timestep, image
+            ).prev_sample
+
+        image = utils.adjust_image_colors(image.cpu())
+
+        # Returns
+        return {
+            str(class_idx): image[class_idx * num_samples:(class_idx + 1) * num_samples]
+            for class_idx
+            in range(image.shape[0] // num_samples)
+        }
