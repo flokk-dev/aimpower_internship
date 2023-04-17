@@ -29,7 +29,7 @@ TEST_RESOURCES_PATH = os.path.join(TEST_PATH, "resources")
 """
 MODELS
 """
-MODELS_PATH = os.path.join(RESOURCES_PATH, "noise_schedulers")
+MODELS_PATH = os.path.join(RESOURCES_PATH, "models")
 
 TRAIN_PATH = os.path.join(MODELS_PATH, "training_results.csv")
 INFERENCE_PATH = os.path.join(MODELS_PATH, "inference_results.csv")
