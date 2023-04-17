@@ -100,7 +100,7 @@ class BasicStableLearner(StableLearner):
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
-        return noise, self.components.model(noisy_image, timestep, prompt).sample
+        return noise, self.components.model(noisy_image, timestep, None).sample
 
     def inference(
             self,
