@@ -250,7 +250,7 @@ class GuidedLearner(Learner):
 
         # Returns
         return {
-            str(class_idx): image[class_idx * num_samples:(class_idx + 1) * num_samples]
+            str(class_idx): image[class_idx * 5:(class_idx + 1) * 5]
             for class_idx
-            in range(image.shape[0] // num_samples)
+            in range(image.shape[0] // 5)
         }
