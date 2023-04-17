@@ -87,12 +87,10 @@ class BasicLearner(Learner):
                 extracted noise
         """
         # Image
-        # batch["image"]: torch.Tensor = batch["image"].type(torch.float16).to(self._DEVICE)
+        batch["image"]: torch.Tensor = batch["image"].to(self._DEVICE)
 
         # Predicts added noise
-        noisy_image, noise, timestep = self._add_noise(
-            batch["image"].to(self._DEVICE)
-        )
+        noisy_image, noise, timestep = self._add_noise(batch["image"])
         return noise, self.components.model(noisy_image, timestep).sample
 
     def inference(
@@ -109,7 +107,7 @@ class BasicLearner(Learner):
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                5,
+                10,
                 self._params["components"]["model"]["args"]["in_channels"],
                 self._params["components"]["model"]["args"]["sample_size"],
                 self._params["components"]["model"]["args"]["sample_size"]
@@ -202,10 +200,10 @@ class GuidedLearner(Learner):
                 extracted noise
         """
         # Image
-        batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
+        batch["image"]: torch.Tensor = batch["image"].to(self._DEVICE)
 
         # Label
-        batch["label"] = batch["label"].type(torch.int32).to(self._DEVICE)
+        batch["label"] = batch["label"].type(torch.int16).to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
