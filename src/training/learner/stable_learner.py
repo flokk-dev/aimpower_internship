@@ -65,7 +65,7 @@ class StableLearner(Learner):
             image: torch.Tensor
     ) -> torch.Tensor:
         """
-        Reduces tensor's dimension using a VAE.
+        Reduces tensor's dimensions using a VAE.
 
         Parameters
         ----------
@@ -79,6 +79,26 @@ class StableLearner(Learner):
         """
         with torch.no_grad():
             return self.components.vae.encode(image).latent_dist.sample() * 0.18215
+
+    def _decode_image(
+            self,
+            image: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Reverts the reduction of a tensor's dimensions using a VAE.
+
+        Parameters
+        ----------
+            image : torch.Tensor
+                image to decode
+
+        Returns
+        ----------
+            torch.Tensor
+                decoded image
+        """
+        with torch.no_grad():
+            return self.components.vae.decode(image).latent_dist.sample() / 0.18215
 
     def _encode_text(
             self,

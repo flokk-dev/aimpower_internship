@@ -78,7 +78,8 @@ class Learner:
             float
                 loss value computed using batch's data
         """
-        noise, noise_pred = self._forward(batch)
+        noise, noise_pred = 0, 0
+        print(len(self._forward(batch)))
 
         # Loss backward
         loss_value: torch.Tensor = self._loss(noise_pred, noise)
