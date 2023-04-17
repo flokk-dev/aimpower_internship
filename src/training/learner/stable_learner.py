@@ -98,7 +98,7 @@ class StableLearner(Learner):
                 decoded image
         """
         with torch.no_grad():
-            return self.components.vae.decode(image).latent_dist.sample() / 0.18215
+            return self.components.vae.decode(image / 0.18215).sample
 
     def _encode_text(
             self,
