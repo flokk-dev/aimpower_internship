@@ -87,10 +87,12 @@ class BasicLearner(Learner):
                 extracted noise
         """
         # Image
-        batch["image"]: torch.Tensor = batch["image"].type(torch.float16).to(self._DEVICE)
+        # batch["image"]: torch.Tensor = batch["image"].type(torch.float16).to(self._DEVICE)
 
         # Predicts added noise
-        noisy_image, noise, timestep = self._add_noise(batch["image"])
+        noisy_image, noise, timestep = self._add_noise(
+            batch["image"].to(self._DEVICE)
+        )
         return noise, self.components.model(noisy_image, timestep).sample
 
     def inference(
@@ -104,15 +106,13 @@ class BasicLearner(Learner):
             Dict[str, torch.Tensor]
                 generated image
         """
-        num_samples = 5
-
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                num_samples,
-                self._params["components"]["model"]["in_channels"],
-                self._params["components"]["model"]["sample_size"],
-                self._params["components"]["model"]["sample_size"]
+                5,
+                self._params["components"]["model"]["args"]["in_channels"],
+                self._params["components"]["model"]["args"]["sample_size"],
+                self._params["components"]["model"]["args"]["sample_size"]
             ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
@@ -222,21 +222,19 @@ class GuidedLearner(Learner):
             Dict[str, torch.Tensor]
                 generated image
         """
-        num_samples = 5
-
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                num_samples * self._params["num_labels"],
-                self._params["components"]["model"]["in_channels"],
-                self._params["components"]["model"]["sample_size"],
-                self._params["components"]["model"]["sample_size"]
+                5 * self._params["components"]["model"]["args"]["num_labels"],
+                self._params["components"]["model"]["args"]["in_channels"],
+                self._params["components"]["model"]["args"]["sample_size"],
+                self._params["components"]["model"]["args"]["sample_size"]
             ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
 
         labels: torch.Tensor = torch.tensor(
-            [[i] * num_samples for i in range(self._params["num_labels"])]
+            [[i] * 5 for i in range(self._params["components"]["model"]["args"]["num_labels"])]
         ).flatten().to(self._DEVICE)
 
         # Generates an image based on the gaussian noise
