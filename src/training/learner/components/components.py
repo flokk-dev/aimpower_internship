@@ -55,7 +55,7 @@ class Components:
     def __init__(
             self,
             params: Dict[str, Any],
-            weights_path: str,
+            num_epochs: int,
             num_batches: int
     ):
         """
@@ -65,8 +65,8 @@ class Components:
         ----------
             params : Dict[str, Any]
                 parameters needed to adjust the program behaviour
-            weights_path : str
-                path to the noise_scheduler's weights
+            num_epochs : int
+                number of epochs during the training
             num_batches : int
                 number of batches within the data loader
         """
@@ -74,27 +74,31 @@ class Components:
         self._params: Dict[str, Any] = params
 
         # VAE
-        self._vae = self._init_vae(weights_path).to(self._DEVICE)
+        self._vae = self._init_vae(params["vae"]["pipeline_path"]).to(self._DEVICE)
 
         # Model
-        self._model: torch.nn.Module = ModelManager(self._params)(
-            self._params["model_id"], weights_path
+        self._model: torch.nn.Module = ModelManager()(
+            model_type=params["model"]["type"],
+            model_params=params["model"]["args"],
+            pipeline_path=params["model"]["pipeline_path"]
         ).to(self._DEVICE)
 
         # Noise scheduler
-        self._noise_scheduler: diffusers.SchedulerMixin = NoiseSchedulerManager(self._params)(
-            self._params["noise_scheduler_id"], weights_path
+        self._noise_scheduler: diffusers.SchedulerMixin = NoiseSchedulerManager()(
+            scheduler_type=params["noise_scheduler"]["type"],
+            scheduler_params=params["noise_scheduler"]["args"],
+            pipeline_path=params["noise_scheduler"]["pipeline_path"]
         ).to(self._DEVICE)
 
         # Optimizer and learning rate
         self._optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
-            self.model.parameters(), lr=self._params["lr"]
+            self.model.parameters(), lr=params["lr"]
         )
         self._lr_scheduler: torch.nn.Module = \
             diffusers.optimization.get_cosine_schedule_with_warmup(
                 optimizer=self._optimizer,
-                num_warmup_steps=self._params["lr_warmup_steps"],
-                num_training_steps=(num_batches * self._params["num_epochs"]),
+                num_warmup_steps=params["lr_warmup_steps"],
+                num_training_steps=(num_batches * num_epochs)
             )
 
     @property
@@ -113,21 +117,21 @@ class Components:
 
     @staticmethod
     def _init_vae(
-            weights_path: str
+            pipeline_path: str
     ):
         """
-        Instantiates a training's VAE.
+        Instantiates a VAE.
 
         Parameters
         ----------
-            weights_path : str
-                path to the noise_scheduler's weights
+            pipeline_path : str
+                path to the pretrained pipeline
         """
-        if weights_path is None:
-            weights_path = "CompVis/stable-diffusion-v1-4"
+        if not pipeline_path:
+            pipeline_path = "CompVis/stable-diffusion-v1-4"
 
         return diffusers.AutoencoderKL.from_pretrained(
-            pretrained_model_name_or_path=weights_path,
+            pretrained_model_name_or_path=pipeline_path,
             subfolder="vae"
         )
 

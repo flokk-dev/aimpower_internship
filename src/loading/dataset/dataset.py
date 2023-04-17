@@ -76,7 +76,7 @@ class Dataset(TorchDataset):
         ])
 
         # Lazy loading
-        if not params["loading_method"] == "lazy":
+        if not params["lazy_loading"]:
             for idx, file_path in enumerate(tqdm(self._inputs, desc="loading the data in RAM.")):
                 self._inputs[idx] = self._load_image(file_path)
 
@@ -116,7 +116,7 @@ class Dataset(TorchDataset):
             Dict[str, torch.Tensor]
                 the dataset's element and additional info
         """
-        if self._params["loading_method"] == "lazy":
+        if self._params["lazy_loading"]:
             return {"image": self._load_image(self._inputs[idx])}
         else:
             return {"image": self._inputs[idx]}

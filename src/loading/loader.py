@@ -12,11 +12,9 @@ from typing import *
 import os
 import pandas as pd
 
-# IMPORT: data loading
-from torch.utils.data import DataLoader
-
 # IMPORT: project
-from .dataset import LazyDataSet, TensorDataSet
+from .data_loader import DataLoader, LabelDataLoader, PromptDataLoader
+from .dataset import Dataset, LabelDataset, PromptDataset
 
 
 class Loader:
@@ -35,7 +33,8 @@ class Loader:
         _generate_data_loaders : Dict[str, DataLoader]
             Generates a data loaders using extracted file paths
     """
-    _DATASETS = {"basic": TensorDataSet, "lazy": LazyDataSet}
+    _DATA_LOADERS = {"basic": DataLoader, "label": LabelDataLoader, "prompt": PromptDataLoader}
+    _DATASETS = {"basic": Dataset, "label": LabelDataset, "prompt": PromptDataset}
 
     def __init__(
             self,
@@ -82,6 +81,8 @@ class Loader:
 
         for idx, row in dataset_info.items():
             file_paths.append(os.path.join(dataset_path, row["image_path"]))
+
+            del row["image_path"]
             data_info.append(row)
 
             if idx >= self._params["num_data"] - 1:
@@ -109,11 +110,11 @@ class Loader:
             DataLoader
                 data loader containing training data
         """
-        return DataLoader(
-            self._DATASETS[self._params["loading_method"]](
-                self._params, file_paths, data_info
+        return self._DATA_LOADERS[self._params["loading_type"]](
+            self._params["data_loader"],
+            self._DATASETS[self._params["loading_type"]](
+                self._params["dataset"], file_paths, data_info
             ),
-            batch_size=self._params["batch_size"], shuffle=True, drop_last=True
         )
 
     def __call__(self, dataset_path: str) -> DataLoader:

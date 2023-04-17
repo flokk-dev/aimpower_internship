@@ -77,7 +77,7 @@ class LabelDataset(Dataset):
             torch.Tensor
                 casted element
         """
-        return torch.tensor(int(elem))
+        return torch.tensor([int(elem)]).type(torch.uint8)
 
     def __getitem__(
             self,
@@ -94,7 +94,7 @@ class LabelDataset(Dataset):
             Dict[str, torch.Tensor]
                 the dataset's element and additional info
         """
-        if self._params["loading_method"] == "lazy":
+        if self._params["lazy_loading"]:
             return {
                 "image": self._load_image(self._inputs[idx]),
                 "label": self._str_to_tensor(self._info[idx]["label"])
@@ -155,7 +155,7 @@ class PromptDataset(Dataset):
 
         # Attributes
         self._tokenizer: CLIPTokenizer = CLIPTokenizer.from_pretrained(
-            pretrained_model_name_or_path=self._params["model_id"],
+            pretrained_model_name_or_path=self._params["tokenizer"]["pipeline_path"],
             subfolder="tokenizer",
         )
 
@@ -210,7 +210,7 @@ class PromptDataset(Dataset):
             Dict[str, torch.Tensor]
                 the dataset's element and additional info
         """
-        if self._params["loading_method"] == "lazy":
+        if self._params["lazy_loading"]:
             return {
                 "image": self._load_image(self._inputs[idx]),
                 "prompt": self._tokenize(self._info[idx]["prompt"])

@@ -1,18 +1,65 @@
 {
-  "loading_method": "basic",
-  "train_type": "basic",
-
-  "pipeline_id": "ddpm",
-  "model_id": "unet",
-
-  "img_size": 32,
-  "num_channels": 1,
-  "block_out_channels": [64, 64, 128, 128],
-
-  "num_data": 5000,
-  "num_classes": 10,
   "num_epochs": 100,
-  "batch_size": 64,
-  "lr": 1e-4,
-  "lr_warmup_steps": 500
+
+  "loader": {
+    "loading_type": "basic",
+    "num_data": 5000,
+
+    "data_loader": {
+      "batch_size": 32
+    },
+
+    "dataset": {
+      "lazy_loading": true,
+      "img_size": 512,
+
+      "tokenizer": {
+        "pipeline_path": "CompVis/stable-diffusion-v1-4"
+      }
+    }
+  },
+
+  "learner": {
+    "learning_type": "basic",
+    "reduce_dimensions": false,
+
+    "components": {
+      "lr": 1e-4,
+      "lr_warmup_steps": 500,
+
+      "vae": {
+        "pipeline_path": "CompVis/stable-diffusion-v1-4"
+      },
+
+      "model": {
+        "type": "unet",
+        "pipeline_path": "CompVis/stable-diffusion-v1-4",
+
+        "args": {
+          "sample_size": 64,
+          "in_channels": 1,
+          "out_channels": 1,
+          "block_out_channels": [64, 64, 128, 128],
+          "num_labels": 0
+        }
+      },
+
+      "noise_scheduler": {
+        "type": "ddpm",
+        "pipeline_path": "",
+
+        "args": {
+          "num_timesteps": 1000
+        }
+      },
+
+      "text_encoder": {
+        "pipeline_path": "CompVis/stable-diffusion-v1-4"
+      },
+
+      "feature_extractor": {
+        "pipeline_path": "openai/clip-vit-base-patch32"
+      }
+    }
+  }
 }

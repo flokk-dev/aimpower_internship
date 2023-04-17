@@ -8,7 +8,6 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
-import diffusers
 
 # IMPORT: deep learning
 import torch
@@ -191,31 +190,30 @@ class Learner:
 
     def inference(
             self,
-            to_dict: bool = False
-    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+    ) -> Dict[str, torch.Tensor]:
         """
-        Generates and image using the training's noise_scheduler.
-
-        Parameters
-        ----------
-            to_dict : bool
-                wether or not to return a dictionary
+        Generates and image using the training's pipeline.
 
         Returns
         ----------
-            torch.Tensor
+            Dict[str, torch.Tensor]
                 generated image
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
         """
         raise NotImplementedError()
 
     def __call__(
             self,
-            batch: Union[torch.Tensor, Tuple[torch.Tensor, str]],
+            batch: Dict[str, torch.Tensor],
     ) -> float:
         """
         Parameters
         ----------
-            batch : Union[torch.Tensor, Tuple[torch.Tensor, str]]
+            batch : Dict[str, torch.Tensor]
                 batch of data
 
         Returns

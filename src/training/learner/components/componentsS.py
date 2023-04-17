@@ -19,7 +19,7 @@ import diffusers
 from .components import Components
 
 
-class ConditionedComponents(Components):
+class AdvancedComponents(Components):
     """
     Represents an ConditionedComponents.
 
@@ -59,30 +59,33 @@ class ConditionedComponents(Components):
         feature_extractor : torch.nn.Module
             Returns the training's feature extractor
     """
-    def __init__(self, params: Dict[str, Any], weights_path: str, num_batches: int):
+    def __init__(
+            self,
+            params: Dict[str, Any],
+            num_epochs: int,
+            num_batches: int
+    ):
         """
-        Instantiates a ConditionedComponents.
+        Instantiates a AdvancedComponents.
 
         Parameters
         ----------
             params : Dict[str, Any]
                 parameters needed to adjust the program behaviour
-            weights_path : str
-                path to the noise_scheduler's weights
+            num_epochs : int
+                number of epochs during the training
             num_batches : int
                 number of batches within the data loader
         """
         # Mother class
-        super(ConditionedComponents, self).__init__(params, weights_path, num_batches)
+        super(AdvancedComponents, self).__init__(params, num_epochs, num_batches)
 
         # Text encoder
-        self._text_encoder = transformers.CLIPTextModel.from_pretrained(
-            weights_path, subfolder="text_encoder"
-        ).to(self._DEVICE)
+        self._text_encoder = self._init_text_encoder(params["text_encoder"]["pipeline_path"])
 
         # Feature extractor
-        self._feature_extractor = transformers.CLIPFeatureExtractor.from_pretrained(
-            "openai/clip-vit-base-patch32"
+        self._feature_extractor = self._init_feature_extractor(
+            params["feature_extractor"]["pipeline_path"]
         )
 
     @property
@@ -97,6 +100,25 @@ class ConditionedComponents(Components):
         """
         return self._text_encoder
 
+    @staticmethod
+    def _init_text_encoder(
+            pipeline_path: str
+    ):
+        """
+        Instantiates a text encoder.
+
+        Parameters
+        ----------
+            pipeline_path : str
+                path to the pretrained pipeline
+        """
+        if not pipeline_path:
+            pipeline_path = "CompVis/stable-diffusion-v1-4"
+
+        return transformers.CLIPTextModel.from_pretrained(
+            pipeline_path, subfolder="text_encoder"
+        )
+
     @property
     def feature_extractor(self) -> transformers.CLIPFeatureExtractor:
         """
@@ -108,3 +130,20 @@ class ConditionedComponents(Components):
                 training's feature extractor
         """
         return self._feature_extractor
+
+    @staticmethod
+    def _init_feature_extractor(
+            pipeline_path: str
+    ):
+        """
+        Instantiates a training's VAE.
+
+        Parameters
+        ----------
+            pipeline_path : str
+                path to the pretrained pipeline
+        """
+        if not pipeline_path:
+            pipeline_path = "openai/clip-vit-base-patch32"
+
+        return transformers.CLIPFeatureExtractor.from_pretrained(pipeline_path)

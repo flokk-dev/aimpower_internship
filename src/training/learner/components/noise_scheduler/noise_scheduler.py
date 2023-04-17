@@ -11,70 +11,47 @@ from typing import *
 import diffusers
 
 # IMPORT: project
-from .noise_schedulers import \
-    load_ddpm, init_ddpm, \
-    load_ddim, init_ddim
+from .noise_schedulers import init_ddpm, load_ddpm, init_ddim, load_ddim
 
 
 class NoiseSchedulerManager(dict):
-    """
-    Represents a NoiseSchedulerManager.
-
-    Attributes
-    ----------
-        _params : Dict[str, Any]
-            parameters needed to adjust the program behaviour
-    """
+    """ Represents a NoiseSchedulerManager. """
 
     def __init__(
             self,
-            params: Dict[str, Any]
     ):
-        """
-        Instantiates a NoiseSchedulerManager.
-
-        Parameters
-        ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
-        """
+        """ Instantiates a NoiseSchedulerManager. """
         # Mother class
         super(NoiseSchedulerManager, self).__init__({
-            "ddpm": {
-                "load": load_ddpm,
-                "init": init_ddpm
-            },
-            "ddim": {
-                "load": load_ddim,
-                "init": init_ddim
-            }
+            "ddpm": {"init": init_ddpm, "load": load_ddpm},
+            "ddim": {"load": load_ddim, "init": init_ddim}
         })
-
-        # Attributes
-        self._params: Dict[str, Any] = params
 
     def __call__(
             self,
-            noise_scheduler_id: str,
-            weights_path: str,
+            scheduler_type: str,
+            scheduler_params: Dict[str, Any],
+            pipeline_path: str,
     ) -> diffusers.SchedulerMixin:
         """
         Parameters
         ----------
-            noise_scheduler_id : str
+            scheduler_type : str
                 id of the noise scheduler
-            weights_path : str
-                path to the noise scheduler's weights
+            scheduler_params : Dict[str, Any]
+                noise scheduler's parameters
+            pipeline_path : str
+                path to the pretrained pipeline
 
         Returns
         ----------
             diffusers.SchedulerMixin
-                noise_scheduler associated to the noise_scheduler id
+                noise scheduler associated to the noise scheduler type
         """
         try:
-            if weights_path is not None:
-                return self[noise_scheduler_id]["load"](weights_path)
-            return self[noise_scheduler_id]["load"](self._params)
+            if pipeline_path:
+                return self[scheduler_type]["load"](pipeline_path)
+            return self[scheduler_type]["init"](scheduler_params)
 
         except KeyError:
-            raise KeyError(f"The {noise_scheduler_id} isn't handled by the noise_scheduler manager.")
+            raise KeyError(f"The {scheduler_type} isn't handled by the noise scheduler manager.")

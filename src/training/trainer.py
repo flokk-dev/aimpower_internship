@@ -24,7 +24,7 @@ import paths
 import utils
 
 from src.loading import Loader
-from .learner import Learner, BasicLearner, GuidedLearner, ConditionedLearner
+from .learner import Learner, BasicLearner, ConditionedLearner
 from .dashboard import Dashboard
 
 
@@ -48,7 +48,7 @@ class Trainer:
         _checkpoint
             Saves noise_scheduler's weights
     """
-    _LEARNERS = {"basic": BasicLearner, "guided": GuidedLearner, "conditioned": ConditionedLearner}
+    _LEARNERS = {"basic": BasicLearner, "guided": BasicLearner, "conditioned": ConditionedLearner}
 
     def __init__(self, params: Dict[str, Any]):
         """
@@ -148,21 +148,19 @@ class Trainer:
             # Saves checkpoint image on disk
             utils.save_plt(tensor, os.path.join(key_path, f"epoch_{epoch}.png"))
 
-    def __call__(self, dataset_path: str, weights_path: str):
+    def __call__(self, dataset_path: str):
         """
         Parameters
         ----------
             dataset_path : str
                 path to the dataset
-            weights_path : str
-                path to the noise_scheduler's weights
         """
         # Loading
-        self._data_loader = Loader(self._params)(dataset_path)
+        self._data_loader = Loader(self._params["loader"])(dataset_path)
 
         # Learner
-        self._learner = self._LEARNERS[self._params["train_type"]](
-            self._params, len(self._data_loader), weights_path
+        self._learner = self._LEARNERS[self._params["training_type"]](
+            self._params["learner"], len(self._data_loader), self._params["num_epochs"]
         )
 
         # Dashboard

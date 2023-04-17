@@ -24,7 +24,7 @@ CONFIG_PATH = os.path.join(RESOURCES_PATH, "config.json")
 TEST
 """
 TEST_PATH = os.path.join(ROOT_PATH, "test")
-TEST_DATA_PATH = os.path.join(TEST_PATH, "data")
+TEST_RESOURCES_PATH = os.path.join(TEST_PATH, "resources")
 
 """
 MODELS
