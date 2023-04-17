@@ -98,7 +98,7 @@ class Dataset(TorchDataset):
                 the image as a tensor
         """
         return self._pre_process(
-            Image.open(path).convert("RGB")
+            Image.open(path)  # .convert("RGB")
         ).type(torch.float16)
 
     def __getitem__(
