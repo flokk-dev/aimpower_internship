@@ -77,7 +77,7 @@ class BasicTrainer(Trainer):
         """
         loading_type = params["loader"]["loading_type"]
         learning_type = params["learner"]["learning_type"]
-        model_type = params["learner"]["components"]["model"]["type"]
+        model_type = params["learner"]["components"]["model"]["model_type"]
 
         # Loading
         if loading_type not in ["basic", "label"]:
@@ -166,7 +166,7 @@ class StableTrainer(Trainer):
         """
         loading_type = params["loader"]["loading_type"]
         learning_type = params["learner"]["learning_type"]
-        model_type = params["learner"]["components"]["model"]["type"]
+        model_type = params["learner"]["components"]["model"]["model_type"]
 
         # Loading
         if loading_type not in ["basic", "prompt"]:

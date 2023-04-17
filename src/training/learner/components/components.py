@@ -71,14 +71,14 @@ class Components:
 
         # Model
         self.model: torch.nn.Module = ModelManager()(
-            model_type=params["model"]["type"],
+            model_type=params["model"]["model_type"],
             model_params=params["model"]["args"],
             pipeline_path=params["model"]["pipeline_path"]
         ).to(self._DEVICE)
 
         # Noise scheduler
         self.noise_scheduler: diffusers.SchedulerMixin = NoiseSchedulerManager()(
-            scheduler_type=params["noise_scheduler"]["type"],
+            scheduler_type=params["noise_scheduler"]["noise_scheduler_type"],
             scheduler_params=params["noise_scheduler"]["args"],
             pipeline_path=params["noise_scheduler"]["pipeline_path"]
         ).to(self._DEVICE)
