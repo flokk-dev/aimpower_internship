@@ -98,6 +98,8 @@ class BasicStableLearner(StableLearner):
         # Prompt
         prompt = torch.randn(batch["image"].shape).type(torch.float32).to(self._DEVICE)
 
+        print(f"image: {batch['image'].shape}, prompt: {prompt.shape}")
+
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
         return noise, self.components.model(noisy_image, timestep, prompt).sample
