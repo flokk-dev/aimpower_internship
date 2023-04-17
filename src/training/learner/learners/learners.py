@@ -203,7 +203,7 @@ class GuidedLearner(Learner):
         batch["image"]: torch.Tensor = batch["image"].to(self._DEVICE)
 
         # Label
-        batch["label"] = batch["label"].type(torch.int16).to(self._DEVICE)
+        batch["label"] = batch["label"].type(torch.int32).to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
