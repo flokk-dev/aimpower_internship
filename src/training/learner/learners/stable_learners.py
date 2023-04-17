@@ -69,7 +69,7 @@ class BasicStableLearner(StableLearner):
         super(BasicStableLearner, self).__init__(params)
 
         # Components
-        self._components = StableComponents(params["components"], num_epochs, num_batches)
+        self.components = StableComponents(params["components"], num_epochs, num_batches)
 
     def _forward(
             self,
@@ -100,7 +100,7 @@ class BasicStableLearner(StableLearner):
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
-        return noise, self._components.model(noisy_image, timestep, prompt).sample
+        return noise, self.components.model(noisy_image, timestep, prompt).sample
 
     def inference(
             self,
@@ -166,7 +166,7 @@ class ConditionedStableLearner(StableLearner):
         super(ConditionedStableLearner, self).__init__(params)
 
         # Components
-        self._components = StableComponents(params["components"], num_epochs, num_batches)
+        self.components = StableComponents(params["components"], num_epochs, num_batches)
 
     def _forward(
             self,
@@ -198,7 +198,7 @@ class ConditionedStableLearner(StableLearner):
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
-        return noise, self._components.model(noisy_image, timestep, batch["prompt"]).sample
+        return noise, self.components.model(noisy_image, timestep, batch["prompt"]).sample
 
     def inference(
             self,

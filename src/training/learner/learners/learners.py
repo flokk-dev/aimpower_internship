@@ -65,7 +65,7 @@ class BasicLearner(Learner):
         super(BasicLearner, self).__init__(params)
 
         # Components
-        self._components = Components(params["components"], num_epochs, num_batches)
+        self.components = Components(params["components"], num_epochs, num_batches)
 
     def _forward(
             self,
@@ -91,7 +91,7 @@ class BasicLearner(Learner):
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
-        return noise, self._components.model(noisy_image, timestep).sample
+        return noise, self.components.model(noisy_image, timestep).sample
 
     def inference(
             self,
@@ -116,13 +116,13 @@ class BasicLearner(Learner):
         ).to(self._DEVICE)
 
         # Generates an image based on the gaussian noise
-        for timestep in tqdm(self._components.noise_scheduler.timesteps):
+        for timestep in tqdm(self.components.noise_scheduler.timesteps):
             # Predicts the residual noise
             with torch.no_grad():
-                residual: torch.Tensor = self._components.model(image, timestep).sample
+                residual: torch.Tensor = self.components.model(image, timestep).sample
 
             # De-noises using the prediction
-            image: torch.Tensor = self._components.noise_scheduler.step(
+            image: torch.Tensor = self.components.noise_scheduler.step(
                 residual, timestep, image
             ).prev_sample
 
@@ -178,7 +178,7 @@ class GuidedLearner(Learner):
         super(GuidedLearner, self).__init__(params)
 
         # Components
-        self._components = Components(params["components"], num_epochs, num_batches)
+        self.components = Components(params["components"], num_epochs, num_batches)
 
     def _forward(
             self,
@@ -207,7 +207,7 @@ class GuidedLearner(Learner):
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
-        return noise, self._components.model(noisy_image, timestep, batch["label"]).sample
+        return noise, self.components.model(noisy_image, timestep, batch["label"]).sample
 
     def inference(
             self,
@@ -236,13 +236,13 @@ class GuidedLearner(Learner):
         ).flatten().to(self._DEVICE)
 
         # Generates an image based on the gaussian noise
-        for timestep in tqdm(self._components.noise_scheduler.timesteps):
+        for timestep in tqdm(self.components.noise_scheduler.timesteps):
             # Predicts the residual noise
             with torch.no_grad():
-                residual: torch.Tensor = self._components.model(image, timestep, labels).sample
+                residual: torch.Tensor = self.components.model(image, timestep, labels).sample
 
             # De-noises using the prediction
-            image: torch.Tensor = self._components.noise_scheduler.step(
+            image: torch.Tensor = self.components.noise_scheduler.step(
                 residual, timestep, image
             ).prev_sample
 
