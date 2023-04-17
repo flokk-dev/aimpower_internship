@@ -72,7 +72,9 @@ class StableComponents(Components):
         self.vae = self._init_vae(params["vae"]["pipeline_path"]).to(self._DEVICE)
 
         # Text encoder
-        self.text_encoder = self._init_text_encoder(params["text_encoder"]["pipeline_path"])
+        self.text_encoder = self._init_text_encoder(
+            params["text_encoder"]["pipeline_path"]
+        ).to(self._DEVICE)
 
     @staticmethod
     def _init_vae(

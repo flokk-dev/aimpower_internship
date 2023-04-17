@@ -81,7 +81,7 @@ class Components:
             scheduler_type=params["noise_scheduler"]["noise_scheduler_type"],
             scheduler_params=params["noise_scheduler"]["args"],
             pipeline_path=params["noise_scheduler"]["pipeline_path"]
-        ).to(self._DEVICE)
+        )
 
         # Optimizer and learning rate
         self.optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
