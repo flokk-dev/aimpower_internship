@@ -144,11 +144,11 @@ class Learner:
 
         # Sample random timestep
         timestep: torch.Tensor = torch.randint(
-            0, self.components.scheduler.config.num_train_timesteps, (noise.shape[0],)
+            0, self.components.noise_scheduler.config.num_train_timesteps, (noise.shape[0],)
         ).to(self._DEVICE)
 
         # Add noise to the input data
-        noisy_input: torch.Tensor = self.components.scheduler.add_noise(
+        noisy_input: torch.Tensor = self.components.noise_scheduler.add_noise(
             tensor, noise, timestep
         ).to(self._DEVICE)
 
