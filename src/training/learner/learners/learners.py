@@ -29,7 +29,7 @@ class BasicLearner(Learner):
             parameters needed to adjust the program behaviour
         _loss : Loss
             training's loss function
-        _components : Components
+        components : Components
             training's components
 
     Methods
@@ -87,7 +87,7 @@ class BasicLearner(Learner):
                 extracted noise
         """
         # Image
-        batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
+        batch["image"]: torch.Tensor = batch["image"].type(torch.float16).to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
@@ -109,8 +109,10 @@ class BasicLearner(Learner):
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                num_samples, self._params["in_channels"],
-                self._params["img_size"], self._params["img_size"]
+                num_samples,
+                self._params["components"]["model"]["in_channels"],
+                self._params["components"]["model"]["sample_size"],
+                self._params["components"]["model"]["sample_size"]
             ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
@@ -142,7 +144,7 @@ class GuidedLearner(Learner):
             parameters needed to adjust the program behaviour
         _loss : Loss
             training's loss function
-        _components : Components
+        components : Components
             training's components
 
     Methods
@@ -225,8 +227,10 @@ class GuidedLearner(Learner):
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                num_samples * self._params["num_labels"], self._params["in_channels"],
-                self._params["img_size"], self._params["img_size"]
+                num_samples * self._params["num_labels"],
+                self._params["components"]["model"]["in_channels"],
+                self._params["components"]["model"]["sample_size"],
+                self._params["components"]["model"]["sample_size"]
             ),
             generator=torch.manual_seed(0)
         ).to(self._DEVICE)
