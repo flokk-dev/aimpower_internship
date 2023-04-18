@@ -127,6 +127,7 @@ class BasicLearner(Learner):
                 residual, timestep, image
             ).prev_sample
 
+        del residual
         if self._params["reduce_dimensions"]:
             image = self._decode_image(image)
 
