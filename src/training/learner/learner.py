@@ -81,7 +81,7 @@ class Learner:
         if self._params["reduce_dimensions"]:
             batch["image"] = self._encode_image(
                 batch["image"].type(torch.float32).to(self._DEVICE)
-            ).type(torch.float16)
+            )
         noise, noise_pred = self._forward(batch)
 
         # Loss backward
