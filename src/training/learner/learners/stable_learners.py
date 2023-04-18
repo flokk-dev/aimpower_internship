@@ -100,7 +100,7 @@ class BasicStableLearner(StableLearner):
 
         # Conditioning
         condition: torch.Tensor = torch.randn(
-            1,
+            batch["image"].shape[0],
             self._params["components"]["model"]["sequence_length"],
             self._params["components"]["model"]["feature_dim"]
         ).to(self._DEVICE)
