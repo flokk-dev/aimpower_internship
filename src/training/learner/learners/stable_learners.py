@@ -96,13 +96,17 @@ class BasicStableLearner(StableLearner):
         batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
         if self._params["reduce_dimensions"]:
             batch["image"] = self._encode_image(batch["image"])
+        print(f"image: {batch['image'].shape}")
 
-        # Prompt
-        prompt = torch.randn(1, 4, 1280).type(torch.float32).to(self._DEVICE)
+        # Conditioning
+        condition: torch.Tensor = torch.randn(
+            1, self._params["sequence_length"], self._params["feature_dim"]
+        ).to(self._DEVICE)
+        print(f"condition: {condition.shape}")
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
-        return noise, self.components.model(noisy_image, timestep, prompt).sample
+        return noise, self.components.model(noisy_image, timestep, condition).sample
 
     def inference(
             self,
@@ -115,7 +119,38 @@ class BasicStableLearner(StableLearner):
             Dict[str, torch.Tensor]
                 generated image
         """
-        pass
+        # Samples gaussian noise
+        image: torch.Tensor = torch.randn(
+            (
+                10,
+                self._params["components"]["model"]["args"]["in_channels"],
+                self._params["components"]["model"]["args"]["sample_size"],
+                self._params["components"]["model"]["args"]["sample_size"]
+            ),
+            generator=torch.manual_seed(0)
+        ).to(self._DEVICE)
+
+        # Conditioning
+        condition: torch.Tensor = torch.randn(
+            10, self._params["sequence_length"], self._params["feature_dim"]
+        ).to(self._DEVICE)
+
+        # Generates an image based on the gaussian noise
+        for timestep in tqdm(self.components.noise_scheduler.timesteps):
+            # Predicts the residual noise
+            with torch.no_grad():
+                residual: torch.Tensor = self.components.model(image, timestep, condition).sample
+
+            # De-noises using the prediction
+            image: torch.Tensor = self.components.noise_scheduler.step(
+                residual, timestep, image
+            ).prev_sample
+
+        image = self._decode_image(image)
+        image = utils.adjust_image_colors(image.cpu())
+
+        # Returns
+        return {"image": image}
 
 
 class ConditionedStableLearner(StableLearner):

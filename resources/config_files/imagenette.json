@@ -28,6 +28,9 @@
         "model_type": "conditioned",
         "pipeline_path": "",
 
+        "sequence_length": 4,
+        "feature_dim": 1280,
+
         "args": {
           "sample_size": 64,
           "in_channels": 4,
