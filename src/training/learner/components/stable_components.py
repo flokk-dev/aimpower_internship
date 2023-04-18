@@ -71,15 +71,15 @@ class StableComponents(Components):
         # VAE
         self.vae: diffusers.AutoencoderKL = self._init_vae(
             params["vae"]["pipeline_path"]
-        ).to(self._DEVICE)
+        )
 
         # Text encoder
         self.text_encoder: transformers.CLIPTextModel = self._init_text_encoder(
             params["text_encoder"]["pipeline_path"]
-        ).to(self._DEVICE)
+        )
 
-    @staticmethod
     def _init_vae(
+            self,
             pipeline_path: str
     ) -> diffusers.AutoencoderKL:
         """
@@ -96,10 +96,10 @@ class StableComponents(Components):
         return diffusers.AutoencoderKL.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,
             subfolder="vae"
-        )
+        ).to(self._DEVICE)
 
-    @staticmethod
     def _init_text_encoder(
+            self,
             pipeline_path: str
     ) -> transformers.CLIPTextModel:
         """
@@ -116,4 +116,4 @@ class StableComponents(Components):
         return transformers.CLIPTextModel.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,
             subfolder="text_encoder"
-        )
+        ).to(self._DEVICE)
