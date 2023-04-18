@@ -162,7 +162,7 @@ class Trainer:
                 the current epoch idx
         """
         # Saves pipeline
-        self._save(os.path.join(self._path, "pipeline"))
+        # self._save(os.path.join(self._path, "pipeline"))
 
         # Generates checkpoint images
         tensors: Dict[str, torch.Tensor] = self._learner.inference()
