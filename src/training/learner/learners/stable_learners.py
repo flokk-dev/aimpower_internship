@@ -120,7 +120,7 @@ class BasicStableLearner(StableLearner):
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                10,
+                5,
                 self._params["components"]["model"]["args"]["in_channels"],
                 self._params["components"]["model"]["args"]["sample_size"],
                 self._params["components"]["model"]["args"]["sample_size"]
@@ -130,7 +130,7 @@ class BasicStableLearner(StableLearner):
 
         # Conditioning
         condition: torch.Tensor = torch.randn(
-            10,
+            5,
             self._params["components"]["model"]["sequence_length"],
             self._params["components"]["model"]["feature_dim"]
         ).to(self._DEVICE)
@@ -147,7 +147,8 @@ class BasicStableLearner(StableLearner):
             ).prev_sample
 
         image = self._decode_image(image)
-        image = utils.adjust_image_colors(image.cpu())
+        print(torch.unique(image))
+        # image = utils.adjust_image_colors(image.cpu())
 
         # Returns
         return {"image": image}
