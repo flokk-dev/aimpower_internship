@@ -195,6 +195,7 @@ class Learner:
             torch.Tensor
                 decoded image
         """
+        print("here")
         with torch.no_grad():
             return self.components.vae.decode(image / 0.18215).sample
 

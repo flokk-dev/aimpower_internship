@@ -4,7 +4,7 @@ Date: 09/04/2023
 Version: 1.0
 Purpose:
 """
-
+import time
 # IMPORT: utils
 from typing import *
 from tqdm import tqdm
@@ -105,6 +105,7 @@ class BasicLearner(Learner):
             Dict[str, torch.Tensor]
                 generated image
         """
+        time.sleep(5)
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
@@ -114,7 +115,7 @@ class BasicLearner(Learner):
                 self._params["components"]["model"]["args"]["sample_size"]
             ),
             generator=torch.manual_seed(0)
-        ).to(self._DEVICE)
+        ).type(torch.float16).to(self._DEVICE)
 
         # Generates an image based on the gaussian noise
         for timestep in tqdm(self.components.noise_scheduler.timesteps):
@@ -127,9 +128,8 @@ class BasicLearner(Learner):
                 residual, timestep, image
             ).prev_sample
 
-        print(image.dtype)
         if self._params["reduce_dimensions"]:
-            image = self._decode_image(image.detach())
+            image = self._decode_image(image.type(torch.float32))
 
         print(image.shape)
         print(torch.unique(image))
