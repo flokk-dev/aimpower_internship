@@ -198,9 +198,11 @@ class Learner:
         """
         # (image / 2 + 0.5).clamp(0, 1)
         with torch.no_grad():
-            return self.components.vae.decode(
+            image = self.components.vae.decode(
                 1 / self.components.vae.config.scaling_factor * image
             ).sample
+
+        return (image / 2 + 0.5).clamp(0, 1)
 
     def inference(
             self,
