@@ -147,6 +147,7 @@ class BasicStableLearner(StableLearner):
             ).prev_sample
 
         image = self._decode_image(image)
+        print(image.shape)
         print(torch.unique(image))
         # image = utils.adjust_image_colors(image.cpu())
 
