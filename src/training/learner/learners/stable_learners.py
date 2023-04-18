@@ -100,7 +100,9 @@ class BasicStableLearner(StableLearner):
 
         # Conditioning
         condition: torch.Tensor = torch.randn(
-            1, self._params["sequence_length"], self._params["feature_dim"]
+            1,
+            self._params["components"]["model"]["sequence_length"],
+            self._params["components"]["model"]["feature_dim"]
         ).to(self._DEVICE)
         print(f"condition: {condition.shape}")
 
@@ -132,7 +134,9 @@ class BasicStableLearner(StableLearner):
 
         # Conditioning
         condition: torch.Tensor = torch.randn(
-            10, self._params["sequence_length"], self._params["feature_dim"]
+            10,
+            self._params["components"]["model"]["sequence_length"],
+            self._params["components"]["model"]["feature_dim"]
         ).to(self._DEVICE)
 
         # Generates an image based on the gaussian noise
