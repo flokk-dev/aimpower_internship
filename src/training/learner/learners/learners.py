@@ -126,6 +126,12 @@ class BasicLearner(Learner):
                 residual, timestep, image
             ).prev_sample
 
+        if self._params["reduce_dimensions"]:
+            image = self._decode_image(image)
+
+        print(image.shape)
+        print(torch.unique(image))
+
         image = utils.adjust_image_colors(image.cpu())
 
         # Returns

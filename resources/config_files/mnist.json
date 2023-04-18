@@ -18,7 +18,8 @@
 
   "learner": {
     "learning_type": "basic",
-
+    "reduce_dimensions": false,
+    
     "components": {
       "lr": 1e-4,
       "lr_warmup_steps": 500,
@@ -42,6 +43,10 @@
         "args": {
           "num_timesteps": 1000
         }
+      },
+
+      "vae": {
+        "pipeline_path": ""
       }
     }
   }

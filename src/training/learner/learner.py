@@ -78,6 +78,8 @@ class Learner:
             float
                 loss value computed using batch's data
         """
+        if self._params["reduce_dimensions"]:
+            batch["image"] = self._encode_image(batch["image"])
         noise, noise_pred = self._forward(batch)
 
         # Loss backward
@@ -153,6 +155,46 @@ class Learner:
         ).to(self._DEVICE)
 
         return noisy_input, noise, timestep
+
+    def _encode_image(
+            self,
+            image: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Reduces tensor's dimensions using a VAE.
+
+        Parameters
+        ----------
+            image : torch.Tensor
+                image to encode
+
+        Returns
+        ----------
+            torch.Tensor
+                encoded image
+        """
+        with torch.no_grad():
+            return self.components.vae.encode(image).latent_dist.sample() * 0.18215
+
+    def _decode_image(
+            self,
+            image: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Reverts the reduction of a tensor's dimensions using a VAE.
+
+        Parameters
+        ----------
+            image : torch.Tensor
+                image to decode
+
+        Returns
+        ----------
+            torch.Tensor
+                decoded image
+        """
+        with torch.no_grad():
+            return self.components.vae.decode(image / 0.18215).sample
 
     def inference(
             self,

@@ -18,6 +18,7 @@
 
   "learner": {
     "learning_type": "guided",
+    "reduce_dimensions": false,
 
     "components": {
       "lr": 1e-4,
@@ -43,6 +44,10 @@
         "args": {
           "num_timesteps": 1000
         }
+      },
+
+      "vae": {
+        "pipeline_path": ""
       }
     }
   }

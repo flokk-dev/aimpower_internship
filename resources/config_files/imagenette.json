@@ -1,5 +1,5 @@
 {
-  "training_type": "stable",
+  "training_type": "basic",
   "num_epochs": 100,
 
   "loader": {
@@ -7,7 +7,7 @@
     "num_data": 500,
 
     "data_loader": {
-      "batch_size": 8
+      "batch_size": 16
     },
 
     "dataset": {
@@ -25,11 +25,8 @@
       "lr_warmup_steps": 500,
 
       "model": {
-        "model_type": "conditioned",
+        "model_type": "basic",
         "pipeline_path": "",
-
-        "sequence_length": 4,
-        "feature_dim": 1280,
 
         "args": {
           "sample_size": 64,
@@ -50,10 +47,6 @@
 
       "vae": {
         "pipeline_path": "CompVis/stable-diffusion-v1-4"
-      },
-
-      "text_encoder": {
-        "pipeline_path": ""
       }
     }
   }

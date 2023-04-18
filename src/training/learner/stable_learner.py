@@ -60,46 +60,6 @@ class StableLearner(Learner):
         # Mother class
         super(StableLearner, self).__init__(params)
 
-    def _encode_image(
-            self,
-            image: torch.Tensor
-    ) -> torch.Tensor:
-        """
-        Reduces tensor's dimensions using a VAE.
-
-        Parameters
-        ----------
-            image : torch.Tensor
-                image to encode
-
-        Returns
-        ----------
-            torch.Tensor
-                encoded image
-        """
-        with torch.no_grad():
-            return self.components.vae.encode(image).latent_dist.sample() * 0.18215
-
-    def _decode_image(
-            self,
-            image: torch.Tensor
-    ) -> torch.Tensor:
-        """
-        Reverts the reduction of a tensor's dimensions using a VAE.
-
-        Parameters
-        ----------
-            image : torch.Tensor
-                image to decode
-
-        Returns
-        ----------
-            torch.Tensor
-                decoded image
-        """
-        with torch.no_grad():
-            return self.components.vae.decode(image / 0.18215).sample
-
     def _encode_text(
             self,
             text: torch.Tensor
