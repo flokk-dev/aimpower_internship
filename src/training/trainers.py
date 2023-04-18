@@ -18,7 +18,7 @@ from diffusers.pipelines.stable_diffusion import StableDiffusionSafetyChecker
 
 # IMPORT: project
 from .trainer import Trainer
-from .learner import BasicLearner, GuidedLearner, BasicStableLearner, ConditionedStableLearner
+from .learner import BasicLearner, GuidedLearner, StableLearner
 
 
 class BasicTrainer(Trainer):
@@ -110,9 +110,9 @@ class BasicTrainer(Trainer):
         ).save_pretrained(path)
 
 
-class StableTrainer(Trainer):
+class AdvancedTrainer(Trainer):
     """
-    Represents a StableTrainer.
+    Represents a AdvancedTrainer.
 
     Attributes
     ----------
@@ -130,14 +130,14 @@ class StableTrainer(Trainer):
         _checkpoint
             Saves noise_scheduler's weights
     """
-    _LEARNERS = {"basic": BasicStableLearner, "conditioned": ConditionedStableLearner}
+    _LEARNERS = {"conditioned": StableLearner}
 
     def __init__(
             self,
             params: Dict[str, Any]
     ):
         """
-        Instantiates a StableTrainer.
+        Instantiates an AdvancedTrainer.
 
         Parameters
         ----------
@@ -145,7 +145,7 @@ class StableTrainer(Trainer):
                 parameters needed to adjust the program behaviour
         """
         # Mother class
-        super(StableTrainer, self).__init__(params)
+        super(AdvancedTrainer, self).__init__(params)
 
     def _verify_parameters(
             self,
@@ -169,11 +169,11 @@ class StableTrainer(Trainer):
         model_type = params["learner"]["components"]["model"]["model_type"]
 
         # Loading
-        if loading_type not in ["basic", "prompt"]:
+        if loading_type not in ["prompt"]:
             raise ValueError(f"{loading_type} loading isn't handled by the StableTrainer.")
 
         # Learner
-        if learning_type not in ["basic", "conditioned"]:
+        if learning_type not in ["conditioned"]:
             raise ValueError(f"{learning_type} learning isn't handled by the StableTrainer.")
 
         # Model

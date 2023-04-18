@@ -15,13 +15,13 @@ import torch
 # IMPORT: project
 import utils
 
-from src.training.learner.stable_learner import StableLearner
-from src.training.learner.components import StableComponents
+from src.training.learner.advanced_learner import AdvancedLearner
+from src.training.learner.components import AdvancedComponents
 
 
-class ConditionedStableLearner(StableLearner):
+class StableLearner(AdvancedLearner):
     """
-    Represents a ConditionedStableLearner.
+    Represents a StableLearner.
 
     Attributes
     ----------
@@ -54,7 +54,7 @@ class ConditionedStableLearner(StableLearner):
             num_batches: int
     ):
         """
-        Instantiates a ConditionedStableLearner.
+        Instantiates a StableLearner.
 
         Parameters
         ----------
@@ -66,10 +66,10 @@ class ConditionedStableLearner(StableLearner):
                 number of batches within the data loader
         """
         # Mother class
-        super(ConditionedStableLearner, self).__init__(params)
+        super(StableLearner, self).__init__(params)
 
         # Components
-        self.components = StableComponents(params["components"], num_epochs, num_batches)
+        self.components = AdvancedComponents(params["components"], num_epochs, num_batches)
 
     def _forward(
             self,
