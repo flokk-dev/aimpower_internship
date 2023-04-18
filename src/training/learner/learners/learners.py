@@ -108,7 +108,7 @@ class BasicLearner(Learner):
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                10,
+                5,
                 self._params["components"]["model"]["args"]["in_channels"],
                 self._params["components"]["model"]["args"]["sample_size"],
                 self._params["components"]["model"]["args"]["sample_size"]
@@ -127,7 +127,6 @@ class BasicLearner(Learner):
                 residual, timestep, image
             ).prev_sample
 
-        time.sleep(5)
         if self._params["reduce_dimensions"]:
             image = self._decode_image(image.type(torch.float32))
 
