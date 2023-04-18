@@ -87,7 +87,8 @@ class BasicLearner(Learner):
                 extracted noise
         """
         # Image
-        batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
+        if not self._params["reduce_dimensions"]:
+            batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
@@ -206,7 +207,8 @@ class GuidedLearner(Learner):
                 extracted noise
         """
         # Image
-        batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
+        if not self._params["reduce_dimensions"]:
+            batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
 
         # Label
         batch["label"] = batch["label"].type(torch.int32).to(self._DEVICE)
