@@ -128,7 +128,7 @@ class BasicLearner(Learner):
             ).prev_sample
 
         if self._params["reduce_dimensions"]:
-            image = self._decode_image(image.type(torch.float32))
+            image = self._decode_image(image)
 
         print(image.shape)
         print(torch.unique(image))
