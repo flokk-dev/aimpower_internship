@@ -66,12 +66,6 @@ class Trainer:
         self._verify_parameters(params)
         self._params: Dict[str, Any] = params
 
-        # Components
-        self._data_loader: DataLoader = None
-        self._learner: Learner = None
-
-        self._dashboard: Dashboard = None
-
         # Creates training's repository
         self._path = os.path.join(paths.MODELS_PATH, utils.get_datetime())
         if not os.path.exists(self._path):
@@ -80,6 +74,12 @@ class Trainer:
 
         with open(os.path.join(self._path, "config.json"), 'w') as file_content:
             json.dump(self._params, file_content)
+
+        # Components
+        self._data_loader: DataLoader = None
+        self._learner: Learner = None
+
+        self._dashboard: Dashboard = None
 
     def _verify_parameters(
             self,

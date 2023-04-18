@@ -108,7 +108,7 @@ class BasicLearner(Learner):
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
-                5,
+                8,
                 self._params["components"]["model"]["args"]["in_channels"],
                 self._params["components"]["model"]["args"]["sample_size"],
                 self._params["components"]["model"]["args"]["sample_size"]

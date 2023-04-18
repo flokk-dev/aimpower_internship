@@ -156,7 +156,7 @@ class Learner:
             tensor, noise, timestep
         ).to(self._DEVICE)
 
-        return noisy_input.type(torch.float16), noise.type(torch.float16), timestep.type(torch.float16)
+        return noisy_input, noise, timestep
 
     def _encode_image(
             self,
