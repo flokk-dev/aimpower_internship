@@ -26,7 +26,7 @@
 
       "model": {
         "model_type": "conditioned",
-        "pipeline_path": "stabilityai/stable-diffusion-2-1-base",
+        "pipeline_path": "",
 
         "args": {
           "sample_size": 64,
@@ -46,11 +46,11 @@
       },
 
       "vae": {
-        "pipeline_path": "stabilityai/stable-diffusion-2-1-base"
+        "pipeline_path": "CompVis/stable-diffusion-v1-4"
       },
 
       "text_encoder": {
-        "pipeline_path": "stabilityai/stable-diffusion-2-1-base"
+        "pipeline_path": ""
       }
     }
   }

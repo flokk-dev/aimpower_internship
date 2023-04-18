@@ -90,13 +90,15 @@ class BasicStableLearner(StableLearner):
             torch.Tensor
                 extracted noise
         """
+        print(type(self.components.model))
+
         # Image
         batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
         if self._params["reduce_dimensions"]:
             batch["image"] = self._encode_image(batch["image"])
 
         # Prompt
-        prompt = torch.randn(batch["image"].shape).type(torch.float32).to(self._DEVICE)
+        prompt = torch.randn(1, 4, 1280).type(torch.float32).to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])

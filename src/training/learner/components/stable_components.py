@@ -69,10 +69,12 @@ class StableComponents(Components):
         super(StableComponents, self).__init__(params, num_epochs, num_batches)
 
         # VAE
-        self.vae = self._init_vae(params["vae"]["pipeline_path"]).to(self._DEVICE)
+        self.vae: diffusers.AutoencoderKL = self._init_vae(
+            params["vae"]["pipeline_path"]
+        ).to(self._DEVICE)
 
         # Text encoder
-        self.text_encoder = self._init_text_encoder(
+        self.text_encoder: transformers.CLIPTextModel = self._init_text_encoder(
             params["text_encoder"]["pipeline_path"]
         ).to(self._DEVICE)
 
@@ -89,7 +91,7 @@ class StableComponents(Components):
                 path to the pretrained pipeline
         """
         if not pipeline_path:
-            pipeline_path = "CompVis/stable-diffusion-v1-4"
+            return None
 
         return diffusers.AutoencoderKL.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,
@@ -109,8 +111,9 @@ class StableComponents(Components):
                 path to the pretrained pipeline
         """
         if not pipeline_path:
-            pipeline_path = "CompVis/stable-diffusion-v1-4"
+            return None
 
         return transformers.CLIPTextModel.from_pretrained(
-            pipeline_path, subfolder="text_encoder"
+            pretrained_model_name_or_path=pipeline_path,
+            subfolder="text_encoder"
         )
