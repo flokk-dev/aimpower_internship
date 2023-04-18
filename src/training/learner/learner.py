@@ -176,7 +176,7 @@ class Learner:
                 encoded image
         """
         with torch.no_grad():
-            return self.components.vae.encode(image).latent_dist.sample * \
+            return self.components.vae.encode(image).latent_dist.sample() * \
                 self.components.vae.config.scaling_factor
 
     def _decode_image(
