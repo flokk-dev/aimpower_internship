@@ -142,14 +142,13 @@ class BasicLearner(Learner):
             scheduler=self.components.noise_scheduler
         ).to(self._DEVICE)
 
-        pipeline.set_progress_bar_config(disable=True)
         pipeline.safety_checker = None
 
         # Validation
         images: List[torch.Tensor] = list()
         for i in range(5):
             image = pipeline(
-                num_inference_steps=30,
+                num_inference_steps=1000,
                 generator=torch.manual_seed(0)
             ).images[0]
 
