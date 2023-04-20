@@ -7,7 +7,7 @@
     "num_data": 5000,
 
     "data_loader": {
-      "batch_size": 4
+      "batch_size": 2
     },
 
     "dataset": {
