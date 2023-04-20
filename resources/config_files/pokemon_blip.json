@@ -1,5 +1,5 @@
 {
-  "training_type": "advanced",
+  "training_type": "stable",
   "num_epochs": 100,
 
   "loader": {
@@ -30,7 +30,7 @@
 
       "model": {
         "model_type": "conditioned",
-        "pipeline_path": "CompVis/stable-diffusion-v1-4",
+        "pipeline_path": "",
 
         "args": {
           "sample_size": 64,
@@ -42,7 +42,7 @@
 
       "noise_scheduler": {
         "noise_scheduler_type": "ddpm",
-        "pipeline_path": "CompVis/stable-diffusion-v1-4",
+        "pipeline_path": "",
 
         "args": {
           "num_timesteps": 1000
