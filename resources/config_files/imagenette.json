@@ -29,7 +29,7 @@
         "pipeline_path": "",
 
         "sequence_length": 11,
-        "feature_dim": 768,
+        "feature_dim": 1280,
 
         "args": {
           "sample_size": 64,
