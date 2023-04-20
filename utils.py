@@ -38,7 +38,7 @@ def adjust_image_colors(image):
     values = torch.unique(image)
 
     if min(values) >= 0 and max(values) <= 1:
-        return (image * 255).clamp(0, 255).type(torch.uint8)
+        return (image * 255).type(torch.uint8)
     elif min(values) >= -1 and max(values) <= 1:
         return ((image / 2 + 0.5).clamp(0, 1) * 255).type(torch.uint8)
 
