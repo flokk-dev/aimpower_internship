@@ -34,13 +34,6 @@ class Components:
             training's optimizer
         lr_scheduler : torch.nn.Module
             learning rate's scheduler
-        vae : diffusers.AutoencoderKL
-            training's image encoder
-
-    Methods
-    ----------
-        _init_vae : diffusers.AutoencoderKL
-            Instantiates an image encoder
     """
     _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -64,11 +57,6 @@ class Components:
         """
         # Attributes
         self._params: Dict[str, Any] = params
-
-        # VAE
-        self.vae: diffusers.AutoencoderKL = self._init_vae(
-            params["vae"]["pipeline_path"]
-        )
 
         # Model
         self.model: torch.nn.Module = ModelManager()(
@@ -95,23 +83,3 @@ class Components:
                 num_warmup_steps=params["lr_warmup_steps"],
                 num_training_steps=(num_batches * num_epochs)
             )
-
-    def _init_vae(
-            self,
-            pipeline_path: str
-    ) -> diffusers.AutoencoderKL:
-        """
-        Instantiates an image encoder.
-
-        Parameters
-        ----------
-            pipeline_path : str
-                path to the pretrained pipeline
-        """
-        if not pipeline_path:
-            return None
-
-        return diffusers.AutoencoderKL.from_pretrained(
-            pretrained_model_name_or_path=pipeline_path,
-            subfolder="vae"
-        ).to(self._DEVICE)

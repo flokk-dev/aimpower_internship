@@ -9,9 +9,9 @@ Purpose:
 # IMPORT: utils
 from typing import *
 
-import diffusers
 # IMPORT: deep learning
 import torch
+import diffusers
 
 # IMPORT: project
 from .components import Components
@@ -78,10 +78,6 @@ class Learner:
             float
                 loss value computed using batch's data
         """
-        if self._params["reduce_dimensions"]:
-            batch["image"] = self._encode_image(
-                batch["image"].type(torch.float32).to(self._DEVICE)
-            )
         noise, noise_pred = self._forward(batch)
 
         # Loss backward
@@ -158,61 +154,32 @@ class Learner:
 
         return noisy_input, noise, timestep
 
-    def _encode_image(
-            self,
-            image: torch.Tensor
-    ) -> torch.Tensor:
-        """
-        Reduces tensor's dimensions using a VAE.
-
-        Parameters
-        ----------
-            image : torch.Tensor
-                image to encode
-
-        Returns
-        ----------
-            torch.Tensor
-                encoded image
-        """
-        with torch.no_grad():
-            return self.components.vae.encode(image).latent_dist.sample() * \
-                self.components.vae.config.scaling_factor
-
-    def _decode_image(
-            self,
-            image: torch.Tensor
-    ) -> torch.Tensor:
-        """
-        Reverts the reduction of a tensor's dimensions using a VAE.
-
-        Parameters
-        ----------
-            image : torch.Tensor
-                image to decode
-
-        Returns
-        ----------
-            torch.Tensor
-                decoded image
-        """
-        with torch.no_grad():
-            return self.components.vae.decode(
-                image / self.components.vae.config.scaling_factor
-            ).sample
-
-        # return (image / 2 + 0.5).clamp(0, 1)
-
     def inference(
             self,
     ) -> Dict[str, torch.Tensor]:
         """
-        Generates and image using the training's pipeline.
+        Generates and image using the training's components.
 
         Returns
         ----------
             Dict[str, torch.Tensor]
                 generated image
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
+        """
+        raise NotImplementedError()
+
+    def _init_pipeline(self):
+        """
+        Initializes a pipeline using the training's components.
+
+        Returns
+        ----------
+            diffusers.DiffusionPipeline
+                diffusion pipeline
 
         Raises
         ----------

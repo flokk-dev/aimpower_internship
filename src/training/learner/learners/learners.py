@@ -98,7 +98,7 @@ class BasicLearner(Learner):
             self,
     ) -> Dict[str, torch.Tensor]:
         """
-        Generates and image using the training's pipeline.
+        Generates and image using the training's components.
 
         Returns
         ----------
@@ -218,7 +218,7 @@ class GuidedLearner(Learner):
             self,
     ) -> Dict[str, torch.Tensor]:
         """
-        Generates and image using the training's pipeline.
+        Generates and image using the training's components.
 
         Returns
         ----------

@@ -112,6 +112,7 @@ class Trainer:
             torch.cuda.empty_cache()
 
             # Learns
+            self._learner.components.model.train()
             self._run_epoch(p_bar)
 
             # Updates

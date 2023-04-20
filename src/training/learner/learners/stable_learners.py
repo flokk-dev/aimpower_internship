@@ -109,24 +109,15 @@ class UnconditionedStableLearner(StableLearner):
             self,
     ) -> Dict[str, torch.Tensor]:
         """
-        Generates and image using the training's pipeline.
+        Generates and image using the training's components.
 
         Returns
         ----------
             Dict[str, torch.Tensor]
                 generated image
         """
-        # Pipeline
-        pipeline = diffusers.DiffusionPipeline.from_pretrained(
-            pretrained_model_name_or_path=self._params["components"]["vae"]["pipeline_path"],
-            unet=self.components.model
-        ).to(self._DEVICE)
-
-        pipeline.set_progress_bar_config(disable=True)
-        pipeline.safety_checker = None
-
-        # Prompts
-        prompts = ["", "", "", "", ""]
+        pipeline: diffusers.StableDiffusionPipeline = self._init_pipeline()
+        prompts: List[str] = ["", "", "", "", ""]
 
         # Validation
         images = list()
@@ -234,23 +225,14 @@ class ConditionedStableLearner(StableLearner):
             self,
     ) -> Dict[str, torch.Tensor]:
         """
-        Generates and image using the training's pipeline.
+        Generates and image using the training's components.
 
         Returns
         ----------
             Dict[str, torch.Tensor]
                 generated image
         """
-        # Pipeline
-        pipeline = diffusers.DiffusionPipeline.from_pretrained(
-            pretrained_model_name_or_path=self._params["components"]["vae"]["pipeline_path"],
-            unet=self.components.model
-        ).to(self._DEVICE)
-
-        pipeline.set_progress_bar_config(disable=True)
-        pipeline.safety_checker = None
-
-        # Prompts
+        pipeline: diffusers.StableDiffusionPipeline = self._init_pipeline()
         prompts: List[str] = [
             "a blue bird with horns", "a cartoon red turtle with fire",
             "a green monkey with a sword", "a big red lion with a smile"
@@ -271,6 +253,4 @@ class ConditionedStableLearner(StableLearner):
                 )
             )
 
-        print(images[0].shape)
-        print(torch.unique(images[0]))
         return {"image": torch.stack(images, dim=0)}

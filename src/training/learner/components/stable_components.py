@@ -42,6 +42,8 @@ class StableComponents(Components):
 
     Methods
     ----------
+        _init_vae : diffusers.AutoencoderKL
+            Instantiates an image encoder
         _init_text_encoder : transformers.CLIPTextModel
             Instantiates a text encoder
     """
@@ -66,10 +68,35 @@ class StableComponents(Components):
         # Mother class
         super(StableComponents, self).__init__(params, num_epochs, num_batches)
 
+        # VAE
+        self.vae: diffusers.AutoencoderKL = self._init_vae(
+            params["vae"]["pipeline_path"]
+        )
+
         # Text encoder
         self.text_encoder: transformers.CLIPTextModel = self._init_text_encoder(
             params["text_encoder"]["pipeline_path"]
         )
+
+    def _init_vae(
+            self,
+            pipeline_path: str
+    ) -> diffusers.AutoencoderKL:
+        """
+        Instantiates an image encoder.
+
+        Parameters
+        ----------
+            pipeline_path : str
+                path to the pretrained pipeline
+        """
+        if not pipeline_path:
+            return None
+
+        return diffusers.AutoencoderKL.from_pretrained(
+            pretrained_model_name_or_path=pipeline_path,
+            subfolder="vae"
+        ).to(self._DEVICE)
 
     def _init_text_encoder(
             self,
