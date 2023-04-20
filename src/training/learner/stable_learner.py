@@ -16,9 +16,9 @@ import torch
 from .learner import Learner
 
 
-class AdvancedLearner(Learner):
+class StableLearner(Learner):
     """
-    Represents an AdvancedLearner, which will be modified depending on the use case.
+    Represents an StableLearner, which will be modified depending on the use case.
 
     Attributes
     ----------
@@ -50,7 +50,7 @@ class AdvancedLearner(Learner):
             params: Dict[str, Any],
     ):
         """
-        Instantiates an AdvancedLearner.
+        Instantiates an StableLearner.
 
         Parameters
         ----------
@@ -58,7 +58,7 @@ class AdvancedLearner(Learner):
                 parameters needed to adjust the program behaviour
         """
         # Mother class
-        super(AdvancedLearner, self).__init__(params)
+        super(StableLearner, self).__init__(params)
 
     def _encode_text(
             self,

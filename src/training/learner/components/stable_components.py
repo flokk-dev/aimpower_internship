@@ -19,9 +19,9 @@ import diffusers
 from .components import Components
 
 
-class AdvancedComponents(Components):
+class StableComponents(Components):
     """
-    Represents an AdvancedComponents.
+    Represents an StableComponents.
 
     Attributes
     ----------
@@ -52,7 +52,7 @@ class AdvancedComponents(Components):
             num_batches: int
     ):
         """
-        Instantiates a AdvancedComponents.
+        Instantiates a StableComponents.
 
         Parameters
         ----------
@@ -64,7 +64,7 @@ class AdvancedComponents(Components):
                 number of batches within the data loader
         """
         # Mother class
-        super(AdvancedComponents, self).__init__(params, num_epochs, num_batches)
+        super(StableComponents, self).__init__(params, num_epochs, num_batches)
 
         # Text encoder
         self.text_encoder: transformers.CLIPTextModel = self._init_text_encoder(

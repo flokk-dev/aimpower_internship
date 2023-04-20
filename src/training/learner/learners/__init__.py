@@ -1,2 +1,2 @@
 from .learners import BasicLearner, GuidedLearner
-from .advanced_learners import StableLearner
+from .stable_learners import UnconditionedStableLearner, ConditionedStableLearner

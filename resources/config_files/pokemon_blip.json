@@ -53,10 +53,6 @@
         "pipeline_path": "CompVis/stable-diffusion-v1-4"
       },
 
-      "tokenizer": {
-        "pipeline_path": "CompVis/stable-diffusion-v1-4"
-      },
-
       "text_encoder": {
         "pipeline_path": "CompVis/stable-diffusion-v1-4"
       }

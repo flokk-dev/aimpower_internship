@@ -1,1 +1,1 @@
-from .trainers import BasicTrainer, AdvancedTrainer
+from .trainers import BasicTrainer, StableTrainer

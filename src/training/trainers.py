@@ -18,7 +18,9 @@ from diffusers.pipelines.stable_diffusion import StableDiffusionSafetyChecker
 
 # IMPORT: project
 from .trainer import Trainer
-from .learner import BasicLearner, GuidedLearner, StableLearner
+from .learner import \
+    BasicLearner, GuidedLearner, \
+    UnconditionedStableLearner, ConditionedStableLearner
 
 
 class BasicTrainer(Trainer):
@@ -110,9 +112,9 @@ class BasicTrainer(Trainer):
         ).save_pretrained(path)
 
 
-class AdvancedTrainer(Trainer):
+class StableTrainer(Trainer):
     """
-    Represents a AdvancedTrainer.
+    Represents a StableTrainer.
 
     Attributes
     ----------
@@ -130,14 +132,16 @@ class AdvancedTrainer(Trainer):
         _checkpoint
             Saves noise_scheduler's weights
     """
-    _LEARNERS = {"conditioned": StableLearner}
+    _LEARNERS = {
+        "unconditioned": UnconditionedStableLearner, "conditioned": ConditionedStableLearner
+    }
 
     def __init__(
             self,
             params: Dict[str, Any]
     ):
         """
-        Instantiates an AdvancedTrainer.
+        Instantiates a StableTrainer.
 
         Parameters
         ----------
@@ -145,7 +149,7 @@ class AdvancedTrainer(Trainer):
                 parameters needed to adjust the program behaviour
         """
         # Mother class
-        super(AdvancedTrainer, self).__init__(params)
+        super(StableTrainer, self).__init__(params)
 
     def _verify_parameters(
             self,
