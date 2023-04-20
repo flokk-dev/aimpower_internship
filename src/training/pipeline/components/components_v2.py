@@ -16,12 +16,12 @@ import transformers
 import diffusers
 
 # IMPORT: project
-from .components import Components
+from .components_v1 import ComponentsV1
 
 
-class StableComponents(Components):
+class ComponentsV2(ComponentsV1):
     """
-    Represents an StableComponents.
+    Represents an ComponentsV2.
 
     Attributes
     ----------
@@ -54,7 +54,7 @@ class StableComponents(Components):
             num_batches: int
     ):
         """
-        Instantiates a StableComponents.
+        Instantiates a ComponentsV2.
 
         Parameters
         ----------
@@ -66,7 +66,7 @@ class StableComponents(Components):
                 number of batches within the data loader
         """
         # Mother class
-        super(StableComponents, self).__init__(params, num_epochs, num_batches)
+        super(ComponentsV2, self).__init__(params, num_epochs, num_batches)
 
         # VAE
         self.vae: diffusers.AutoencoderKL = self._init_vae(

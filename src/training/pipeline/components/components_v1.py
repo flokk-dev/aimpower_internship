@@ -18,7 +18,7 @@ from .noise_scheduler import NoiseSchedulerManager
 from .model import ModelManager
 
 
-class Components:
+class ComponentsV1:
     """
     Represents a Components, that will be derived depending on the use case.
 
@@ -44,7 +44,7 @@ class Components:
             num_batches: int
     ):
         """
-        Instantiates a Components.
+        Instantiates a ComponentsV1.
 
         Parameters
         ----------

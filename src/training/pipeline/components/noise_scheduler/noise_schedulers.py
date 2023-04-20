@@ -6,12 +6,11 @@ Version: 1.0
 Purpose:
 """
 
-# IMPORT: utils
-from typing import *
-
 # IMPORT: deep learning
 from diffusers import DDPMScheduler, DDIMScheduler
 
+
+# ---------- DDPM Noise Scheduler ---------- #
 
 def init_ddpm(
         num_train_timesteps: int = 100
@@ -50,6 +49,8 @@ def load_ddpm(
     """
     return DDPMScheduler.from_pretrained(pipeline_path, subfolder="scheduler")
 
+
+# ---------- DDIM Noise Scheduler ---------- #
 
 def init_ddim(
         num_train_timesteps: int = 50

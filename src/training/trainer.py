@@ -24,7 +24,8 @@ import paths
 import utils
 
 from src.loading import Loader
-from src.training.learner import Learner
+
+from src.training.pipeline import Pipeline
 from src.training.dashboard import Dashboard
 
 
@@ -48,7 +49,7 @@ class Trainer:
         _checkpoint
             Saves noise_scheduler's weights
     """
-    _LEARNERS = dict()
+    _PIPELINES = dict()
 
     def __init__(
             self,
@@ -77,7 +78,7 @@ class Trainer:
 
         # Components
         self._data_loader: DataLoader = None
-        self._learner: Learner = None
+        self._pipeline: Pipeline = None
 
         self._dashboard: Dashboard = None
 
@@ -112,11 +113,11 @@ class Trainer:
             torch.cuda.empty_cache()
 
             # Learns
-            self._learner.components.model.train()
+            self._pipeline.components.model.train()
             self._run_epoch(p_bar)
 
             # Updates
-            self._dashboard.upload_values(self._learner.components.lr_scheduler.get_last_lr()[0])
+            self._dashboard.upload_values(self._pipeline.components.lr_scheduler.get_last_lr()[0])
             if (epoch + 1) % 10 == 0:
                 self._checkpoint(epoch + 1)
 
@@ -145,7 +146,7 @@ class Trainer:
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}", gpu=utils.gpu_utilization())
 
             # Learns on batch
-            epoch_loss.append(self._learner(batch))
+            epoch_loss.append(self._pipeline.learn(batch))
 
         # Stores the results
         self._dashboard.update_loss(epoch_loss)
@@ -163,10 +164,10 @@ class Trainer:
                 the current epoch idx
         """
         # Saves pipeline
-        # self._save(os.path.join(self._path, "pipeline"))
+        # self._pipeline().save_pretrained(os.path.join(self._path, "pipeline"))
 
         # Generates checkpoint images
-        tensors: Dict[str, torch.Tensor] = self._learner.inference()
+        tensors: Dict[str, torch.Tensor] = self._pipeline.inference()
 
         # Uploads and saves qualitative results
         for key, tensor in tensors.items():
@@ -181,23 +182,6 @@ class Trainer:
             # Saves checkpoint image on disk
             utils.save_plt(tensor, os.path.join(key_path, f"epoch_{epoch}.png"))
 
-    def _save(
-            self,
-            path: str
-    ):
-        """
-        Parameters
-        ----------
-            path : str
-                training's saving path
-
-        Raises
-        ----------
-            NotImplementedError
-                function isn't implemented yet
-        """
-        raise NotImplementedError()
-
     def __call__(self, dataset_path: str):
         """
         Parameters
@@ -208,9 +192,9 @@ class Trainer:
         # Loading
         self._data_loader = Loader(self._params["loader"])(dataset_path)
 
-        # Learner
-        self._learner = self._LEARNERS[self._params["learner"]["learning_type"]](
-            self._params["learner"], len(self._data_loader), self._params["num_epochs"]
+        # Pipeline
+        self._pipeline = self._PIPELINES[self._params["pipeline"]["pipeline_type"]](
+            self._params["pipeline"], len(self._data_loader), self._params["num_epochs"]
         )
 
         # Dashboard

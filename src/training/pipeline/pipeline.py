@@ -14,12 +14,12 @@ import torch
 import diffusers
 
 # IMPORT: project
-from .components import Components
+from .components import ComponentsV1
 
 
-class Learner:
+class Pipeline:
     """
-    Represents a Learner, which will be modified depending on the use case.
+    Represents a Pipeline, which will be modified depending on the use case.
 
     Attributes
     ----------
@@ -27,12 +27,14 @@ class Learner:
             parameters needed to adjust the program behaviour
         _loss : Loss
             training's loss function
-        components : Components
+        components : ComponentsV1
             training's components
 
     Methods
     ----------
-        _learn
+        _init_components
+            Initializes the pipeline's components
+        learn
             Learns on a batch of data
         _forward
             Extracts noise within the noisy image using the noise_scheduler
@@ -46,6 +48,8 @@ class Learner:
     def __init__(
             self,
             params: Dict[str, Any],
+            num_epochs: int,
+            num_batches: int
     ):
         """
         Instantiates a Learner.
@@ -54,14 +58,48 @@ class Learner:
         ----------
             params : Dict[str, Any]
                 parameters needed to adjust the program behaviour
+            num_epochs : int
+                number of epochs during the training
+            num_batches : int
+                number of batches within the data loader
         """
         # Attributes
         self._params: Dict[str, Any] = params
 
         self._loss: torch.nn.Module = torch.nn.MSELoss().to(self._DEVICE)
-        self.components = None
+        self.components: ComponentsV1 = self._init_components(params, num_epochs, num_batches)
 
-    def _learn(
+    def _init_components(
+            self,
+            params: Dict[str, Any],
+            num_epochs: int,
+            num_batches: int
+    ) -> ComponentsV1:
+        """
+        Initializes the pipeline's components.
+
+        Parameters
+        ----------
+            params : Dict[str, Any]
+                parameters needed to adjust the program behaviour
+            num_epochs : int
+                number of epochs during the training
+            num_batches : int
+                number of batches within the data loader
+
+        Returns
+        ----------
+            ComponentsV1
+                pipeline's components
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
+        """
+        raise NotImplementedError()
+
+    def learn(
             self,
             batch: Dict[str, torch.Tensor],
     ) -> float:
@@ -158,7 +196,7 @@ class Learner:
             self,
     ) -> Dict[str, torch.Tensor]:
         """
-        Generates and image using the training's components.
+        Generates images using the training's components.
 
         Returns
         ----------
@@ -172,10 +210,8 @@ class Learner:
         """
         raise NotImplementedError()
 
-    def _init_pipeline(self):
+    def __call__(self) -> diffusers.DiffusionPipeline:
         """
-        Initializes a pipeline using the training's components.
-
         Returns
         ----------
             diffusers.DiffusionPipeline
@@ -187,20 +223,3 @@ class Learner:
                 function isn't implemented yet
         """
         raise NotImplementedError()
-
-    def __call__(
-            self,
-            batch: Dict[str, torch.Tensor],
-    ) -> float:
-        """
-        Parameters
-        ----------
-            batch : Dict[str, torch.Tensor]
-                batch of data
-
-        Returns
-        ----------
-            float
-                loss value computed using batch's data
-        """
-        return self._learn(batch)

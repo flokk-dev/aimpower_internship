@@ -16,12 +16,12 @@ import transformers
 import diffusers
 
 # IMPORT: project
-from .stable_components import StableComponents
+from .components_v2 import ComponentsV2
 
 
-class LoraComponents(StableComponents):
+class ComponentsV3(ComponentsV2):
     """
-    Represents an LoraComponents.
+    Represents an ComponentsV3.
 
     Attributes
     ----------
@@ -66,4 +66,4 @@ class LoraComponents(StableComponents):
                 number of batches within the data loader
         """
         # Mother class
-        super(LoraComponents, self).__init__(params, num_epochs, num_batches)
+        super(ComponentsV3, self).__init__(params, num_epochs, num_batches)

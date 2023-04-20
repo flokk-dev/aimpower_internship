@@ -15,7 +15,7 @@ import argparse
 # IMPORT: project
 import paths
 
-from src import BasicTrainer, StableTrainer
+from src import TrainerV1, TrainerV2
 
 
 class Parser(argparse.ArgumentParser):
@@ -36,7 +36,7 @@ class Parser(argparse.ArgumentParser):
         )
 
 
-TASKS = {"basic": BasicTrainer, "stable": StableTrainer}
+TASKS = {"v1": TrainerV1, "v2": TrainerV2}
 
 
 if __name__ == "__main__":

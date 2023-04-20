@@ -1,5 +1,5 @@
 {
-  "training_type": "basic",
+  "training_type": "v1",
   "num_epochs": 100,
 
   "loader": {
@@ -11,22 +11,24 @@
     },
 
     "dataset": {
-      "lazy_loading": true,
+      "lazy_loading": false,
       "img_size": 32
     }
   },
 
-  "learner": {
-    "learning_type": "guided",
-    "reduce_dimensions": false,
+  "pipeline": {
+    "pipeline_type": "guided",
+    "pretrain_path": "",
 
     "components": {
-      "lr": 1e-4,
-      "lr_warmup_steps": 500,
+      "lr_scheduler": {
+        "lr": 1e-4,
+        "lr_warmup_steps": 500
+      },
 
       "model": {
         "model_type": "guided",
-        "pipeline_path": "",
+        "pretrained": false,
 
         "args": {
           "sample_size": 32,
@@ -34,15 +36,13 @@
           "out_channels": 1,
 
           "layers_per_block": 2,
-          "block_out_channels": [64, 64, 128, 128],
-
-          "num_class_embeds": 10
+          "block_out_channels": [64, 64, 128, 128]
         }
       },
 
       "noise_scheduler": {
         "noise_scheduler_type": "ddpm",
-        "pipeline_path": "",
+        "pretrained": false,
 
         "args": {
           "num_train_timesteps": 1000

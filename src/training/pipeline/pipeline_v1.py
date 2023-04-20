@@ -2,6 +2,7 @@
 Creator: Flokk
 Date: 09/04/2023
 Version: 1.0
+
 Purpose:
 """
 
@@ -16,13 +17,13 @@ import diffusers
 # IMPORT: project
 import utils
 
-from src.training.learner.learner import Learner
-from src.training.learner.components import Components
+from .pipeline import Pipeline
+from .components import ComponentsV1
 
 
-class BasicLearner(Learner):
+class PipelineV1(Pipeline):
     """
-    Represents a BasicLearner.
+    Represents an PipelineV1, which will be modified depending on the use case.
 
     Attributes
     ----------
@@ -30,12 +31,14 @@ class BasicLearner(Learner):
             parameters needed to adjust the program behaviour
         _loss : Loss
             training's loss function
-        components : Components
+        components : ComponentsV1
             training's components
 
     Methods
     ----------
-        _learn
+        _init_components
+            Initializes the pipeline's components
+        learn
             Learns on a batch of data
         _forward
             Extracts noise within the noisy image using the noise_scheduler
@@ -44,6 +47,7 @@ class BasicLearner(Learner):
         inference
             Generates and image using the training's noise_scheduler
     """
+
     def __init__(
             self,
             params: Dict[str, Any],
@@ -51,7 +55,7 @@ class BasicLearner(Learner):
             num_batches: int
     ):
         """
-        Instantiates a BasicLearner.
+        Instantiates a LearnerV1.
 
         Parameters
         ----------
@@ -63,10 +67,98 @@ class BasicLearner(Learner):
                 number of batches within the data loader
         """
         # Mother class
-        super(BasicLearner, self).__init__(params)
+        super(PipelineV1, self).__init__(params, num_epochs, num_batches)
 
-        # Components
-        self.components = Components(params["components"], num_epochs, num_batches)
+    def _init_components(
+            self,
+            params: Dict[str, Any],
+            num_epochs: int,
+            num_batches: int
+    ) -> ComponentsV1:
+        """
+        Initializes the pipeline's components.
+
+        Parameters
+        ----------
+            params : Dict[str, Any]
+                parameters needed to adjust the program behaviour
+            num_epochs : int
+                number of epochs during the training
+            num_batches : int
+                number of batches within the data loader
+
+        Returns
+        ----------
+            ComponentsV1
+                pipeline's components
+        """
+        return ComponentsV1(params["components"], num_epochs, num_batches)
+
+    def __call__(self) -> diffusers.DDPMPipeline:
+        """
+        Returns
+        ----------
+            diffusers.DDPMPipeline
+                diffusion pipeline
+        """
+        pipeline = diffusers.DDPMPipeline.from_pretrained(
+            unet=self.components.model,
+            scheduler=self.components.noise_scheduler
+        ).to(self._DEVICE)
+
+        pipeline.safety_checker = None
+
+        # Returns
+        return pipeline
+
+
+class DiffusionPipeline(PipelineV1):
+    """
+    Represents a DiffusionPipeline.
+
+    Attributes
+    ----------
+        _params : Dict[str, Any]
+            parameters needed to adjust the program behaviour
+        _loss : Loss
+            training's loss function
+        components : ComponentsV1
+            training's components
+
+    Methods
+    ----------
+        _init_components
+            Initializes the pipeline's components
+        learn
+            Learns on a batch of data
+        _forward
+            Extracts noise within the noisy image using the noise_scheduler
+        _add_noise
+            Adds noise to a given tensor
+        inference
+            Generates and image using the training's noise_scheduler
+    """
+
+    def __init__(
+            self,
+            params: Dict[str, Any],
+            num_epochs: int,
+            num_batches: int
+    ):
+        """
+        Instantiates a DiffusionPipeline.
+
+        Parameters
+        ----------
+            params : Dict[str, Any]
+                parameters needed to adjust the program behaviour
+            num_epochs : int
+                number of epochs during the training
+            num_batches : int
+                number of batches within the data loader
+        """
+        # Mother class
+        super(DiffusionPipeline, self).__init__(params, num_epochs, num_batches)
 
     def _forward(
             self,
@@ -137,12 +229,7 @@ class BasicLearner(Learner):
         # Returns
         return {"image": image}
         """
-        pipeline = diffusers.DDPMPipeline.from_pretrained(
-            unet=self.components.model,
-            scheduler=self.components.noise_scheduler
-        ).to(self._DEVICE)
-
-        pipeline.safety_checker = None
+        pipeline = self()
 
         # Validation
         images: List[torch.Tensor] = list()
@@ -161,9 +248,9 @@ class BasicLearner(Learner):
         return {"image": torch.stack(images, dim=0)}
 
 
-class GuidedLearner(Learner):
+class GDiffusionPipeline(PipelineV1):
     """
-    Represents a GuidedLearner.
+    Represents a GDiffusionPipeline.
 
     Attributes
     ----------
@@ -171,12 +258,14 @@ class GuidedLearner(Learner):
             parameters needed to adjust the program behaviour
         _loss : Loss
             training's loss function
-        components : Components
+        components : ComponentsV1
             training's components
 
     Methods
     ----------
-        _learn
+        _init_components
+            Initializes the pipeline's components
+        learn
             Learns on a batch of data
         _forward
             Extracts noise within the noisy image using the noise_scheduler
@@ -185,6 +274,7 @@ class GuidedLearner(Learner):
         inference
             Generates and image using the training's noise_scheduler
     """
+
     def __init__(
             self,
             params: Dict[str, Any],
@@ -192,7 +282,7 @@ class GuidedLearner(Learner):
             num_batches: int
     ):
         """
-        Instantiates a GuidedLearner.
+        Instantiates a GDiffusionPipeline.
 
         Parameters
         ----------
@@ -204,10 +294,7 @@ class GuidedLearner(Learner):
                 number of batches within the data loader
         """
         # Mother class
-        super(GuidedLearner, self).__init__(params)
-
-        # Components
-        self.components = Components(params["components"], num_epochs, num_batches)
+        super(GDiffusionPipeline, self).__init__(params, num_epochs, num_batches)
 
     def _forward(
             self,
@@ -233,11 +320,11 @@ class GuidedLearner(Learner):
             batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
 
         # Label
-        batch["label"] = batch["label"].type(torch.int32).to(self._DEVICE)
+        batch["guider"] = batch["guider"].type(torch.int32).to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
-        return noise, self.components.model(noisy_image, timestep, batch["label"]).sample
+        return noise, self.components.model(noisy_image, timestep, batch["guider"]).sample
 
     def inference(
             self,

@@ -13,6 +13,8 @@ from typing import *
 from diffusers import UNet2DModel, UNet2DConditionModel
 
 
+# ---------- U-Net ---------- #
+
 def init_unet(
         sample_size: int,
         in_channels: int,
@@ -69,6 +71,8 @@ def load_unet(
     """
     return UNet2DModel.from_pretrained(pipeline_path, subfolder="unet")
 
+
+# ---------- Guided U-Net ---------- #
 
 def init_guided_unet(
         sample_size: int,
@@ -131,6 +135,8 @@ def load_guided_unet(
     """
     return UNet2DModel.from_pretrained(pipeline_path, subfolder="unet")
 
+
+# ---------- Conditioned U-Net ---------- #
 
 def init_conditioned_unet(
         sample_size: int,
