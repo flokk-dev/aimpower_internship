@@ -87,11 +87,11 @@ class BasicDiffusionPipeline(DiffusionPipeline):
         self,
         batch_size: int = 1,
         num_class_embeds: int = None,
-        generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,
+        generator = None,
         num_inference_steps: int = 1000,
-        output_type: Optional[str] = "pil",
+        output_type = "pil",
         return_dict: bool = True,
-    ) -> Union[ImagePipelineOutput, Tuple]:
+    ):
         r"""
         Args:
             batch_size (`int`, *optional*, defaults to 1):
