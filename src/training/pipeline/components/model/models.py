@@ -10,6 +10,7 @@ Purpose:
 from typing import *
 
 # IMPORT: deep learning
+import torch
 from diffusers import UNet2DModel, UNet2DConditionModel
 
 

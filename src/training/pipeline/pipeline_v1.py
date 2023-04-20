@@ -101,7 +101,7 @@ class PipelineV1(Pipeline):
             diffusers.DDPMPipeline
                 diffusion pipeline
         """
-        pipeline = diffusers.DDPMPipeline(
+        pipeline = utils.BasicDiffusionPipeline(
             unet=self.components.model,
             scheduler=self.components.noise_scheduler
         ).to(self._DEVICE)
@@ -215,6 +215,7 @@ class DiffusionPipeline(PipelineV1):
                 )
             )
 
+        # Returns
         return {"image": torch.stack(images, dim=0)}
 
 
@@ -306,37 +307,29 @@ class GDiffusionPipeline(PipelineV1):
             Dict[str, torch.Tensor]
                 generated image
         """
-        # Samples gaussian noise
-        image: torch.Tensor = torch.randn(
-            (
-                5 * self._params["components"]["model"]["args"]["num_labels"],
-                self._params["components"]["model"]["args"]["in_channels"],
-                self._params["components"]["model"]["args"]["sample_size"],
-                self._params["components"]["model"]["args"]["sample_size"]
-            ),
-            generator=torch.manual_seed(0)
-        ).to(self._DEVICE)
+        pipeline = self()
+        batch = 5
 
-        labels: torch.Tensor = torch.tensor(
-            [[i] * 5 for i in range(self._params["components"]["model"]["args"]["num_labels"])]
-        ).flatten().to(self._DEVICE)
+        # Generates images
+        generated_images = pipeline(
+                batch_size=batch,
+                num_class_embeds=self._params["components"]["model"]["args"]["num_class_embeds"],
+                num_inference_steps=1000,
+                generator=torch.manual_seed(0)
+        ).images
 
-        # Generates an image based on the gaussian noise
-        for timestep in tqdm(self.components.noise_scheduler.timesteps):
-            # Predicts the residual noise
-            with torch.no_grad():
-                residual: torch.Tensor = self.components.model(image, timestep, labels).sample
-
-            # De-noises using the prediction
-            image: torch.Tensor = self.components.noise_scheduler.step(
-                residual, timestep, image
-            ).prev_sample
-
-        image = utils.adjust_image_colors(image.cpu())
+        # Adjusts colors
+        images: List[torch.Tensor] = list()
+        for image in generated_images:
+            images.append(
+                utils.adjust_image_colors(
+                    utils.to_tensor(image)
+                )
+            )
 
         # Returns
         return {
-            str(class_idx): image[class_idx * 5:(class_idx + 1) * 5]
+            str(class_idx): torch.stack(images[class_idx * batch:(class_idx + 1) * batch], dim=0)
             for class_idx
-            in range(image.shape[0] // 5)
+            in range(len(images) // batch)
         }

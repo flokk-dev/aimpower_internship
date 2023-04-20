@@ -179,9 +179,9 @@ class PipelineV2(PipelineV1):
             unet=self.components.model
         ).to(self._DEVICE)
 
-        pipeline.set_progress_bar_config(disable=True)
         pipeline.safety_checker = None
 
+        # Returns
         return pipeline
 
 
@@ -282,24 +282,26 @@ class StablePipeline(PipelineV2):
             Dict[str, torch.Tensor]
                 generated image
         """
-        pipeline: diffusers.StableDiffusionPipeline = self._init_pipeline()
-        prompts: List[str] = ["", "", "", "", ""]
+        pipeline = self()
+        prompts = ["", "", "", "", ""]
 
-        # Validation
-        images = list()
-        for prompt in prompts:
+        # Generates images
+        generated_images = pipeline(
+            prompts,
+            num_inference_steps=50,
+            generator=torch.manual_seed(0)
+        ).images
+
+        # Adjusts colors
+        images: List[torch.Tensor] = list()
+        for image in generated_images:
             images.append(
-                utils.to_tensor(
-                    pipeline(
-                        prompt,
-                        num_inference_steps=30,
-                        generator=torch.manual_seed(0)
-                    ).images[0]
+                utils.adjust_image_colors(
+                    utils.to_tensor(image)
                 )
             )
 
-        print(images[0].shape)
-        print(torch.unique(images))
+        # Returns
         return {"image": torch.stack(images, dim=0)}
 
 
@@ -399,27 +401,31 @@ class GStablePipeline(PipelineV2):
             Dict[str, torch.Tensor]
                 generated image
         """
-        pipeline: diffusers.StableDiffusionPipeline = self._init_pipeline()
+        pipeline = self()
         prompts: List[str] = [
             "a blue bird with horns", "a cartoon red turtle with fire",
             "a green monkey with a sword", "a big red lion with a smile"
         ]
 
-        # Validation
-        images: List[torch.Tensor] = list()
-        for prompt in prompts:
-            image = pipeline(
-                prompt,
-                num_inference_steps=30,
-                generator=torch.manual_seed(0)
-            ).images[0]
+        # Generates images
+        generated_images = pipeline(
+            prompts,
+            num_inference_steps=50,
+            generator=torch.manual_seed(0)
+        ).images
 
+        # Adjusts colors
+        images: List[torch.Tensor] = list()
+        for image in generated_images:
             images.append(
                 utils.adjust_image_colors(
                     utils.to_tensor(image)
                 )
             )
 
-        print(images[0].shape)
-        print(torch.unique(images))
-        return {"image": torch.stack(images, dim=0)}
+        # Returns
+        return {
+            prompt: images[idx].unsqueeze(0)
+            for idx, prompt
+            in enumerate(prompts)
+        }
