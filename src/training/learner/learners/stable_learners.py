@@ -97,8 +97,8 @@ class UnconditionedStableLearner(StableLearner):
         # Conditioning
         condition: torch.Tensor = torch.randn(
             batch["image"].shape[0],
-            self._params["components"]["model"]["sequence_length"],
-            self._params["components"]["model"]["feature_dim"]
+            self._params["components"]["model"]["args"]["sequence_length"],
+            self._params["components"]["model"]["args"]["feature_dim"]
         ).to(self._DEVICE)
 
         # Predicts added noise
@@ -118,7 +118,7 @@ class UnconditionedStableLearner(StableLearner):
         """
         # Pipeline
         pipeline = diffusers.DiffusionPipeline.from_pretrained(
-            pretrained_model_name_or_path=self._params["components"]["model"]["pipeline_path"],
+            pretrained_model_name_or_path=self._params["components"]["vae"]["pipeline_path"],
             unet=self.components.model
         ).to(self._DEVICE)
 
@@ -218,13 +218,11 @@ class ConditionedStableLearner(StableLearner):
         """
         # Image
         batch["image"] = batch["image"].type(torch.float32).to(self._DEVICE)
-        print(batch["image"].shape)
 
         # Prompt
         batch["prompt"] = self._encode_text(
             batch["prompt"].type(torch.int32).to(self._DEVICE)
         )
-        print(batch["prompt"].shape)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])

@@ -33,6 +33,7 @@ def init_unet(
         sample_size=params["sample_size"],
         in_channels=params["in_channels"],
         out_channels=params["out_channels"],
+
         layers_per_block=2,
         block_out_channels=params["block_out_channels"]
     )
@@ -77,8 +78,10 @@ def init_guided_unet(
         sample_size=params["sample_size"],
         in_channels=params["in_channels"],
         out_channels=params["out_channels"],
+
         layers_per_block=2,
         block_out_channels=params["block_out_channels"],
+
         num_class_embeds=params["num_labels"]
     )
 
@@ -122,8 +125,12 @@ def init_conditioned_unet(
         sample_size=params["sample_size"],
         in_channels=params["in_channels"],
         out_channels=params["out_channels"],
+
         layers_per_block=2,
         block_out_channels=params["block_out_channels"],
+
+        cross_attention_dim=params["feature_dim"],
+        attention_head_dim=params["sequence_length"]
     )
 
 
