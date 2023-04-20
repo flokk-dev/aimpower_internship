@@ -94,11 +94,13 @@ class StableLearner(AdvancedLearner):
         """
         # Image
         batch["image"] = batch["image"].type(torch.float32).to(self._DEVICE)
+        print(batch["image"].shape)
 
         # Prompt
         batch["prompt"] = self._encode_text(
             batch["prompt"].type(torch.int32).to(self._DEVICE)
         )
+        print(batch["prompt"].shape)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
