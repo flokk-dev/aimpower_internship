@@ -251,13 +251,13 @@ class ConditionedStableLearner(StableLearner):
         pipeline.safety_checker = None
 
         # Prompts
-        prompts = [
+        prompts: List[str] = [
             "a blue bird with horns", "a cartoon red turtle with fire",
             "a green monkey with a sword", "a big red lion with a smile"
         ]
 
         # Validation
-        images = list()
+        images: List[torch.Tensor] = list()
         for prompt in prompts:
             image = pipeline(
                 prompt,
@@ -265,7 +265,11 @@ class ConditionedStableLearner(StableLearner):
                 generator=torch.manual_seed(0)
             ).images[0]
 
-            images.append(utils.to_tensor(image))
+            images.append(
+                utils.adjust_image_colors(
+                    utils.to_tensor(image)
+                )
+            )
 
         print(images[0].shape)
         print(torch.unique(images[0]))
