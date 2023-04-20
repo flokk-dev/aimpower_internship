@@ -93,9 +93,6 @@ class UnconditionedStableLearner(StableLearner):
         """
         # Image
         batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
-        print(batch["image"].shape)
-        if self._params["reduce_dimensions"]:
-            batch["image"] = self._encode_image(batch["image"])
 
         # Conditioning
         condition: torch.Tensor = torch.randn(
