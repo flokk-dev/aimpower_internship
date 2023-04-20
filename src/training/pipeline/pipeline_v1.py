@@ -197,47 +197,18 @@ class DiffusionPipeline(PipelineV1):
             Dict[str, torch.Tensor]
                 generated image
         """
-        """
-        # Samples gaussian noise
-        image: torch.Tensor = torch.randn(
-            (
-                8,
-                self._params["components"]["model"]["args"]["in_channels"],
-                self._params["components"]["model"]["args"]["sample_size"],
-                self._params["components"]["model"]["args"]["sample_size"]
-            ),
-            generator=torch.manual_seed(0)
-        ).to(self._DEVICE)
-
-        # Generates an image based on the gaussian noise
-        for timestep in tqdm(self.components.noise_scheduler.timesteps):
-            # Predicts the residual noise
-            with torch.no_grad():
-                residual: torch.Tensor = self.components.model(image, timestep).sample
-
-            # De-noises using the prediction
-            image: torch.Tensor = self.components.noise_scheduler.step(
-                residual, timestep, image
-            ).prev_sample
-
-        if self._params["reduce_dimensions"]:
-            image = self._decode_image(image)
-
-        image = utils.adjust_image_colors(image.cpu())
-
-        # Returns
-        return {"image": image}
-        """
         pipeline = self()
 
-        # Validation
-        images: List[torch.Tensor] = list()
-        for i in range(5):
-            image = pipeline(
+        # Generates images
+        generated_images = pipeline(
+                batch_size=5,
                 num_inference_steps=1000,
-                generator=torch.manual_seed(i)
-            ).images[0]
+                generator=torch.manual_seed(0)
+        ).images
 
+        # Adjusts colors
+        images: List[torch.Tensor] = list()
+        for image in generated_images:
             images.append(
                 utils.adjust_image_colors(
                     utils.to_tensor(image)
