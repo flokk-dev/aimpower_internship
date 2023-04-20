@@ -103,7 +103,7 @@ class AdvancedComponents(Components):
         return transformers.CLIPTokenizer.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,
             subfolder="tokenizer",
-        ).to(self._DEVICE)
+        )
 
     def _init_text_encoder(
             self,

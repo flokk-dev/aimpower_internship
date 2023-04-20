@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 # IMPORT: deep learning
 import torch
+import diffusers
 
 # IMPORT: project
 import utils
@@ -47,6 +48,7 @@ class StableLearner(AdvancedLearner):
         inference
             Generates and image using the training's noise_scheduler
     """
+
     def __init__(
             self,
             params: Dict[str, Any],
@@ -113,33 +115,32 @@ class StableLearner(AdvancedLearner):
             Dict[str, torch.Tensor]
                 generated image
         """
-        # Samples gaussian noise
-        image: torch.Tensor = torch.randn(
-            (
-                4,
-                self._params["components"]["model"]["args"]["in_channels"],
-                self._params["components"]["model"]["args"]["sample_size"],
-                self._params["components"]["model"]["args"]["sample_size"]
-            ),
-            generator=torch.manual_seed(0)
+        # Pipeline
+        pipeline = diffusers.DiffusionPipeline.from_pretrained(
+            pretrained_model_name_or_path=self._params["components"]["model"]["pipeline_path"],
+            unet=self.components.model
         ).to(self._DEVICE)
 
-        # Conditioning
-        condition = self._gen_valid_conditioning()
+        pipeline.set_progress_bar_config(disable=True)
 
-        # Generates an image based on the gaussian noise
-        for timestep in tqdm(self.components.noise_scheduler.timesteps):
-            # Predicts the residual noise
-            with torch.no_grad():
-                residual: torch.Tensor = self.components.model(image, timestep, condition).sample
+        # Prompts
+        prompts = [
+            "a blue bird with horns", "a cartoon red turtle with fire",
+            "a green monkey with a sword", "a big red lion with a smile"
+        ]
 
-            # De-noises using the prediction
-            image: torch.Tensor = self.components.noise_scheduler.step(
-                residual, timestep, image
-            ).prev_sample
+        # Validation
+        images = list()
+        for prompt in prompts:
+            images.append(
+                utils.to_tensor(
+                    pipeline(
+                        prompt,
+                        num_inference_steps=30,
+                        generator=torch.manual_seed(0)
+                    ).images[0]
+                )
+            )
 
-        image = self._decode_image(image)
-        image = utils.adjust_image_colors(image.cpu())
-
-        # Returns
-        return {"image": image}
+        print(images[0].shape)
+        return {"image": torch.stack(images, dim=0)}

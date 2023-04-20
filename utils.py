@@ -10,11 +10,9 @@ Purpose:
 import datetime
 from pynvml import *
 
-import transformers
-import diffusers
-
 # IMPORT: dataset processing
 import torch
+import torchvision
 
 # IMPORT: data visualization
 import matplotlib.pyplot as plt
@@ -62,3 +60,9 @@ def save_plt(tensor, path):
     # Plot the images
     plt.savefig(path, bbox_inches="tight")
     plt.close()
+
+
+# ---------- DATA PROCESSING ---------- #
+
+def to_tensor(image):
+    return torchvision.transforms.ToTensor()(image)
