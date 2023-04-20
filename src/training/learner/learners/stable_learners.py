@@ -270,4 +270,5 @@ class ConditionedStableLearner(StableLearner):
             )
 
         print(images[0].shape)
+        print(torch.unique(images))
         return {"image": torch.stack(images, dim=0)}
