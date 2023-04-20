@@ -201,7 +201,7 @@ class DiffusionPipeline(PipelineV1):
 
         # Generates images
         generated_images = pipeline(
-                batch_size=5,
+                batch_size=10,
                 num_inference_steps=1000,
                 generator=torch.manual_seed(0)
         ).images
