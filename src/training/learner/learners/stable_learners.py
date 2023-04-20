@@ -259,16 +259,14 @@ class ConditionedStableLearner(StableLearner):
         # Validation
         images = list()
         for prompt in prompts:
-            images.append(
-                utils.to_tensor(
-                    pipeline(
-                        prompt,
-                        num_inference_steps=30,
-                        generator=torch.manual_seed(0)
-                    ).images[0]
-                )
-            )
+            image = pipeline(
+                prompt,
+                num_inference_steps=30,
+                generator=torch.manual_seed(0)
+            ).images[0]
+
+            images.append(utils.to_tensor(image))
 
         print(images[0].shape)
-        print(torch.unique(images))
+        print(torch.unique(images[0]))
         return {"image": torch.stack(images, dim=0)}
