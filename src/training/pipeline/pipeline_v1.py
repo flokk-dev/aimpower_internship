@@ -180,8 +180,7 @@ class DiffusionPipeline(PipelineV1):
                 extracted noise
         """
         # Image
-        if not self._params["reduce_dimensions"]:
-            batch["image"]: torch.Tensor = batch["image"].to(self._DEVICE)
+        batch["image"]: torch.Tensor = batch["image"].to(self._DEVICE)
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
@@ -316,8 +315,7 @@ class GDiffusionPipeline(PipelineV1):
                 extracted noise
         """
         # Image
-        if not self._params["reduce_dimensions"]:
-            batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
+        batch["image"]: torch.Tensor = batch["image"].type(torch.float32).to(self._DEVICE)
 
         # Label
         batch["guider"] = batch["guider"].type(torch.int32).to(self._DEVICE)
