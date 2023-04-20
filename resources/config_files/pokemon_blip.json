@@ -4,10 +4,10 @@
 
   "loader": {
     "loading_type": "prompt",
-    "num_data": 5000,
+    "num_data": 80,
 
     "data_loader": {
-      "batch_size": 1
+      "batch_size": 8
     },
 
     "dataset": {
