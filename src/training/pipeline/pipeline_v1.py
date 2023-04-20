@@ -235,7 +235,7 @@ class DiffusionPipeline(PipelineV1):
         for i in range(5):
             image = pipeline(
                 num_inference_steps=1000,
-                generator=torch.manual_seed(0)
+                generator=torch.manual_seed(i)
             ).images[0]
 
             images.append(

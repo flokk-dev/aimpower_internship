@@ -72,11 +72,13 @@ class ComponentsV2(ComponentsV1):
         self.vae: diffusers.AutoencoderKL = self._init_vae(
             self._params["vae"]["load"]
         )
+        self.vae.requires_grad_(False)
 
         # Text encoder
         self.text_encoder: transformers.CLIPTextModel = self._init_text_encoder(
             self._params["text_encoder"]["load"]
         )
+        self.text_encoder.requires_grad_(False)
 
     def _init_vae(
             self,
