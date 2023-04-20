@@ -382,13 +382,13 @@ class GStablePipeline(PipelineV2):
         batch["image"] = batch["image"].type(torch.float32).to(self._DEVICE)
 
         # Prompt
-        batch["prompt"] = self._encode_text(
-            batch["prompt"].type(torch.int32).to(self._DEVICE)
+        batch["guider"] = self._encode_text(
+            batch["guider"].type(torch.int32).to(self._DEVICE)
         )
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
-        return noise, self.components.model(noisy_image, timestep, batch["prompt"]).sample
+        return noise, self.components.model(noisy_image, timestep, batch["guider"]).sample
 
     def inference(
             self,
