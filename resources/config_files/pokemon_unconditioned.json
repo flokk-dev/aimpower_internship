@@ -4,7 +4,7 @@
 
   "loader": {
     "loading_type": "basic",
-    "num_data": 5000,
+    "num_data": 80,
 
     "data_loader": {
       "batch_size": 8
@@ -12,7 +12,11 @@
 
     "dataset": {
       "lazy_loading": true,
-      "img_size": 512
+      "img_size": 512,
+
+      "tokenizer": {
+        "pipeline_path": "CompVis/stable-diffusion-v1-4"
+      }
     }
   },
 
@@ -35,7 +39,7 @@
           "block_out_channels": [64, 64, 128, 128],
 
           "sequence_length": 11,
-          "feature_dim": 1280
+          "feature_dim": 768
         }
       },
 
