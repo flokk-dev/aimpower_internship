@@ -15,7 +15,7 @@
       "img_size": 512,
 
       "tokenizer": {
-        "pipeline_path": "runwayml/stable-diffusion-v1-5"
+        "pipeline_path": "CompVis/stable-diffusion-v1-4"
       }
     }
   },
@@ -30,7 +30,7 @@
 
       "model": {
         "model_type": "conditioned",
-        "pipeline_path": "runwayml/stable-diffusion-v1-5",
+        "pipeline_path": "CompVis/stable-diffusion-v1-4",
 
         "args": {
           "sample_size": 64,
@@ -42,7 +42,7 @@
 
       "noise_scheduler": {
         "noise_scheduler_type": "ddpm",
-        "pipeline_path": "runwayml/stable-diffusion-v1-5",
+        "pipeline_path": "CompVis/stable-diffusion-v1-4",
 
         "args": {
           "num_timesteps": 1000
@@ -50,15 +50,15 @@
       },
 
       "vae": {
-        "pipeline_path": "runwayml/stable-diffusion-v1-5"
+        "pipeline_path": "CompVis/stable-diffusion-v1-4"
       },
 
       "tokenizer": {
-        "pipeline_path": "runwayml/stable-diffusion-v1-5"
+        "pipeline_path": "CompVis/stable-diffusion-v1-4"
       },
 
       "text_encoder": {
-        "pipeline_path": "runwayml/stable-diffusion-v1-5"
+        "pipeline_path": "CompVis/stable-diffusion-v1-4"
       }
     }
   }

@@ -60,31 +60,6 @@ class AdvancedLearner(Learner):
         # Mother class
         super(AdvancedLearner, self).__init__(params)
 
-    def _tokenize_text(
-            self,
-            text: str
-    ) -> torch.Tensor:
-        """
-        Tokenize a text into a tensor using a CLIP.
-
-        Parameters
-        ----------
-            text : str
-                text to tokenize
-
-        Returns
-        ----------
-            torch.Tensor
-                encoded text
-        """
-        with torch.no_grad():
-            return self.components.tokenizer(
-                text,
-                padding="do_not_pad",
-                truncation=True,
-                max_length=self.components.tokenizer.model_max_length,
-            ).input_ids
-
     def _encode_text(
             self,
             text: torch.Tensor
