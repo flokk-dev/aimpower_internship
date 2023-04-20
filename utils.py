@@ -115,7 +115,13 @@ class BasicDiffusionPipeline(DiffusionPipeline):
             [`~pipelines.ImagePipelineOutput`] or `tuple`: [`~pipelines.utils.ImagePipelineOutput`] if `return_dict` is
             True, otherwise a `tuple. When returning a tuple, the first element is a list with the generated images.
         """
+        # Sample vector to guide generation if needed
         if num_class_embeds is not None:
+            labels: torch.Tensor = torch.tensor(
+                [[i] * batch_size for i in range(num_class_embeds)],
+                device=self.device
+            ).flatten()
+
             batch_size *= num_class_embeds
 
         # Sample gaussian noise to begin loop
@@ -124,22 +130,15 @@ class BasicDiffusionPipeline(DiffusionPipeline):
         else:
             image_shape = (batch_size, self.unet.in_channels, *self.unet.sample_size)
 
+        if num_class_embeds is not None:
+            batch_size *= num_class_embeds
+
         if self.device.type == "mps":
             # randn does not work reproducibly on mps
             image = randn_tensor(image_shape, generator=generator)
             image = image.to(self.device)
         else:
             image = randn_tensor(image_shape, generator=generator, device=self.device)
-
-        # Sample vector to guide generation if needed
-        if num_class_embeds is not None:
-            labels: torch.Tensor = torch.tensor(
-                [[i] * batch_size for i in range(num_class_embeds)],
-                device=self.device
-            ).flatten()
-
-        print(image.shape)
-        print(labels.shape)
 
         # set step values
         self.scheduler.set_timesteps(num_inference_steps)
