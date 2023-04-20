@@ -1,5 +1,5 @@
 {
-  "training_type": "stable",
+  "training_type": "advanced",
   "num_epochs": 100,
 
   "loader": {
@@ -12,7 +12,11 @@
 
     "dataset": {
       "lazy_loading": true,
-      "img_size": 512
+      "img_size": 512,
+
+      "tokenizer": {
+        "pipeline_path": "runwayml/stable-diffusion-v1-5"
+      }
     }
   },
 
@@ -26,7 +30,7 @@
 
       "model": {
         "model_type": "conditioned",
-        "pipeline_path": "",
+        "pipeline_path": "runwayml/stable-diffusion-v1-5",
 
         "args": {
           "sample_size": 64,
@@ -38,7 +42,7 @@
 
       "noise_scheduler": {
         "noise_scheduler_type": "ddpm",
-        "pipeline_path": "",
+        "pipeline_path": "runwayml/stable-diffusion-v1-5",
 
         "args": {
           "num_timesteps": 1000
@@ -46,11 +50,15 @@
       },
 
       "vae": {
-        "pipeline_path": "CompVis/stable-diffusion-v1-4"
+        "pipeline_path": "runwayml/stable-diffusion-v1-5"
+      },
+
+      "tokenizer": {
+        "pipeline_path": "runwayml/stable-diffusion-v1-5"
       },
 
       "text_encoder": {
-        "pipeline_path": "CompVis/stable-diffusion-v1-4"
+        "pipeline_path": "runwayml/stable-diffusion-v1-5"
       }
     }
   }

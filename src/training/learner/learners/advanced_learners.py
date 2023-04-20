@@ -94,8 +94,9 @@ class StableLearner(AdvancedLearner):
         batch["image"] = batch["image"].type(torch.float32).to(self._DEVICE)
 
         # Prompt
-        batch["prompt"] = batch["prompt"].type(torch.float32).to(self._DEVICE)
-        batch["prompt"] = self._encode_text(batch["prompt"])
+        batch["prompt"] = self._encode_text(
+            batch["prompt"].type(torch.float32).to(self._DEVICE)
+        )
 
         # Predicts added noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
@@ -112,4 +113,33 @@ class StableLearner(AdvancedLearner):
             Dict[str, torch.Tensor]
                 generated image
         """
-        pass
+        # Samples gaussian noise
+        image: torch.Tensor = torch.randn(
+            (
+                4,
+                self._params["components"]["model"]["args"]["in_channels"],
+                self._params["components"]["model"]["args"]["sample_size"],
+                self._params["components"]["model"]["args"]["sample_size"]
+            ),
+            generator=torch.manual_seed(0)
+        ).to(self._DEVICE)
+
+        # Conditioning
+        condition = self._gen_valid_conditioning()
+
+        # Generates an image based on the gaussian noise
+        for timestep in tqdm(self.components.noise_scheduler.timesteps):
+            # Predicts the residual noise
+            with torch.no_grad():
+                residual: torch.Tensor = self.components.model(image, timestep, condition).sample
+
+            # De-noises using the prediction
+            image: torch.Tensor = self.components.noise_scheduler.step(
+                residual, timestep, image
+            ).prev_sample
+
+        image = self._decode_image(image)
+        image = utils.adjust_image_colors(image.cpu())
+
+        # Returns
+        return {"image": image}

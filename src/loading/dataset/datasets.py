@@ -171,7 +171,7 @@ class PromptDataset(Dataset):
                 path to the pretrained pipeline
         """
         if not pipeline_path:
-            pipeline_path = "CompVis/stable-diffusion-v1-4"
+            return None
 
         return CLIPTokenizer.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,

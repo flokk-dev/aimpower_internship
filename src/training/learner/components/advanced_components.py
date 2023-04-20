@@ -37,11 +37,15 @@ class AdvancedComponents(Components):
             learning rate's scheduler
         vae : diffusers.AutoencoderKL
             training's image encoder
+        tokenizer : transformers.CLIPTextModel
+            training's tokenizer
         text_encoder : transformers.CLIPTextModel
             training's text encoder
 
     Methods
     ----------
+        _init_tokenizer : transformers.CLIPTextModel
+            Instantiates a tokenizer
         _init_text_encoder : transformers.CLIPTextModel
             Instantiates a text encoder
     """
@@ -66,10 +70,40 @@ class AdvancedComponents(Components):
         # Mother class
         super(AdvancedComponents, self).__init__(params, num_epochs, num_batches)
 
+        # Tokenizer
+        self.tokenizer: transformers.CLIPTokenizer = self._init_tokenizer(
+            params["tokenizer"]["pipeline_path"]
+        )
+
         # Text encoder
         self.text_encoder: transformers.CLIPTextModel = self._init_text_encoder(
             params["text_encoder"]["pipeline_path"]
         )
+
+    def _init_tokenizer(
+            self,
+            pipeline_path: str
+    ) -> transformers.CLIPTokenizer:
+        """
+        Instantiates a tokenizer.
+
+        Parameters
+        ----------
+            pipeline_path : str
+                path to the pretrained pipeline
+
+        Returns
+        ----------
+            transformers.CLIPTokenizer
+                training's tokenizer
+        """
+        if not pipeline_path:
+            return None
+
+        return transformers.CLIPTokenizer.from_pretrained(
+            pretrained_model_name_or_path=pipeline_path,
+            subfolder="tokenizer",
+        ).to(self._DEVICE)
 
     def _init_text_encoder(
             self,
@@ -82,6 +116,11 @@ class AdvancedComponents(Components):
         ----------
             pipeline_path : str
                 path to the pretrained pipeline
+
+        Returns
+        ----------
+            transformers.CLIPTextModel
+                training's text encoder
         """
         if not pipeline_path:
             return None

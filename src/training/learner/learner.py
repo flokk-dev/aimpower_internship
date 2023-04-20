@@ -196,13 +196,12 @@ class Learner:
             torch.Tensor
                 decoded image
         """
-        # (image / 2 + 0.5).clamp(0, 1)
         with torch.no_grad():
-            image = self.components.vae.decode(
-                1 / self.components.vae.config.scaling_factor * image
+            return self.components.vae.decode(
+                image / self.components.vae.config.scaling_factor
             ).sample
 
-        return (image / 2 + 0.5).clamp(0, 1)
+        # return (image / 2 + 0.5).clamp(0, 1)
 
     def inference(
             self,

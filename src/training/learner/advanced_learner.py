@@ -60,6 +60,31 @@ class AdvancedLearner(Learner):
         # Mother class
         super(AdvancedLearner, self).__init__(params)
 
+    def _tokenize_text(
+            self,
+            text: str
+    ) -> torch.Tensor:
+        """
+        Tokenize a text into a tensor using a CLIP.
+
+        Parameters
+        ----------
+            text : str
+                text to tokenize
+
+        Returns
+        ----------
+            torch.Tensor
+                encoded text
+        """
+        with torch.no_grad():
+            return self.components.tokenizer(
+                text,
+                padding="do_not_pad",
+                truncation=True,
+                max_length=self.components.tokenizer.model_max_length,
+            ).input_ids
+
     def _encode_text(
             self,
             text: torch.Tensor
@@ -79,3 +104,27 @@ class AdvancedLearner(Learner):
         """
         with torch.no_grad():
             return self.components.text_encoder(text)[0]
+
+    def _gen_valid_conditioning(
+            self,
+    ) -> torch.Tensor:
+        """
+        Generates validation conditioning using prompts.
+
+        Returns
+        ----------
+            torch.Tensor
+                validation conditioning
+        """
+        tokens = [
+            self._tokenize_text(prompt)
+            for prompt
+            in [
+                "a blue bird with horns", "a cartoon red turtle with fire",
+                "a green monkey with a sword", "a big red lion with a smile"
+            ]
+        ]
+
+        tokens = self.components.tokenizer.pad(
+            {"input_ids": [e["prompt"] for e in data]}, padding=True, return_tensors="pt"
+        ).input_ids
