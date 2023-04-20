@@ -177,7 +177,7 @@ class StableTrainer(Trainer):
             raise ValueError(f"{loading_type} loading isn't handled by the StableTrainer.")
 
         # Learner
-        if learning_type not in ["conditioned"]:
+        if learning_type not in ["unconditioned", "conditioned"]:
             raise ValueError(f"{learning_type} learning isn't handled by the StableTrainer.")
 
         # Model
