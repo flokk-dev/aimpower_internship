@@ -101,7 +101,7 @@ class PipelineV1(Pipeline):
             diffusers.DDPMPipeline
                 diffusion pipeline
         """
-        pipeline = diffusers.DDPMPipeline.from_pretrained(
+        pipeline = diffusers.DDPMPipeline(
             unet=self.components.model,
             scheduler=self.components.noise_scheduler
         ).to(self._DEVICE)
