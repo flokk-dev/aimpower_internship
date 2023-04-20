@@ -12,11 +12,7 @@
 
     "dataset": {
       "lazy_loading": true,
-      "img_size": 512,
-
-      "tokenizer": {
-        "pipeline_path": "CompVis/stable-diffusion-v1-4"
-      }
+      "img_size": 512
     }
   },
 
