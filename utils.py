@@ -138,6 +138,9 @@ class BasicDiffusionPipeline(DiffusionPipeline):
                 device=self.device
             ).flatten()
 
+        print(image.shape)
+        print(labels.shape)
+
         # set step values
         self.scheduler.set_timesteps(num_inference_steps)
 
