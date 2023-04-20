@@ -4,13 +4,14 @@ Date: 09/04/2023
 Version: 1.0
 Purpose:
 """
-import time
+
 # IMPORT: utils
 from typing import *
 from tqdm import tqdm
 
 # IMPORT: deep learning
 import torch
+import diffusers
 
 # IMPORT: project
 import utils
@@ -105,6 +106,7 @@ class BasicLearner(Learner):
             Dict[str, torch.Tensor]
                 generated image
         """
+        """
         # Samples gaussian noise
         image: torch.Tensor = torch.randn(
             (
@@ -134,6 +136,30 @@ class BasicLearner(Learner):
 
         # Returns
         return {"image": image}
+        """
+        pipeline = diffusers.DDPMPipeline.from_pretrained(
+            unet=self.components.model,
+            scheduler=self.components.noise_scheduler
+        ).to(self._DEVICE)
+
+        pipeline.set_progress_bar_config(disable=True)
+        pipeline.safety_checker = None
+
+        # Validation
+        images: List[torch.Tensor] = list()
+        for i in range(5):
+            image = pipeline(
+                num_inference_steps=30,
+                generator=torch.manual_seed(0)
+            ).images[0]
+
+            images.append(
+                utils.adjust_image_colors(
+                    utils.to_tensor(image)
+                )
+            )
+
+        return {"image": torch.stack(images, dim=0)}
 
 
 class GuidedLearner(Learner):
