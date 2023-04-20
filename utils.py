@@ -87,7 +87,7 @@ class BasicDiffusionPipeline(DiffusionPipeline):
         self,
         batch_size: int = 1,
         num_class_embeds: int = None,
-        generator: Optional[torch.Generator | List[torch.Generator]] = None,
+        generator: torch.Generator = None,
         num_inference_steps: int = 1000,
         output_type: Optional[str] = "pil",
         return_dict: bool = True,
