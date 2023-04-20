@@ -11,7 +11,7 @@
     },
 
     "dataset": {
-      "lazy_loading": false,
+      "lazy_loading": true,
       "img_size": 32
     }
   },
