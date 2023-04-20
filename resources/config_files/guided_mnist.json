@@ -47,10 +47,6 @@
         "args": {
           "num_train_timesteps": 1000
         }
-      },
-
-      "vae": {
-        "pipeline_path": ""
       }
     }
   }
