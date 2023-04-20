@@ -173,7 +173,7 @@ class StableTrainer(Trainer):
         model_type = params["learner"]["components"]["model"]["model_type"]
 
         # Loading
-        if loading_type not in ["prompt"]:
+        if loading_type not in ["basic", "prompt"]:
             raise ValueError(f"{loading_type} loading isn't handled by the StableTrainer.")
 
         # Learner
