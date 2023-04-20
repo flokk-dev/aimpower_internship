@@ -74,12 +74,12 @@ class ComponentsV1:
 
         # Optimizer and learning rate
         self.optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
-            self.model.parameters(), lr=params["lr"]
+            self.model.parameters(), lr=params["optimizer"]["lr"]
         )
 
         self.lr_scheduler: torch.nn.Module = \
             diffusers.optimization.get_cosine_schedule_with_warmup(
                 optimizer=self.optimizer,
-                num_warmup_steps=params["lr_warmup_steps"],
+                num_warmup_steps=params["optimizer"]["lr_warmup_steps"],
                 num_training_steps=(num_batches * num_epochs)
             )

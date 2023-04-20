@@ -21,7 +21,7 @@
     "pretrain_path": "",
     
     "components": {
-      "lr_scheduler": {
+      "optimizer": {
         "lr": 1e-4,
         "lr_warmup_steps": 500
       },
