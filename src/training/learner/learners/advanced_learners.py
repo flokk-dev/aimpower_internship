@@ -97,7 +97,7 @@ class StableLearner(AdvancedLearner):
 
         # Prompt
         batch["prompt"] = self._encode_text(
-            batch["prompt"].type(torch.float32).to(self._DEVICE)
+            batch["prompt"].type(torch.int32).to(self._DEVICE)
         )
 
         # Predicts added noise
