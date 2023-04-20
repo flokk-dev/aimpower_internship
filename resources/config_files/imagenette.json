@@ -41,7 +41,7 @@
 
       "noise_scheduler": {
         "noise_scheduler_type": "ddpm",
-        "pipeline_path": "CompVis/stable-diffusion-v1-4",
+        "pipeline_path": "",
 
         "args": {
           "num_timesteps": 1000
