@@ -36,10 +36,9 @@
           "sample_size": 64,
           "in_channels": 4,
           "out_channels": 4,
-          "block_out_channels": [64, 64, 128, 128],
 
-          "sequence_length": 11,
-          "feature_dim": 768
+          "layers_per_block": 2,
+          "block_out_channels": [64, 64, 128, 128]
         }
       },
 
@@ -48,7 +47,7 @@
         "pipeline_path": "",
 
         "args": {
-          "num_timesteps": 1000
+          "num_train_timesteps": 1000
         }
       },
 

@@ -123,6 +123,7 @@ class UnconditionedStableLearner(StableLearner):
         ).to(self._DEVICE)
 
         pipeline.set_progress_bar_config(disable=True)
+        pipeline.safety_checker = lambda x, y: (x, False)
 
         # Prompts
         prompts = ["", "", "", "", ""]
@@ -246,6 +247,7 @@ class ConditionedStableLearner(StableLearner):
         ).to(self._DEVICE)
 
         pipeline.set_progress_bar_config(disable=True)
+        pipeline.safety_checker = lambda x, y: (x, False)
 
         # Prompts
         prompts = [

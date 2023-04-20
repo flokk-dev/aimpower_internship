@@ -51,7 +51,7 @@ class NoiseSchedulerManager(dict):
         try:
             if pipeline_path:
                 return self[scheduler_type]["load"](pipeline_path)
-            return self[scheduler_type]["init"](scheduler_params)
+            return self[scheduler_type]["init"](**scheduler_params)
 
         except KeyError:
             raise KeyError(f"The {scheduler_type} isn't handled by the noise scheduler manager.")

@@ -54,7 +54,7 @@ class ModelManager(dict):
         try:
             if pipeline_path:
                 return self[model_type]["load"](pipeline_path)
-            return self[model_type]["init"](model_params)
+            return self[model_type]["init"](**model_params)
 
         except KeyError:
             raise KeyError(f"The {model_type} isn't handled by the model manager.")

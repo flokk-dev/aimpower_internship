@@ -14,22 +14,22 @@ from diffusers import DDPMScheduler, DDIMScheduler
 
 
 def init_ddpm(
-        params: Dict[str, Any]
+        num_train_timesteps: int = 100
 ) -> DDPMScheduler:
     """
     Initializes a noise scheduler.
 
     Parameters
     ----------
-        params : Dict[str, Any]
-            parameters needed to adjust the program behaviour
+        num_train_timesteps : int
+            number of diffusion steps used to train the model
 
     Returns
     ----------
         DDPMScheduler
             training's noise scheduler
     """
-    return DDPMScheduler(num_train_timesteps=params["num_timesteps"])
+    return DDPMScheduler(num_train_timesteps=num_train_timesteps)
 
 
 def load_ddpm(
@@ -52,23 +52,23 @@ def load_ddpm(
 
 
 def init_ddim(
-        params: Dict[str, Any]
+        num_train_timesteps: int = 50
 ) -> DDIMScheduler:
     """
     Initializes a noise scheduler.
 
     Parameters
     ----------
-        params : Dict[str, Any]
-            parameters needed to adjust the program behaviour
+        num_train_timesteps : int
+            number of diffusion steps used to train the model
 
     Returns
     ----------
         DDIMScheduler
             training's noise scheduler
     """
-    noise_scheduler = DDIMScheduler(num_train_timesteps=params["num_timesteps"])
-    noise_scheduler.set_timesteps(params["num_timesteps"])
+    noise_scheduler = DDIMScheduler(num_train_timesteps=num_train_timesteps)
+    noise_scheduler.set_timesteps(num_train_timesteps)
 
     return noise_scheduler
 

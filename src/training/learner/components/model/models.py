@@ -14,15 +14,27 @@ from diffusers import UNet2DModel, UNet2DConditionModel
 
 
 def init_unet(
-        params: Dict[str, Any]
+        sample_size: int,
+        in_channels: int,
+        out_channels: int,
+        layers_per_block: int,
+        block_out_channels: Tuple[int]
 ) -> UNet2DModel:
     """
     Initializes a model.
 
     Parameters
     ----------
-        params : Dict[str, Any]
-            parameters needed to adjust the program behaviour
+        sample_size : int
+            height and width of input/output sample
+        in_channels : int
+            number of channels in the input image
+        out_channels : int
+            number of channels in the output image
+        layers_per_block : int
+            number of layers per block
+        block_out_channels : Tuple[int]
+            blocks' output channels
 
     Returns
     ----------
@@ -30,12 +42,12 @@ def init_unet(
             training's model
     """
     return UNet2DModel(
-        sample_size=params["sample_size"],
-        in_channels=params["in_channels"],
-        out_channels=params["out_channels"],
+        sample_size=sample_size,
+        in_channels=in_channels,
+        out_channels=out_channels,
 
-        layers_per_block=2,
-        block_out_channels=params["block_out_channels"]
+        layers_per_block=layers_per_block,
+        block_out_channels=block_out_channels
     )
 
 
@@ -59,15 +71,30 @@ def load_unet(
 
 
 def init_guided_unet(
-        params: Dict[str, Any]
+        sample_size: int,
+        in_channels: int,
+        out_channels: int,
+        layers_per_block: int,
+        block_out_channels: Tuple[int],
+        num_class_embeds: int
 ) -> UNet2DModel:
     """
     Initializes a model.
 
     Parameters
     ----------
-        params : Dict[str, Any]
-            parameters needed to adjust the program behaviour
+        sample_size : int
+            height and width of input/output sample
+        in_channels : int
+            number of channels in the input image
+        out_channels : int
+            number of channels in the output image
+        layers_per_block : int
+            number of layers per block
+        block_out_channels : Tuple[int]
+            blocks' output channels
+        num_class_embeds : int
+            number of classes used to guid the model
 
     Returns
     ----------
@@ -75,14 +102,14 @@ def init_guided_unet(
             training's model
     """
     return UNet2DModel(
-        sample_size=params["sample_size"],
-        in_channels=params["in_channels"],
-        out_channels=params["out_channels"],
+        sample_size=sample_size,
+        in_channels=in_channels,
+        out_channels=out_channels,
 
-        layers_per_block=2,
-        block_out_channels=params["block_out_channels"],
+        layers_per_block=layers_per_block,
+        block_out_channels=block_out_channels,
 
-        num_class_embeds=params["num_labels"]
+        num_class_embeds=num_class_embeds
     )
 
 
@@ -106,15 +133,33 @@ def load_guided_unet(
 
 
 def init_conditioned_unet(
-        params: Dict[str, Any]
+        sample_size: int,
+        in_channels: int,
+        out_channels: int,
+        layers_per_block: int,
+        block_out_channels: Tuple[int],
+        cross_attention_dim: int = 768,
+        attention_head_dim: int = 11
 ) -> UNet2DConditionModel:
     """
     Initializes a model.
 
     Parameters
     ----------
-        params : Dict[str, Any]
-            parameters needed to adjust the program behaviour
+        sample_size : int
+            height and width of input/output sample
+        in_channels : int
+            number of channels in the input image
+        out_channels : int
+            number of channels in the output image
+        layers_per_block : int
+            number of layers per block
+        block_out_channels : Tuple[int]
+            blocks' output channels
+        cross_attention_dim : int
+            dimension of the cross attention features
+        attention_head_dim : int
+            dimension of the attention heads
 
     Returns
     ----------
@@ -122,15 +167,15 @@ def init_conditioned_unet(
             training's model
     """
     return UNet2DConditionModel(
-        sample_size=params["sample_size"],
-        in_channels=params["in_channels"],
-        out_channels=params["out_channels"],
+        sample_size=sample_size,
+        in_channels=in_channels,
+        out_channels=out_channels,
 
-        layers_per_block=2,
-        block_out_channels=params["block_out_channels"],
+        layers_per_block=layers_per_block,
+        block_out_channels=block_out_channels,
 
-        cross_attention_dim=params["feature_dim"],
-        attention_head_dim=params["sequence_length"]
+        cross_attention_dim=cross_attention_dim,
+        attention_head_dim=attention_head_dim
     )
 
 
