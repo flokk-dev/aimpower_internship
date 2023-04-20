@@ -18,17 +18,18 @@
 
   "pipeline": {
     "pipeline_type": "guided",
-    "pretrain_path": "",
 
     "components": {
-      "lr_scheduler": {
+      "pipeline_path": "",
+
+      "optimizer": {
         "lr": 1e-4,
         "lr_warmup_steps": 500
       },
 
       "model": {
         "model_type": "guided",
-        "pretrained": false,
+        "load": false,
 
         "args": {
           "sample_size": 32,
@@ -42,7 +43,7 @@
 
       "noise_scheduler": {
         "noise_scheduler_type": "ddpm",
-        "pretrained": false,
+        "load": false,
 
         "args": {
           "num_train_timesteps": 1000

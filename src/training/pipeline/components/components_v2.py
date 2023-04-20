@@ -70,55 +70,55 @@ class ComponentsV2(ComponentsV1):
 
         # VAE
         self.vae: diffusers.AutoencoderKL = self._init_vae(
-            params["vae"]["pipeline_path"]
+            self._params["vae"]["load"]
         )
 
         # Text encoder
         self.text_encoder: transformers.CLIPTextModel = self._init_text_encoder(
-            params["text_encoder"]["pipeline_path"]
+            self._params["text_encoder"]["load"]
         )
 
     def _init_vae(
             self,
-            pipeline_path: str
+            load: bool
     ) -> diffusers.AutoencoderKL:
         """
         Instantiates an image encoder.
 
         Parameters
         ----------
-            pipeline_path : str
-                path to the pretrained pipeline
+            load : bool
+                whether to load pretrained weights or not
         """
-        if not pipeline_path:
+        if not load:
             return None
 
         return diffusers.AutoencoderKL.from_pretrained(
-            pretrained_model_name_or_path=pipeline_path,
+            pretrained_model_name_or_path=self._params["pipeline_path"],
             subfolder="vae"
         ).to(self._DEVICE)
 
     def _init_text_encoder(
             self,
-            pipeline_path: str
+            load: bool
     ) -> transformers.CLIPTextModel:
         """
         Instantiates a text encoder.
 
         Parameters
         ----------
-            pipeline_path : str
-                path to the pretrained pipeline
+            load : bool
+                whether to load pretrained weights or not
 
         Returns
         ----------
             transformers.CLIPTextModel
                 training's text encoder
         """
-        if not pipeline_path:
+        if not load:
             return None
 
         return transformers.CLIPTextModel.from_pretrained(
-            pretrained_model_name_or_path=pipeline_path,
+            pretrained_model_name_or_path=self._params["pipeline_path"],
             subfolder="text_encoder"
         ).to(self._DEVICE)

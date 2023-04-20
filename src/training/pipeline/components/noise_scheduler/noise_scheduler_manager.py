@@ -49,7 +49,7 @@ class NoiseSchedulerManager(dict):
                 noise scheduler associated to the noise scheduler type
         """
         try:
-            if pipeline_path:
+            if pipeline_path is not None:
                 return self[scheduler_type]["load"](pipeline_path)
             return self[scheduler_type]["init"](**scheduler_params)
 

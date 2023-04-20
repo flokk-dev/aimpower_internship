@@ -62,14 +62,14 @@ class ComponentsV1:
         self.model: torch.nn.Module = ModelManager()(
             model_type=params["model"]["model_type"],
             model_params=params["model"]["args"],
-            pipeline_path=params["model"]["pipeline_path"]
+            pipeline_path=params["pipeline_path"] if params["model"]["load"] else None
         ).to(self._DEVICE)
 
         # Noise scheduler
         self.noise_scheduler: diffusers.SchedulerMixin = NoiseSchedulerManager()(
             scheduler_type=params["noise_scheduler"]["noise_scheduler_type"],
             scheduler_params=params["noise_scheduler"]["args"],
-            pipeline_path=params["noise_scheduler"]["pipeline_path"]
+            pipeline_path=params["pipeline_path"] if params["noise_scheduler"]["load"] else None
         )
 
         # Optimizer and learning rate

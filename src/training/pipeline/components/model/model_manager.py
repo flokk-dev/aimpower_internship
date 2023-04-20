@@ -52,7 +52,7 @@ class ModelManager(dict):
                 model associated to the model type
         """
         try:
-            if pipeline_path:
+            if pipeline_path is not None:
                 return self[model_type]["load"](pipeline_path)
             return self[model_type]["init"](**model_params)
 
