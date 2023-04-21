@@ -263,8 +263,8 @@ class StablePipeline(PipelineV2):
         # Conditioning
         condition: torch.Tensor = torch.randn(
             batch["image"].shape[0],
-            self._params["components"]["model"]["args"]["sequence_length"],
-            self._params["components"]["model"]["args"]["feature_dim"]
+            self._params["components"]["model"]["args"]["attention_head_dim"],
+            self._params["components"]["model"]["args"]["cross_attention_dim"]
         ).to(self._DEVICE)
 
         # Predicts added noise
@@ -283,7 +283,7 @@ class StablePipeline(PipelineV2):
                 generated image
         """
         pipeline = self()
-        prompts = ["", "", "", "", ""]
+        prompts = ["", "", "", ""]
 
         # Generates images
         generated_images = pipeline(

@@ -145,8 +145,8 @@ def init_conditioned_unet(
         out_channels: int,
         layers_per_block: int,
         block_out_channels: Tuple[int],
-        cross_attention_dim: int = 768,
-        attention_head_dim: int = 11
+        cross_attention_dim: int,
+        attention_head_dim: int
 ) -> UNet2DConditionModel:
     """
     Initializes a model.
