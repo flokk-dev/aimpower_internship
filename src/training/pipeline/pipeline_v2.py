@@ -175,7 +175,7 @@ class PipelineV2(PipelineV1):
                 diffusion pipeline
         """
         pipeline = diffusers.StableDiffusionPipeline.from_pretrained(
-            pretrained_model_name_or_path=self._params["components"]["vae"]["pipeline_path"],
+            pretrained_model_name_or_path=self._params["components"]["pipeline_path"],
             unet=self.components.model
         ).to(self._DEVICE)
 
