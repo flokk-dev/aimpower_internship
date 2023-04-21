@@ -127,7 +127,7 @@ class ComponentsV1:
 
         lr_scheduler: torch.nn.Module = \
             diffusers.optimization.get_cosine_schedule_with_warmup(
-                optimizer=self.optimizer,
+                optimizer=optimizer,
                 num_warmup_steps=self._params["optimizer"]["lr_warmup_steps"],
                 num_training_steps=(num_batches * num_epochs)
             )
