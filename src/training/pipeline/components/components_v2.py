@@ -43,9 +43,9 @@ class ComponentsV2(ComponentsV1):
     Methods
     ----------
         _init_vae : diffusers.AutoencoderKL
-            Instantiates an image encoder
+            Initializes an image encoder
         _init_text_encoder : transformers.CLIPTextModel
-            Instantiates a text encoder
+            Initializes a text encoder
     """
     def __init__(
             self,
@@ -85,12 +85,17 @@ class ComponentsV2(ComponentsV1):
             load: bool
     ) -> diffusers.AutoencoderKL:
         """
-        Instantiates an image encoder.
+        Initializes an image encoder.
 
         Parameters
         ----------
             load : bool
                 whether to load pretrained weights or not
+
+        Returns
+        ----------
+            diffusers.AutoencoderKL
+                image encoder
         """
         if not load:
             return None
@@ -105,7 +110,7 @@ class ComponentsV2(ComponentsV1):
             load: bool
     ) -> transformers.CLIPTextModel:
         """
-        Instantiates a text encoder.
+        Initializes a text encoder.
 
         Parameters
         ----------
@@ -115,7 +120,7 @@ class ComponentsV2(ComponentsV1):
         Returns
         ----------
             transformers.CLIPTextModel
-                training's text encoder
+                text encoder
         """
         if not load:
             return None

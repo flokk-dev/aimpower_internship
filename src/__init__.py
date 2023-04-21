@@ -1,1 +1,1 @@
-from .training import TrainerV1, TrainerV2
+from .training import TrainerV1, TrainerV2, TrainerV3

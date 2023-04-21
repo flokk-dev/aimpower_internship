@@ -1,9 +1,9 @@
 {
-  "training_type": "v2",
+  "training_type": "v3",
   "num_epochs": 100,
 
   "loader": {
-    "loading_type": "basic",
+    "loading_type": "prompt",
     "num_data": 1000,
 
     "data_loader": {
@@ -12,16 +12,20 @@
 
     "dataset": {
       "lazy_loading": false,
-      "img_size": 512
+      "img_size": 512,
+
+      "tokenizer": {
+        "pipeline_path": "runwayml/stable-diffusion-v1-5"
+      }
     }
   },
 
   "pipeline": {
-    "pipeline_type": "basic",
+    "pipeline_type": "guided",
     "reduce_dimensions": true,
 
     "components": {
-      "pipeline_path": "CompVis/stable-diffusion-v1-4",
+      "pipeline_path": "runwayml/stable-diffusion-v1-5",
 
       "optimizer": {
         "lr": 1e-4,
@@ -30,7 +34,7 @@
 
       "model": {
         "model_type": "conditioned",
-        "load": false,
+        "load": true,
 
         "args": {
           "sample_size": 64,
@@ -38,10 +42,7 @@
           "out_channels": 4,
 
           "layers_per_block": 2,
-          "block_out_channels": [128, 128, 256, 256],
-
-          "cross_attention_dim": 768,
-          "attention_head_dim": 11
+          "block_out_channels": [128, 128, 256, 256]
         }
       },
 

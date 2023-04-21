@@ -59,27 +59,77 @@ class ComponentsV1:
         self._params: Dict[str, Any] = params
 
         # Model
-        self.model: torch.nn.Module = ModelManager()(
-            model_type=params["model"]["model_type"],
-            model_params=params["model"]["args"],
-            pipeline_path=params["pipeline_path"] if params["model"]["load"] else None
-        ).to(self._DEVICE)
+        self.model: torch.nn.Module = self._init_model()
 
         # Noise scheduler
-        self.noise_scheduler: diffusers.SchedulerMixin = NoiseSchedulerManager()(
-            scheduler_type=params["noise_scheduler"]["noise_scheduler_type"],
-            scheduler_params=params["noise_scheduler"]["args"],
-            pipeline_path=params["pipeline_path"] if params["noise_scheduler"]["load"] else None
-        )
+        self.noise_scheduler: diffusers.SchedulerMixin = self._init_noise_scheduler()
 
         # Optimizer and learning rate
-        self.optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
-            self.model.parameters(), lr=params["optimizer"]["lr"]
+        self.optimizer, self.lr_scheduler = self._init_optimizer(num_epochs, num_batches)
+
+    def _init_model(
+            self
+    ) -> torch.nn.Module:
+        """
+        Initializes a model.
+
+        Returns
+        ----------
+            torch.nn.Module
+                model
+        """
+        return ModelManager()(
+            model_type=self._params["model"]["model_type"],
+            model_params=self._params["model"]["args"],
+            pipeline_path=self._params["pipeline_path"] if self._params["model"]["load"] else None
+        ).to(self._DEVICE)
+
+    def _init_noise_scheduler(
+            self
+    ) -> diffusers.SchedulerMixin:
+        """
+        Initializes a noise scheduler.
+
+        Returns
+        ----------
+            diffusers.SchedulerMixin
+                noise scheduler
+        """
+        return NoiseSchedulerManager()(
+            scheduler_type=self._params["noise_scheduler"]["noise_scheduler_type"],
+            scheduler_params=self._params["noise_scheduler"]["args"],
+            pipeline_path=self._params["pipeline_path"] if self._params["noise_scheduler"]["load"] else None
         )
 
-        self.lr_scheduler: torch.nn.Module = \
+    def _init_optimizer(
+            self,
+            num_epochs: int,
+            num_batches: int
+    ) -> Tuple[diffusers.optimization.Optimizer, torch.nn.Module]:
+        """
+        Instantiates an optimizer and a scheduler.
+
+        Parameters
+        ----------
+            num_epochs : int
+                number of epochs during the training
+            num_batches : int
+                number of batches within the data loader
+
+        Returns
+        ----------
+            Tuple[diffusers.optimization.Optimizer, torch.nn.Module]
+                optimizer and scheduler
+        """
+        optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
+            self.model.parameters(), lr=self._params["optimizer"]["lr"]
+        )
+
+        lr_scheduler: torch.nn.Module = \
             diffusers.optimization.get_cosine_schedule_with_warmup(
                 optimizer=self.optimizer,
-                num_warmup_steps=params["optimizer"]["lr_warmup_steps"],
+                num_warmup_steps=self._params["optimizer"]["lr_warmup_steps"],
                 num_training_steps=(num_batches * num_epochs)
             )
+
+        return optimizer, lr_scheduler
