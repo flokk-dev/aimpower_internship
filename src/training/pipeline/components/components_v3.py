@@ -72,7 +72,7 @@ class ComponentsV3(ComponentsV2):
 
         # Model
         self.model.requires_grad_(False)
-        self.lora_layers = self._add_lora_layers()
+        self.lora_layers = self._add_lora_layers().to(self._DEVICE)
 
         self.optimizer: diffusers.optimization.Optimizer = torch.optim.AdamW(
             self.lora_layers.parameters(), lr=self._params["optimizer"]["lr"]
