@@ -8,18 +8,20 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
-from tqdm import tqdm
 
 # IMPORT: data loading
 import torch
 
+# IMPORT: data processing
+from transformers import CLIPTokenizer
+
 # IMPORT: project
-from .dataset import DataSet
+from .dataset import Dataset
 
 
-class LazyDataSet(DataSet):
+class LabelDataset(Dataset):
     """
-    Represents a LazyDataSet.
+    Represents a LabelDataset.
 
     Attributes
     ----------
@@ -31,15 +33,22 @@ class LazyDataSet(DataSet):
             additional info about the data
         _pre_process: transforms.Compose
             pre-processing to apply on each data
+
+    Methods
+    ----------
+        _load_image : torch.Tensor
+            Loads an image from path
+        _str_to_tensor: torch.Tensor
+            Casts a string into a tensor
     """
     def __init__(
             self,
             params: Dict[str, Any],
             inputs: List[str],
-            dataset_info: List[Dict[str, Any]]
+            info: List[Dict[str, Any]]
     ):
         """
-        Instantiates a LazyDataSet.
+        Instantiates a LabelDataset.
 
         Parameters
         ----------
@@ -47,16 +56,33 @@ class LazyDataSet(DataSet):
                 parameters needed to adjust the program behaviour
             inputs : List[str]
                 input tensors' paths
-            dataset_info : List[Dict[str, Any]]
+            info : List[Dict[str, Any]]
                 additional info about the data
         """
         # Mother Class
-        super(LazyDataSet, self).__init__(params, inputs, dataset_info)
+        super(LabelDataset, self).__init__(params, inputs, info)
+
+    @staticmethod
+    def _str_to_tensor(elem: str):
+        """
+        Casts a string into a tensor.
+
+        Parameters
+        ----------
+            elem : str
+                element to cast
+
+        Returns
+        ----------
+            torch.Tensor
+                casted element
+        """
+        return torch.tensor([int(elem)]).type(torch.uint8)
 
     def __getitem__(
             self,
             idx: int
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Dict[str, torch.Tensor]:
         """
         Parameters
         ----------
@@ -65,17 +91,24 @@ class LazyDataSet(DataSet):
 
         Returns
         ----------
-            torch.Tensor
-                the dataset's element as a tensor
-            torch.Tensor
-                additional info about the data
+            Dict[str, torch.Tensor]
+                the dataset's element and additional info
         """
-        return self._load_image(self._inputs[idx]), self._info[idx]["label"]
+        if self._params["lazy_loading"]:
+            return {
+                "image": self._load_image(self._inputs[idx]),
+                "guider": self._str_to_tensor(self._info[idx]["label"])
+            }
+
+        return {
+            "image": self._inputs[idx],
+            "guider": self._str_to_tensor(self._info[idx]["label"])
+        }
 
 
-class TensorDataSet(DataSet):
+class PromptDataset(Dataset):
     """
-    Represents a TensorDataSet.
+    Represents a PromptDataset.
 
     Attributes
     ----------
@@ -87,15 +120,26 @@ class TensorDataSet(DataSet):
             additional info about the data
         _pre_process: transforms.Compose
             pre-processing to apply on each data
+        tokenizer: CLIPTokenizer
+            object needed to tokenize a prompt
+
+    Methods
+    ----------
+        _load_image : torch.Tensor
+            Loads an image from path
+        _init_tokenizer : CLIPTokenizer
+            Instantiates a tokenizer
+        _tokenize: torch.Tensor
+            Tokenizes a prompt
     """
     def __init__(
             self,
             params: Dict[str, Any],
             inputs: List[str],
-            dataset_info: List[Dict[str, Any]]
+            info: List[Dict[str, Any]]
     ):
         """
-        Instantiates a TensorDataSet.
+        Instantiates a PromptDataset.
 
         Parameters
         ----------
@@ -103,19 +147,65 @@ class TensorDataSet(DataSet):
                 parameters needed to adjust the program behaviour
             inputs : List[str]
                 input tensors' paths
-            dataset_info : List[Dict[str, Any]]
+            info : List[Dict[str, Any]]
                 additional info about the data
         """
         # Mother Class
-        super(TensorDataSet, self).__init__(params, inputs, dataset_info)
+        super(PromptDataset, self).__init__(params, inputs, info)
 
-        for idx, file_path in enumerate(tqdm(self._inputs, desc="loading the data in RAM.")):
-            self._inputs[idx] = self._load_image(file_path)
+        # Attributes
+        self.tokenizer: CLIPTokenizer = self._init_tokenizer(
+            self._params["tokenizer"]["pipeline_path"]
+        )
+
+    @staticmethod
+    def _init_tokenizer(
+            pipeline_path: str
+    ) -> CLIPTokenizer:
+        """
+        Instantiates a tokenizer.
+
+        Parameters
+        ----------
+            pipeline_path : str
+                path to the pretrained pipeline
+        """
+        if not pipeline_path:
+            return None
+
+        return CLIPTokenizer.from_pretrained(
+            pretrained_model_name_or_path=pipeline_path,
+            subfolder="tokenizer",
+        )
+
+    def _tokenize(
+            self,
+            prompt: str
+    ) -> torch.Tensor:
+        """
+        Tokenizes a prompt.
+
+        Parameters
+        ----------
+            prompt : str
+                additional info about a data
+
+        Returns
+        ----------
+            torch.Tensor
+                the prompt as a tensor
+        """
+        return self.tokenizer(
+            prompt,
+            padding="do_not_pad",
+            truncation=True,
+            max_length=self.tokenizer.model_max_length,
+        ).input_ids
 
     def __getitem__(
             self,
             idx: int
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Dict[str, torch.Tensor]:
         """
         Parameters
         ----------
@@ -124,9 +214,16 @@ class TensorDataSet(DataSet):
 
         Returns
         ----------
-            torch.Tensor
-                the dataset's element as a tensor
-            torch.Tensor
-                additional info about the data
+            Dict[str, torch.Tensor]
+                the dataset's element and additional info
         """
-        return self._inputs[idx], self._info[idx]["label"]
+        if self._params["lazy_loading"]:
+            return {
+                "image": self._load_image(self._inputs[idx]),
+                "guider": self._tokenize(self._info[idx]["prompt"])
+            }
+
+        return {
+            "image": self._inputs[idx],
+            "guider": self._tokenize(self._info[idx]["prompt"])
+        }

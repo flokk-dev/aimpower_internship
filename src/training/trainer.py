@@ -24,8 +24,9 @@ import paths
 import utils
 
 from src.loading import Loader
-from .learner import Learner, BasicLearner, GuidedLearner
-from .dashboard import Dashboard
+
+from src.training.pipeline import Pipeline
+from src.training.dashboard import Dashboard
 
 
 class Trainer:
@@ -46,11 +47,14 @@ class Trainer:
         _run_epoch
             Runs an epoch
         _checkpoint
-            Saves pipeline's weights
+            Saves noise_scheduler's weights
     """
-    _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    _PIPELINES = dict()
 
-    def __init__(self, params: Dict[str, Any]):
+    def __init__(
+            self,
+            params: Dict[str, Any]
+    ):
         """
         Instantiates a Trainer.
 
@@ -60,8 +64,10 @@ class Trainer:
                 parameters needed to adjust the program behaviour
         """
         # Attributes
+        self._verify_parameters(params)
         self._params: Dict[str, Any] = params
 
+        # Creates training's repository
         self._path = os.path.join(paths.MODELS_PATH, utils.get_datetime())
         if not os.path.exists(self._path):
             os.makedirs(self._path)
@@ -72,11 +78,32 @@ class Trainer:
 
         # Components
         self._data_loader: DataLoader = None
-        self._learner: Learner = None
+        self._pipeline: Pipeline = None
 
         self._dashboard: Dashboard = None
 
-    def _launch(self):
+    def _verify_parameters(
+            self,
+            params: Dict[str, Any]
+    ):
+        """
+        Verifies if the training's configuration is correct.
+
+        Parameters
+        ----------
+            params : Dict[str, Any]
+                parameters needed to adjust the program behaviour
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
+        """
+        raise NotImplementedError()
+
+    def _launch(
+            self
+    ):
         """ Launches the training. """
         time.sleep(1)
 
@@ -86,10 +113,11 @@ class Trainer:
             torch.cuda.empty_cache()
 
             # Learns
+            self._pipeline.components.model.train()
             self._run_epoch(p_bar)
 
             # Updates
-            self._dashboard.upload_values(self._learner.lr_scheduler.get_last_lr()[0])
+            self._dashboard.upload_values(self._pipeline.components.lr_scheduler.get_last_lr()[0])
             if (epoch + 1) % 10 == 0:
                 self._checkpoint(epoch + 1)
 
@@ -99,7 +127,10 @@ class Trainer:
         time.sleep(10)
         self._dashboard.shutdown()
 
-    def _run_epoch(self, p_bar: tqdm):
+    def _run_epoch(
+            self,
+            p_bar: tqdm
+    ):
         """
         Runs an epoch.
 
@@ -115,14 +146,17 @@ class Trainer:
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}", gpu=utils.gpu_utilization())
 
             # Learns on batch
-            epoch_loss.append(self._learner(batch, batch_idx=batch_idx))
+            epoch_loss.append(self._pipeline.learn(batch))
 
         # Stores the results
         self._dashboard.update_loss(epoch_loss)
 
-    def _checkpoint(self, epoch: int):
+    def _checkpoint(
+            self,
+            epoch: int
+    ):
         """
-        Saves pipeline's weights.
+        Saves noise_scheduler's weights.
 
         Parameters
         ----------
@@ -130,10 +164,10 @@ class Trainer:
                 the current epoch idx
         """
         # Saves pipeline
-        self._learner.pipeline.save_pretrained(os.path.join(self._path, "pipeline"))
+        # self._pipeline().save_pretrained(os.path.join(self._path, "pipeline"))
 
         # Generates checkpoint images
-        tensors: Dict[str, torch.Tensor] = self._learner.inference(to_dict=True)
+        tensors: Dict[str, torch.Tensor] = self._pipeline.inference()
 
         # Uploads and saves qualitative results
         for key, tensor in tensors.items():
@@ -148,21 +182,20 @@ class Trainer:
             # Saves checkpoint image on disk
             utils.save_plt(tensor, os.path.join(key_path, f"epoch_{epoch}.png"))
 
-    def __call__(self, dataset_path: str, weights_path: str):
+    def __call__(self, dataset_path: str):
         """
         Parameters
         ----------
             dataset_path : str
                 path to the dataset
-            weights_path : str
-                path to the pipeline's weights
         """
         # Loading
-        self._data_loader = Loader(self._params)(dataset_path)
+        self._data_loader = Loader(self._params["loader"])(dataset_path)
 
-        # Learner
-        learner_class = BasicLearner if self._params["train_type"] == "basic" else GuidedLearner
-        self._learner = learner_class(self._params, len(self._data_loader), weights_path)
+        # Pipeline
+        self._pipeline = self._PIPELINES[self._params["pipeline"]["pipeline_type"]](
+            self._params["pipeline"], len(self._data_loader), self._params["num_epochs"]
+        )
 
         # Dashboard
         self._dashboard = Dashboard(self._params, train_id=os.path.basename(self._path))

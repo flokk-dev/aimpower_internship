@@ -18,13 +18,13 @@ ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 RESOURCES
 """
 RESOURCES_PATH = os.path.join(ROOT_PATH, "resources")
-CONFIG_PATH = os.path.join(RESOURCES_PATH, "config.json")
+CONFIG_PATH = os.path.join(RESOURCES_PATH, "config_files")
 
 """
 TEST
 """
 TEST_PATH = os.path.join(ROOT_PATH, "test")
-TEST_DATA_PATH = os.path.join(TEST_PATH, "data")
+TEST_RESOURCES_PATH = os.path.join(TEST_PATH, "resources")
 
 """
 MODELS

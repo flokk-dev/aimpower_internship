@@ -8,18 +8,21 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
+from tqdm import tqdm
 
 # IMPORT: data loading
 from PIL import Image
+
 import torch
+from torch.utils.data import Dataset as TorchDataset
 
 # IMPORT: data processing
 from torchvision import transforms
 
 
-class DataSet(torch.utils.data.Dataset):
+class Dataset(TorchDataset):
     """
-    Represents a general DataSet, which will be modified depending on the use case.
+    Represents a DataSet, which will be modified depending on the use case.
 
     Attributes
     ----------
@@ -34,6 +37,8 @@ class DataSet(torch.utils.data.Dataset):
 
     Methods
     ----------
+        tokenizer : CLIPTokenizer
+            Returns the dataset's tokenizer
         _load_image : torch.Tensor
             Loads an image from path
     """
@@ -41,7 +46,7 @@ class DataSet(torch.utils.data.Dataset):
             self,
             params: Dict[str, Any],
             inputs: List[str],
-            dataset_info: List[Dict[str, Any]]
+            info: List[Dict[str, Any]]
     ):
         """
         Instantiates a InfoDataSet.
@@ -52,24 +57,29 @@ class DataSet(torch.utils.data.Dataset):
                 parameters needed to adjust the program behaviour
             inputs : List[str]
                 input tensors' paths
-            dataset_info : List[Dict[str, Any]]
+            info : List[Dict[str, Any]]
                 additional info about the data
         """
         # Mother Class
-        super(DataSet, self).__init__()
+        super(Dataset, self).__init__()
 
         # Attributes
         self._params: Dict[str, Any] = params
         self._inputs: List[Union[str, torch.Tensor]] = inputs
+        self._info: List[Dict[str, Any]] = info
 
-        self._info: List[Dict[str, Any]] = dataset_info
-
-        # Data pre-processing
         self._pre_process: transforms.Compose = transforms.Compose([
-            transforms.Resize((params["img_size"], params["img_size"]), antialias=True),
+            transforms.Resize(params["img_size"], antialias=True),
+            transforms.CenterCrop(params["img_size"]),
             # transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
             transforms.Normalize([0.5], [0.5]),
         ])
+
+        # Lazy loading
+        if not params["lazy_loading"]:
+            for idx, file_path in enumerate(tqdm(self._inputs, desc="loading the data in RAM.")):
+                self._inputs[idx] = self._load_image(file_path)
 
     def _load_image(
             self,
@@ -88,17 +98,14 @@ class DataSet(torch.utils.data.Dataset):
             torch.Tensor
                 the image as a tensor
         """
-        image: Image = Image.open(path)
-        if self._params["num_channels"] == 3:
-            image = image.convert("RGB")
-
-        tensor: torch.Tensor = transforms.PILToTensor()(image) / 255
-        return self._pre_process(tensor).type(torch.float16)
+        return self._pre_process(
+            Image.open(path)  # .convert("RGB")
+        ).type(torch.float16)
 
     def __getitem__(
             self,
             idx: int
-    ) -> torch.Tensor:
+    ) -> Dict[str, torch.Tensor]:
         """
         Parameters
         ----------
@@ -107,15 +114,13 @@ class DataSet(torch.utils.data.Dataset):
 
         Returns
         ----------
-            torch.Tensor
-                the dataset's element as a tensor
-
-        Raises
-        ----------
-            NotImplementedError
-                function isn't implemented yet
+            Dict[str, torch.Tensor]
+                the dataset's element and additional info
         """
-        raise NotImplementedError()
+        if self._params["lazy_loading"]:
+            return {"image": self._load_image(self._inputs[idx])}
+        else:
+            return {"image": self._inputs[idx]}
 
     def __len__(self) -> int:
         """
