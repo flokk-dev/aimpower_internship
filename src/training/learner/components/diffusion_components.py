@@ -133,7 +133,8 @@ class DiffusionComponents:
             self.model = self._M_TYPES[self._params["model"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="unet",
-                revision="fp16"
+                revision="fp16",
+                low_cpu_mem_usage=False
             )
 
         self.model = self._M_TYPES[self._params["model"]["type"]](**self._params["model"]["args"])
