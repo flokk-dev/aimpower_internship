@@ -15,7 +15,7 @@ import argparse
 # IMPORT: project
 import paths
 
-from src import TrainerV1, TrainerV2, TrainerV3
+from src import Trainer
 
 
 class Parser(argparse.ArgumentParser):
@@ -36,9 +36,6 @@ class Parser(argparse.ArgumentParser):
         )
 
 
-TASKS = {"v1": TrainerV1, "v2": TrainerV2, "v3": TrainerV3}
-
-
 if __name__ == "__main__":
     # Training arguments
     parser = Parser()
@@ -49,5 +46,5 @@ if __name__ == "__main__":
         parameters = json.load(json_file)
 
     # Launch training
-    trainer = TASKS[parameters["training_type"]](params=parameters)
+    trainer = Trainer(params=parameters)
     trainer(dataset_path=args.dataset)
