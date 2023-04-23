@@ -110,14 +110,17 @@ class Loader:
             DataLoader
                 data loader containing training data
         """
-        return self._DATA_LOADERS[self._params["loading_type"]](
+        return self._DATA_LOADERS[self._params["type"]](
             self._params["data_loader"],
-            self._DATASETS[self._params["loading_type"]](
+            self._DATASETS[self._params["type"]](
                 self._params["dataset"], file_paths, data_info
             ),
         )
 
-    def __call__(self, dataset_path: str) -> DataLoader:
+    def __call__(
+            self,
+            dataset_path: str
+    ) -> DataLoader:
         """
         Parameters
         ----------

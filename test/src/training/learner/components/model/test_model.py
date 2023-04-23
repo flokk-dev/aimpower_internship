@@ -17,8 +17,8 @@ import torch
 # IMPORT: project
 import paths
 
-from src.training.pipeline.components.model import ModelManager
-from src.training.pipeline.components.model.models import \
+from src.training.learner.components.model import ModelManager
+from src.training.learner.components.model.models import \
     init_unet, load_unet, \
     init_guided_unet, load_guided_unet, \
     init_conditioned_unet, load_conditioned_unet

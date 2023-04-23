@@ -1,26 +1,29 @@
 {
-  "training_type": "v1",
   "num_epochs": 100,
 
-  "loader": {
-    "loading_type": "basic",
-    "num_data": 5000,
-
-    "data_loader": {
-      "batch_size": 64
-    },
-
-    "dataset": {
-      "lazy_loading": false,
-      "img_size": 32
-    }
+  "pipeline": {
+    "type": "diffusion"
   },
 
-  "pipeline": {
-    "pipeline_type": "basic",
-    
+  "learner": {
+    "type": "diffusion",
+
     "components": {
-      "pipeline_path": "",
+      "type": "diffusion",
+
+      "loader": {
+        "type": "basic",
+        "num_data": 5000,
+
+        "data_loader": {
+          "batch_size": 64
+        },
+
+        "dataset": {
+          "lazy_loading": false,
+          "img_size": 32
+        }
+      },
 
       "optimizer": {
         "lr": 1e-4,
@@ -28,7 +31,7 @@
       },
 
       "model": {
-        "model_type": "basic",
+        "type": "unet",
         "load": false,
 
         "args": {
@@ -42,7 +45,7 @@
       },
 
       "noise_scheduler": {
-        "noise_scheduler_type": "ddpm",
+        "type": "ddpm",
         "load": false,
 
         "args": {

@@ -17,15 +17,17 @@ from tqdm import tqdm
 
 # IMPORT: deep learning
 import torch
-from torch.utils.data import DataLoader
 
 # IMPORT: project
 import paths
 import utils
 
-from src.loading import Loader
+from .learner import Learner, \
+    DiffusionLearner, GuidedDiffusionLearner, StableDiffusionLearner
 
-from src.training.pipeline import Pipeline
+from .pipeline import Pipeline, \
+    DiffusionPipeline, GuidedDiffusionPipeline, StableDiffusionPipeline, LoRADiffusionPipeline
+
 from src.training.dashboard import Dashboard
 
 
@@ -37,8 +39,13 @@ class Trainer:
     ----------
         _params : Dict[str, Any]
             parameters needed to adjust the program behaviour
-        _data_loader : Dict[str: DataLoader]
-            loader containing training's data
+        _path : str
+            path to the training's logs
+
+        _learner : Learner
+            ...
+        _dashboard : Dashboard
+            ...
 
     Methods
     ----------
@@ -49,7 +56,18 @@ class Trainer:
         _checkpoint
             Saves noise_scheduler's weights
     """
-    _PIPELINES = dict()
+    _LEARNERS = {
+        "diffusion": DiffusionLearner,
+        "guided diffusion": GuidedDiffusionLearner,
+        "stable diffusion": StableDiffusionLearner
+    }
+
+    _PIPELINES = {
+        "diffusion": DiffusionPipeline,
+        "guided diffusion": GuidedDiffusionPipeline,
+        "stable diffusion": StableDiffusionPipeline,
+        "lora diffusion": LoRADiffusionPipeline
+    }
 
     def __init__(
             self,
@@ -64,7 +82,6 @@ class Trainer:
                 parameters needed to adjust the program behaviour
         """
         # Attributes
-        self._verify_parameters(params)
         self._params: Dict[str, Any] = params
 
         # Creates training's repository
@@ -77,7 +94,7 @@ class Trainer:
             json.dump(self._params, file_content)
 
         # Components
-        self._data_loader: DataLoader = None
+        self._learner: Learner = None
         self._pipeline: Pipeline = None
 
         self._dashboard: Dashboard = None
@@ -113,11 +130,11 @@ class Trainer:
             torch.cuda.empty_cache()
 
             # Learns
-            self._pipeline.components.model.train()
+            self._learner.components.model.train()
             self._run_epoch(p_bar)
 
             # Updates
-            self._dashboard.upload_values(self._pipeline.components.lr_scheduler.get_last_lr()[0])
+            self._dashboard.upload_values(self._learner.components.lr_scheduler.get_last_lr()[0])
             if (epoch + 1) % 10 == 0:
                 self._checkpoint(epoch + 1)
 
@@ -139,14 +156,14 @@ class Trainer:
             p_bar : tqdm
                 the training's progress bar
         """
-        num_batch: int = len(self._data_loader)
+        num_batch: int = len(self._learner.components.data_loader)
 
         epoch_loss: list = list()
-        for batch_idx, batch in enumerate(self._data_loader):
+        for batch_idx, batch in enumerate(self._learner.components.data_loader):
             p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}", gpu=utils.gpu_utilization())
 
             # Learns on batch
-            epoch_loss.append(self._pipeline.learn(batch))
+            epoch_loss.append(self._learner(batch))
 
         # Stores the results
         self._dashboard.update_loss(epoch_loss)
@@ -163,11 +180,11 @@ class Trainer:
             epoch : int
                 the current epoch idx
         """
-        # Saves pipeline
-        # self._pipeline().save_pretrained(os.path.join(self._path, "pipeline"))
-
-        # Generates checkpoint images
-        tensors: Dict[str, torch.Tensor] = self._pipeline.inference()
+        # Saves pipeline and generates images
+        tensors: Dict[str, torch.Tensor] = self._pipeline.checkpoint(
+            components=self._learner.components,
+            save_path=os.path.join(self._path, "pipeline")
+        )
 
         # Uploads and saves qualitative results
         for key, tensor in tensors.items():
@@ -189,16 +206,18 @@ class Trainer:
             dataset_path : str
                 path to the dataset
         """
-        # Loading
-        self._data_loader = Loader(self._params["loader"])(dataset_path)
+        # Learner
+        self._learner = self._LEARNERS[self._params["learner"]["type"]](
+            self._params["learner"], dataset_path, self._params["num_epochs"]
+        )
 
         # Pipeline
-        self._pipeline = self._PIPELINES[self._params["pipeline"]["pipeline_type"]](
-            self._params["pipeline"], len(self._data_loader), self._params["num_epochs"]
+        self._pipeline = self._PIPELINES[self._params["pipeline"]["type"]](
+            self._params["learner"]["components"]
         )
 
         # Dashboard
-        self._dashboard = Dashboard(self._params, train_id=os.path.basename(self._path))
+        self._dashboard = Dashboard(train_id=os.path.basename(self._path))
 
         # Launches the training procedure
         self._launch()

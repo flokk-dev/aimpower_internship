@@ -16,8 +16,8 @@ import pytest
 # IMPORT: project
 import paths
 
-from src.training.pipeline.components.noise_scheduler import NoiseSchedulerManager
-from src.training.pipeline.components.noise_scheduler.noise_schedulers import \
+from src.training.learner.components.noise_scheduler import NoiseSchedulerManager
+from src.training.learner.components.noise_scheduler.noise_schedulers import \
     init_ddpm, load_ddpm, \
     init_ddim, load_ddim
 

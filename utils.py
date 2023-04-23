@@ -13,6 +13,8 @@ from pynvml import *
 import datetime
 
 # IMPORT: dataset processing
+import PIL
+
 import torch
 import torchvision
 
@@ -21,7 +23,8 @@ import matplotlib.pyplot as plt
 
 # IMPORT: deep learning
 from diffusers.utils import randn_tensor
-from diffusers.pipeline_utils import DiffusionPipeline, ImagePipelineOutput
+from diffusers import DDPMPipeline
+from diffusers.pipeline_utils import ImagePipelineOutput
 
 
 # ---------- INFO ---------- #
@@ -74,19 +77,29 @@ def to_tensor(image):
     return torchvision.transforms.ToTensor()(image)
 
 
+def images_to_tensors(images: List[PIL.Image.Image]) -> List[torch.Tensor]:
+    return [
+        adjust_image_colors(to_tensor(image))
+        for image
+        in images
+    ]
+
+
 # ---------- DEEP LEARNING ---------- #
 
-class BasicDiffusionPipeline(DiffusionPipeline):
+class GuidedDDPMPipeline(DDPMPipeline):
     """ Modification of the DDPMPipeline class from hugging face. """
     def __init__(self, unet, scheduler):
-        super(BasicDiffusionPipeline, self).__init__()
-        self.register_modules(unet=unet, scheduler=scheduler)
+        super(GuidedDDPMPipeline, self).__init__(
+            unet=unet,
+            scheduler=scheduler
+        )
 
     @torch.no_grad()
     def __call__(
         self,
         batch_size: int = 1,
-        num_class_embeds: int = None,
+        num_class_embeds: int = 10,
         generator: torch.Generator = None,
         num_inference_steps: int = 1000,
         output_type: str = "pil",
@@ -116,22 +129,18 @@ class BasicDiffusionPipeline(DiffusionPipeline):
             True, otherwise a `tuple. When returning a tuple, the first element is a list with the generated images.
         """
         # Sample vector to guide generation if needed
-        if num_class_embeds is not None:
-            labels: torch.Tensor = torch.tensor(
-                [[i] * batch_size for i in range(num_class_embeds)],
-                device=self.device
-            ).flatten()
-
-            batch_size *= num_class_embeds
+        labels: torch.Tensor = torch.tensor(
+            [[i] * batch_size for i in range(num_class_embeds)],
+            device=self.device
+        ).flatten()
 
         # Sample gaussian noise to begin loop
+        batch_size *= num_class_embeds
+
         if isinstance(self.unet.sample_size, int):
             image_shape = (batch_size, self.unet.in_channels, self.unet.sample_size, self.unet.sample_size)
         else:
             image_shape = (batch_size, self.unet.in_channels, *self.unet.sample_size)
-
-        if num_class_embeds is not None:
-            batch_size *= num_class_embeds
 
         if self.device.type == "mps":
             # randn does not work reproducibly on mps
@@ -145,10 +154,7 @@ class BasicDiffusionPipeline(DiffusionPipeline):
 
         for t in self.progress_bar(self.scheduler.timesteps):
             # 1. predict noise model_output
-            if num_class_embeds is not None:
-                model_output = self.unet(image, t, labels).sample
-            else:
-                model_output = self.unet(image, t).sample
+            model_output = self.unet(image, t, labels).sample
 
             # 2. compute previous image: x_t -> x_t-1
             image = self.scheduler.step(model_output, t, image, generator=generator).prev_sample

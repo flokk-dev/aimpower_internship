@@ -47,7 +47,6 @@ class Dashboard:
 
     def __init__(
             self,
-            params: Dict[str, Any],
             train_id: str,
             mode="online"
     ):
@@ -56,8 +55,6 @@ class Dashboard:
 
         Parameters
         ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
             train_id : str
                 id of the training
             mode : str
@@ -68,7 +65,6 @@ class Dashboard:
         wandb.init(entity="flokk-dev", project="aimpower_internship_test", mode=mode)
 
         wandb.run.name = train_id
-        wandb.config = params
 
         # Attributes
         self._loss: List[float] = list()
