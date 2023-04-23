@@ -184,7 +184,6 @@ class DiffusionComponents:
     ):
         """ Sends the desired components on device. """
         self.model.to(self.accelerator.device, dtype=torch.float16)
-        self.noise_scheduler.to(self.accelerator.device, dtype=torch.float16)
 
     def _prepare(
             self
