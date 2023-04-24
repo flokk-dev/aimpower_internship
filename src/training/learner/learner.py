@@ -72,7 +72,7 @@ class Learner:
         self.components.prepare()
 
         # Loss
-        self._loss = torch.nn.MSELoss().to(self.components.accelerator.device)
+        self._loss = torch.nn.MSELoss().to(self.components.accelerator.device, dtype=torch.float16)
 
     def learn(
             self,
