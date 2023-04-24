@@ -69,6 +69,7 @@ class Learner:
         self.components = self._COMPONENTS[params["components"]["type"]](
             params["components"], dataset_path, num_epochs
         )
+        self.components.prepare()
 
         # Loss
         self._loss = torch.nn.MSELoss().to(self.components.accelerator.device)

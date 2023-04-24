@@ -57,8 +57,10 @@ class StableDiffusionComponents(DiffusionComponents):
         _init_text_encoder
             Initializes a text encoder
 
-        _prepare
-            Prepares the components using an accelerator.
+        _to_device
+            Sends the desired components on device
+        prepare
+            Prepares the components using an accelerator
     """
 
     def __init__(
@@ -79,6 +81,9 @@ class StableDiffusionComponents(DiffusionComponents):
             num_epochs : int
                 number of epochs during the training
         """
+        # ----- Mother Class ----- #
+        super(StableDiffusionComponents, self).__init__(params, dataset_path, num_epochs)
+
         # ----- Attributes ----- #
         # VAE
         self.vae: AutoencoderKL = None
@@ -87,9 +92,6 @@ class StableDiffusionComponents(DiffusionComponents):
         # Text encoder
         self.text_encoder: CLIPTextModel = None
         self._init_text_encoder()
-
-        # ----- Mother Class ----- #
-        super(StableDiffusionComponents, self).__init__(params, dataset_path, num_epochs)
 
     def _init_vae(
             self,

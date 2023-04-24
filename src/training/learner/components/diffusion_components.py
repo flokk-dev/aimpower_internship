@@ -53,8 +53,10 @@ class DiffusionComponents:
         _init_lr_scheduler
             Initializes the learning rate's scheduler
 
-        _prepare
-            Prepares the components using an accelerator.
+        _to_device
+            Sends the desired components on device
+        prepare
+            Prepares the components using an accelerator
     """
     _M_TYPES = {"unet": UNet2DModel, "conditioned unet": UNet2DConditionModel}
     _NS_TYPES = {"ddpm": DDPMScheduler, "ddim": DDIMScheduler}
@@ -105,9 +107,6 @@ class DiffusionComponents:
         # Learning rate
         self.lr_scheduler: torch.nn.Module = None
         self._init_lr_scheduler(num_epochs)
-
-        # ----- Preparation ----- #
-        self._prepare()
 
     def _init_data_loader(
             self,
@@ -190,7 +189,7 @@ class DiffusionComponents:
         """ Sends the desired components on device. """
         self.model.to(self.accelerator.device, dtype=torch.float16)
 
-    def _prepare(
+    def prepare(
             self
     ):
         """ Prepares the components using an accelerator. """

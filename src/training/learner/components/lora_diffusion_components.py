@@ -59,8 +59,10 @@ class LoRADiffusionComponents(StableDiffusionComponents):
         _init_text_encoder
             Initializes a text encoder
 
-        _prepare
-            Prepares the components using an accelerator.
+        _to_device
+            Sends the desired components on device
+        prepare
+            Prepares the components using an accelerator
     """
 
     def __init__(
@@ -129,7 +131,7 @@ class LoRADiffusionComponents(StableDiffusionComponents):
             self.lora_layers.parameters(), lr=self._params["optimizer"]["lr"]
         )
 
-    def _prepare(
+    def prepare(
             self
     ):
         """ Prepares the components using an accelerator. """
