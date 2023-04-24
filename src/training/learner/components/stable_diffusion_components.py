@@ -79,9 +79,6 @@ class StableDiffusionComponents(DiffusionComponents):
             num_epochs : int
                 number of epochs during the training
         """
-        # ----- Mother Class ----- #
-        super(StableDiffusionComponents, self).__init__(params, dataset_path, num_epochs)
-
         # ----- Attributes ----- #
         # VAE
         self.vae: AutoencoderKL = None
@@ -90,6 +87,9 @@ class StableDiffusionComponents(DiffusionComponents):
         # Text encoder
         self.text_encoder: CLIPTextModel = None
         self._init_text_encoder()
+
+        # ----- Mother Class ----- #
+        super(StableDiffusionComponents, self).__init__(params, dataset_path, num_epochs)
 
     def _init_vae(
             self,
