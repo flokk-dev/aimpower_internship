@@ -20,7 +20,7 @@
 
       "loader": {
         "type": "prompt",
-        "num_data": 100,
+        "num_data": 500,
 
         "data_loader": {
           "batch_size": 1
