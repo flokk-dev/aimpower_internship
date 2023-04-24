@@ -128,15 +128,18 @@ class DiffusionComponents:
             self
     ):
         """ Initializes the model. """
+        # Loads
         if self._params["model"]["load"]:
             self.model = self._M_TYPES[self._params["model"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="unet"
             )
 
-        self.model = self._M_TYPES[self._params["model"]["type"]](
-            **self._params["model"]["args"]
-        )
+        # Instantiates
+        else:
+            self.model = self._M_TYPES[self._params["model"]["type"]](
+                **self._params["model"]["args"]
+            )
 
     def _init_noise_scheduler(
             self
@@ -150,9 +153,10 @@ class DiffusionComponents:
             )
 
         # Instantiates
-        self.noise_scheduler = self._NS_TYPES[self._params["noise_scheduler"]["type"]](
-            **self._params["noise_scheduler"]["args"]
-        )
+        else:
+            self.noise_scheduler = self._NS_TYPES[self._params["noise_scheduler"]["type"]](
+                **self._params["noise_scheduler"]["args"]
+            )
 
     def _init_optimizer(
             self
