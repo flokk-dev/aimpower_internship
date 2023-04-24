@@ -84,12 +84,12 @@ class DiffusionComponents:
 
         # Accelerator
         self.accelerator: Accelerator = Accelerator(
-            mixed_precision="fp16",
+            # mixed_precision="fp16",
             cpu=False if torch.cuda.is_available() else True
         )
 
         # Data Loader
-        self._data_loader: DataLoader = None
+        self.data_loader: DataLoader = None
         self._init_data_loader(dataset_path)
 
         # Model
@@ -133,7 +133,7 @@ class DiffusionComponents:
             self.model = self._M_TYPES[self._params["model"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="unet",
-                revision="fp16"
+                # revision="fp16"
             )
 
         # Instantiates
@@ -151,7 +151,7 @@ class DiffusionComponents:
             self.noise_scheduler = self._NS_TYPES[self._params["noise_scheduler"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="scheduler",
-                revision="fp16"
+                # revision="fp16"
             )
 
         # Instantiates
@@ -190,7 +190,10 @@ class DiffusionComponents:
             self
     ):
         """ Sends the desired components on device. """
-        self.model.to(self.accelerator.device, dtype=torch.float16)
+        self.model.to(
+            self.accelerator.device,
+            # dtype=torch.float16
+        )
 
     def prepare(
             self

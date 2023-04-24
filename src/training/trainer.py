@@ -126,8 +126,7 @@ class Trainer:
 
         p_bar: tqdm = tqdm(total=self._params["num_epochs"], desc="training in progress")
         for epoch in range(self._params["num_epochs"]):
-            # Clears cache
-            torch.cuda.empty_cache()
+            self._learner.components.model.train()
 
             # Learns
             self._learner.components.model.train()
