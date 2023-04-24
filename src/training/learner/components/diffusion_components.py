@@ -137,7 +137,9 @@ class DiffusionComponents:
                 low_cpu_mem_usage=True
             )
 
-        self.model = self._M_TYPES[self._params["model"]["type"]](**self._params["model"]["args"])
+        self.model = self._M_TYPES[self._params["model"]["type"]](
+            **self._params["model"]["args"]
+        )
 
     def _init_noise_scheduler(
             self
