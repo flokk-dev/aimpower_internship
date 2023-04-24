@@ -152,7 +152,6 @@ class GuidedDiffusionLearner(Learner):
         # Adds noise
         noisy_image, noise, timestep = self._add_noise(batch["image"])
 
-        print(f"batch label: {batch['label'].dtype}")
         # Predicts added noise
         return noise, self.components.model(
             noisy_image, timestep, batch["label"].type(torch.int32)
@@ -250,11 +249,9 @@ class StableDiffusionLearner(Learner):
         noisy_image, noise, timestep = self._add_noise(batch["image"])
 
         # Encode prompt
-        print(f"batch prompt: {batch['prompt'].dtype}, {batch['prompt'].shape}")
         batch["prompt"] = self.components.text_encoder(
             batch["prompt"].type(torch.int32)
         )[0]
-        print(f"batch prompt: {batch['prompt'].dtype}, {batch['prompt'].shape}")
 
         # Predicts added noise
         return noise, self.components.model(

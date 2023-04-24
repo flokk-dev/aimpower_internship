@@ -99,7 +99,6 @@ class Learner:
         with self.components.accelerator.accumulate(self.components.model):
             # Loss backward
             loss_value: torch.Tensor = self._loss(noise_pred, noise)
-            print(f"loss: {loss_value.dtype}, {loss_value.shape}")
             self.components.accelerator.backward(loss_value)
 
             # Update the training components
@@ -157,11 +156,8 @@ class Learner:
             torch.Tensor
                 noise's timestep
         """
-        print(f"batch image: {tensor.dtype}, {tensor.shape}")
-
         # Sample random noise
         noise: torch.Tensor = torch.randn_like(tensor, device=tensor.device)
-        print(f"noise: {noise.dtype}, {noise.shape}")
 
         # Sample random timestep
         timestep: torch.Tensor = torch.randint(
@@ -170,13 +166,11 @@ class Learner:
             size=(noise.shape[0],),
             device=tensor.device
         )
-        print(f"timestep: {timestep.dtype}, {timestep.shape}")
 
         # Add noise to the input data
         noisy_input: torch.Tensor = self.components.noise_scheduler.add_noise(
             tensor, noise, timestep
         )
-        print(f"noisy_input: {noisy_input.dtype}, {noisy_input.shape}")
 
         return noisy_input, noise, timestep
 
