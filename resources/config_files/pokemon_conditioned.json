@@ -12,10 +12,7 @@
       "type": "lora diffusion",
       "pipeline_path": "runwayml/stable-diffusion-v1-5",
       "validation_prompts": [
-        "a blue bird with horns",
-        "a cartoon red turtle with fire",
-        "a green monkey with a sword",
-        "a big red lion with a smile"
+        "a blue bird with horns"
       ],
 
       "loader": {
