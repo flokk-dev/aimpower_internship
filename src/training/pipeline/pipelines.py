@@ -274,7 +274,7 @@ class StableDiffusionPipeline(Pipeline):
 
         # Returns
         return {
-            prompt: images[idx].unsqueeze(0)
+            f"{prompt}_{idx}": images[idx].unsqueeze(0)
             for idx, prompt
             in enumerate(self._params["validation_prompts"])
         }
