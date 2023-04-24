@@ -99,8 +99,7 @@ class Learner:
         # with self.components.accelerator.accumulate(self.components.model):
         # Loss backward
         loss_value: torch.Tensor = self._loss(noise_pred, noise)
-        # self.components.accelerator.backward(loss_value)
-        loss_value.backward()
+        self.components.accelerator.backward(loss_value)
 
         # Update the training components
         self.components.optimizer.step()

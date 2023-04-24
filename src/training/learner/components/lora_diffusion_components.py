@@ -139,9 +139,7 @@ class LoRADiffusionComponents(StableDiffusionComponents):
         self._to_device()
 
         # Accelerator
-        """
         self.lora_layers, self.optimizer, self.data_loader, self.lr_scheduler = \
             self.accelerator.prepare(
                 self.lora_layers, self.optimizer, self.data_loader, self.lr_scheduler
             )
-        """

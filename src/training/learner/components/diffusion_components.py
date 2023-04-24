@@ -203,8 +203,6 @@ class DiffusionComponents:
         self._to_device()
 
         # Accelerator
-        """
         self.model, self.optimizer, self.data_loader, self.lr_scheduler = self.accelerator.prepare(
             self.model, self.optimizer, self.data_loader, self.lr_scheduler
         )
-        """
