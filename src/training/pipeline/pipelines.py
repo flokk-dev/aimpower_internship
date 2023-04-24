@@ -260,12 +260,12 @@ class StableDiffusionPipeline(Pipeline):
         """
         generated_images = list()
 
-        for prompt in self._params["validation_prompts"]:
+        for idx, prompt in enumerate(self._params["validation_prompts"]):
             generated_images.append(
                 pipeline(
                     prompt,
                     num_inference_steps=50,
-                    generator=torch.manual_seed(0)
+                    generator=torch.manual_seed(idx)
                 ).images[0]
             )
 
