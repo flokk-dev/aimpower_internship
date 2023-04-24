@@ -72,7 +72,10 @@ class Learner:
         self.components.prepare()
 
         # Loss
-        self._loss = torch.nn.MSELoss().to(self.components.accelerator.device, dtype=torch.float16)
+        self._loss = torch.nn.MSELoss().to(
+            self.components.accelerator.device,
+            # dtype=torch.float16
+        )
 
     def learn(
             self,
@@ -95,7 +98,7 @@ class Learner:
 
         with self.components.accelerator.accumulate(self.components.model):
             # Loss backward
-            loss_value: torch.Tensor = self._loss(noise_pred.float(), noise.float())
+            loss_value: torch.Tensor = self._loss(noise_pred, noise)
             print(f"loss: {loss_value.dtype}, {loss_value.shape}")
             self.components.accelerator.backward(loss_value)
 
