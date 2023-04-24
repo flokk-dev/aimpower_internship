@@ -224,7 +224,7 @@ class StableDiffusionLearner(Learner):
                 self.components.vae.encode(batch["image"]).latent_dist.sample() *
                 self.components.vae.config.scaling_factor
         ).type(torch.float16)
-        print("heeeeeeeeeeeeeeeeeeeere")
+
         return super().learn(batch)
 
     def _forward(
@@ -254,6 +254,7 @@ class StableDiffusionLearner(Learner):
         batch["prompt"] = self.components.text_encoder(
             batch["prompt"].type(torch.int32)
         )[0]
+        print(f"batch prompt: {batch['prompt'].dtype}, {batch['prompt'].shape}")
 
         # Predicts added noise
         return noise, self.components.model(
