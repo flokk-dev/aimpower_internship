@@ -223,7 +223,7 @@ class StableDiffusionLearner(Learner):
         batch["image"] = (
                 self.components.vae.encode(batch["image"]).latent_dist.sample() *
                 self.components.vae.config.scaling_factor
-        ).type(torch.float16)
+        )  # .type(torch.float16)
 
         return super().learn(batch)
 

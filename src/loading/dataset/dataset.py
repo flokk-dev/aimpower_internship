@@ -100,7 +100,7 @@ class Dataset(TorchDataset):
         """
         return self._pre_process(
             Image.open(path)  # .convert("RGB")
-        ).type(torch.float16)
+        )  # .type(torch.float16)
 
     def __getitem__(
             self,

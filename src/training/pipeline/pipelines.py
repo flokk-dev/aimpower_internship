@@ -104,8 +104,7 @@ class DiffusionPipeline(Pipeline):
         pipeline = DDPMPipeline(
             unet=components.accelerator.unwrap_model(components.model),
             scheduler=components.noise_scheduler,
-            revision="fp16",
-            torch_dtype=torch.float16
+            # torch_dtype=torch.float16
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 

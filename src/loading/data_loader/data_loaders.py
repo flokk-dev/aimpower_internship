@@ -73,7 +73,7 @@ class LabelDataLoader(DataLoader):
         return {
             "image": torch.stack(
                 [e["image"] for e in data]
-            ).to(memory_format=torch.contiguous_format).type(torch.float16),
+            ).to(memory_format=torch.contiguous_format),  # .type(torch.float16),
 
             "label": torch.cat([e["label"] for e in data])
         }
@@ -144,7 +144,7 @@ class PromptDataLoader(DataLoader):
         return {
             "image": torch.stack(
                 [e["image"] for e in data]
-            ).to(memory_format=torch.contiguous_format).type(torch.float16),
+            ).to(memory_format=torch.contiguous_format),  # .type(torch.float16),
 
             "prompt": self.dataset.tokenizer.pad(
                 {"input_ids": [e["prompt"] for e in data]}, padding=True, return_tensors="pt"
