@@ -97,12 +97,12 @@ class LabelDataset(Dataset):
         if self._params["lazy_loading"]:
             return {
                 "image": self._load_image(self._inputs[idx]),
-                "guider": self._str_to_tensor(self._info[idx]["label"])
+                "label": self._str_to_tensor(self._info[idx]["label"])
             }
 
         return {
             "image": self._inputs[idx],
-            "guider": self._str_to_tensor(self._info[idx]["label"])
+            "label": self._str_to_tensor(self._info[idx]["label"])
         }
 
 
@@ -220,10 +220,10 @@ class PromptDataset(Dataset):
         if self._params["lazy_loading"]:
             return {
                 "image": self._load_image(self._inputs[idx]),
-                "guider": self._tokenize(self._info[idx]["prompt"])
+                "prompt": self._tokenize(self._info[idx]["prompt"])
             }
 
         return {
             "image": self._inputs[idx],
-            "guider": self._tokenize(self._info[idx]["prompt"])
+            "prompt": self._tokenize(self._info[idx]["prompt"])
         }
