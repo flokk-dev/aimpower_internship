@@ -131,9 +131,7 @@ class DiffusionComponents:
         if self._params["model"]["load"]:
             self.model = self._M_TYPES[self._params["model"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
-                subfolder="unet",
-                revision="fp16",
-                low_cpu_mem_usage=True
+                subfolder="unet"
             )
 
         self.model = self._M_TYPES[self._params["model"]["type"]](
@@ -148,8 +146,7 @@ class DiffusionComponents:
         if self._params["noise_scheduler"]["load"]:
             self.noise_scheduler = self._NS_TYPES[self._params["noise_scheduler"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
-                subfolder="scheduler",
-                revision="fp16"
+                subfolder="scheduler"
             )
 
         # Instantiates
