@@ -75,7 +75,7 @@ class LabelDataLoader(DataLoader):
                 [e["image"] for e in data]
             ).to(memory_format=torch.contiguous_format).type(torch.float16),
 
-            "guider": torch.cat([e["guider"] for e in data])
+            "label": torch.cat([e["label"] for e in data])
         }
 
 
@@ -146,7 +146,7 @@ class PromptDataLoader(DataLoader):
                 [e["image"] for e in data]
             ).to(memory_format=torch.contiguous_format).type(torch.float16),
 
-            "guider": self.dataset.tokenizer.pad(
-                {"input_ids": [e["guider"] for e in data]}, padding=True, return_tensors="pt"
+            "prompt": self.dataset.tokenizer.pad(
+                {"input_ids": [e["prompt"] for e in data]}, padding=True, return_tensors="pt"
             ).input_ids
         }
