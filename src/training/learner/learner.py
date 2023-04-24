@@ -96,15 +96,16 @@ class Learner:
         """
         noise, noise_pred = self._forward(batch)
 
-        with self.components.accelerator.accumulate(self.components.model):
-            # Loss backward
-            loss_value: torch.Tensor = self._loss(noise_pred, noise)
-            self.components.accelerator.backward(loss_value)
+        # with self.components.accelerator.accumulate(self.components.model):
+        # Loss backward
+        loss_value: torch.Tensor = self._loss(noise_pred, noise)
+        # self.components.accelerator.backward(loss_value)
+        loss_value.backward()
 
-            # Update the training components
-            self.components.optimizer.step()
-            self.components.lr_scheduler.step()
-            self.components.optimizer.zero_grad()
+        # Update the training components
+        self.components.optimizer.step()
+        self.components.lr_scheduler.step()
+        self.components.optimizer.zero_grad()
 
         # Returns
         return loss_value.detach().item()

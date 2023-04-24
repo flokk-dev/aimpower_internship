@@ -258,11 +258,16 @@ class StableDiffusionPipeline(Pipeline):
             Dict[str, torch.Tensor]
                 generated image
         """
-        generated_images = pipeline(
-            self._params["validation_prompts"],
-            num_inference_steps=50,
-            generator=torch.manual_seed(0)
-        ).images
+        generated_images = list()
+
+        for prompt in self._params["validation_prompts"]:
+            generated_images.append(
+                pipeline(
+                    prompt,
+                    num_inference_steps=50,
+                    generator=torch.manual_seed(0)
+                ).images[0]
+            )
 
         # Adjusts colors
         images: List[torch.Tensor] = utils.images_to_tensors(generated_images)
@@ -294,7 +299,7 @@ class StableDiffusionPipeline(Pipeline):
         """
         pipeline = HFStableDiffusionPipeline.from_pretrained(
             pretrained_model_name_or_path=self._params["pipeline_path"],
-            unet=components.accelerator.unwrap_model(components.model),
+            unet=components.model,
             # torch_dtype=torch.float16
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
@@ -356,15 +361,13 @@ class LoRADiffusionPipeline(StableDiffusionPipeline):
         """
         pipeline = HFStableDiffusionPipeline.from_pretrained(
             pretrained_model_name_or_path=self._params["pipeline_path"],
-            unet=components.accelerator.unwrap_model(components.model),
+            unet=components.model,
             # torch_dtype=torch.float16
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 
         # Save
-        components.accelerator.unwrap_model(
-            components.model
-        ).to(torch.float32).save_attn_procs(os.path.join(save_path, "pipeline"))
+        components.model.to(torch.float32).save_attn_procs(os.path.join(save_path, "pipeline"))
 
         # Inference
         return self._inference(pipeline)
