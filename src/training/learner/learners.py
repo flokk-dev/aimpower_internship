@@ -250,7 +250,7 @@ class StableDiffusionLearner(Learner):
         noisy_image, noise, timestep = self._add_noise(batch["image"])
 
         # Encode prompt
-        print(f"batch prompt: {batch['prompt'].dtype}")
+        print(f"batch prompt: {batch['prompt'].dtype}, {batch['prompt'].shape}")
         batch["prompt"] = self.components.text_encoder(
             batch["prompt"].type(torch.int32)
         )[0]
