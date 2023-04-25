@@ -19,7 +19,8 @@
         "num_data": 100,
 
         "data_loader": {
-          "batch_size": 1
+          "batch_size": 1,
+          "fp16": true
         },
 
         "dataset": {
