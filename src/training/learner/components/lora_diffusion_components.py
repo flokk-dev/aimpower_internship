@@ -128,7 +128,7 @@ class LoRADiffusionComponents(StableDiffusionComponents):
     ):
         """ Initializes the optimizer. """
         self.optimizer = torch.optim.AdamW(
-            self.lora_layers.parameters(), lr=self._params["optimizer"]["lr"]
+            self.lora_layers.parameters(), **self._params["optimizer"]["args"]
         )
 
     def prepare(
