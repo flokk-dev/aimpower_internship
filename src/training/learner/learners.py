@@ -219,12 +219,10 @@ class StableDiffusionLearner(Learner):
             float
                 loss value computed using batch's data
         """
-        print(f"image: {batch['image'].dtype}")
         batch["image"] = (
                 self.components.vae.encode(batch["image"]).latent_dist.sample() *
                 self.components.vae.config.scaling_factor
         )
-        print(f"image encoded: {batch['image'].dtype}")
 
         return super().learn(batch)
 
