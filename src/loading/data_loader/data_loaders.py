@@ -144,9 +144,12 @@ class PromptDataLoader(DataLoader):
         return {
             "image": torch.stack(
                 [e["image"] for e in data]
-            ).to(memory_format=torch.contiguous_format),  # .type(torch.float16),
+            ).to(
+                memory_format=torch.contiguous_format
+            ).type(torch.float16 if self._params["dataset"]["fp16"] else torch.float32),
 
             "prompt": self.dataset.tokenizer.pad(
                 {"input_ids": [e["prompt"] for e in data]}, padding=True, return_tensors="pt"
             ).input_ids
         }
+
