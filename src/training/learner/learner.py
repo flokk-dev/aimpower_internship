@@ -74,7 +74,7 @@ class Learner:
         # Loss
         self._loss = torch.nn.MSELoss().to(
             self.components.accelerator.device,
-            # dtype=torch.float16
+            dtype=torch.float16 if self._params["fp16"] else torch.float32
         )
 
     def learn(
@@ -96,15 +96,17 @@ class Learner:
         """
         noise, noise_pred = self._forward(batch)
 
-        # with self.components.accelerator.accumulate(self.components.model):
-        # Loss backward
-        loss_value: torch.Tensor = self._loss(noise_pred, noise)
-        self.components.accelerator.backward(loss_value)
+        with self.components.accelerator.accumulate(self.components.model):
+            # Loss backward
+            loss_value: torch.Tensor = self._loss(noise_pred, noise)
+            print(f"loss: {loss_value.dtype}")
 
-        # Update the training components
-        self.components.optimizer.step()
-        self.components.lr_scheduler.step()
-        self.components.optimizer.zero_grad()
+            self.components.accelerator.backward(loss_value)
+
+            # Update the training components
+            self.components.optimizer.step()
+            self.components.lr_scheduler.step()
+            self.components.optimizer.zero_grad()
 
         # Returns
         return loss_value.detach().item()
@@ -156,8 +158,11 @@ class Learner:
             torch.Tensor
                 noise's timestep
         """
+        print(f"tensor: {tensor.dtype}")
+
         # Sample random noise
         noise: torch.Tensor = torch.randn_like(tensor, device=tensor.device)
+        print(f"noise: {noise.dtype}")
 
         # Sample random timestep
         timestep: torch.Tensor = torch.randint(
@@ -166,11 +171,13 @@ class Learner:
             size=(noise.shape[0],),
             device=tensor.device
         )
+        print(f"timestep: {timestep.dtype}")
 
         # Add noise to the input data
         noisy_input: torch.Tensor = self.components.noise_scheduler.add_noise(
             tensor, noise, timestep
         )
+        print(f"noisy_input: {noisy_input.dtype}")
 
         return noisy_input, noise, timestep
 

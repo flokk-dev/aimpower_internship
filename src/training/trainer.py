@@ -182,7 +182,7 @@ class Trainer:
         # Saves pipeline and generates images
         tensors: Dict[str, torch.Tensor] = self._pipeline.checkpoint(
             components=self._learner.components,
-            save_path=os.path.join(self._path, "pipeline")
+            save_path=self._path
         )
 
         # Uploads and saves qualitative results
@@ -190,7 +190,7 @@ class Trainer:
             # Creates destination directory
             key_path = os.path.join(self._path, "images", key)
             if not os.path.exists(key_path):
-                os.makedirs(key_path)
+                os.mkdir(key_path)
 
             # Uploads checkpoint images to WandB
             self._dashboard.upload_inference(key, tensor)

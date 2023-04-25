@@ -84,7 +84,8 @@ class DiffusionComponents:
 
         # Accelerator
         self.accelerator: Accelerator = Accelerator(
-            # mixed_precision="fp16",
+            gradient_accumulation_steps=4,
+            mixed_precision="fp16" if params["fp16"] else None,
             cpu=False if torch.cuda.is_available() else True
         )
 
@@ -133,7 +134,7 @@ class DiffusionComponents:
             self.model = self._M_TYPES[self._params["model"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="unet",
-                # revision="fp16"
+                revision="fp16" if self._params["fp16"] else None
             )
 
         # Instantiates
@@ -151,7 +152,7 @@ class DiffusionComponents:
             self.noise_scheduler = self._NS_TYPES[self._params["noise_scheduler"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="scheduler",
-                # revision="fp16"
+                revision="fp16" if self._params["fp16"] else None
             )
 
         # Instantiates
@@ -165,7 +166,7 @@ class DiffusionComponents:
     ):
         """ Initializes the optimizer. """
         self.optimizer = torch.optim.AdamW(
-            self.model.parameters(), lr=self._params["optimizer"]["lr"]
+            self.model.parameters(), **self._params["optimizer"]["args"]
         )
 
     def _init_lr_scheduler(
@@ -182,8 +183,8 @@ class DiffusionComponents:
         """
         self.lr_scheduler = get_cosine_schedule_with_warmup(
             optimizer=self.optimizer,
-            num_warmup_steps=self._params["optimizer"]["lr_warmup_steps"],
-            num_training_steps=(len(self.data_loader) * num_epochs)
+            num_training_steps=(len(self.data_loader) * num_epochs),
+            **self._params["optimizer"]["args"],
         )
 
     def _to_device(
@@ -192,7 +193,7 @@ class DiffusionComponents:
         """ Sends the desired components on device. """
         self.model.to(
             self.accelerator.device,
-            # dtype=torch.float16
+            dtype=torch.float16 if self._params["fp16"] else torch.float32
         )
 
     def prepare(
