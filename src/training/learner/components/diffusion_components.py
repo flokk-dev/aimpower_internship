@@ -11,6 +11,7 @@ from typing import *
 
 # IMPORT: deep learning
 import torch
+import bitsandbytes as bnb
 
 from diffusers.optimization import Optimizer, get_cosine_schedule_with_warmup
 from diffusers import UNet2DModel, UNet2DConditionModel, \
@@ -60,6 +61,7 @@ class DiffusionComponents:
     """
     _M_TYPES = {"unet": UNet2DModel, "conditioned unet": UNet2DConditionModel}
     _NS_TYPES = {"ddpm": DDPMScheduler, "ddim": DDIMScheduler}
+    _OPT_TYPES = {"AdamW": torch.optim.AdamW, "AdamW8bit": bnb.optim.AdamW8bit}
 
     def __init__(
             self,
@@ -165,7 +167,7 @@ class DiffusionComponents:
             self
     ):
         """ Initializes the optimizer. """
-        self.optimizer = torch.optim.AdamW(
+        self.optimizer = self._OPT_TYPES[self._params["optimizer"]["type"]](
             self.model.parameters(), **self._params["optimizer"]["args"]
         )
 
