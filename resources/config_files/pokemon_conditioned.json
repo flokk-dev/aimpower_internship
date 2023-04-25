@@ -25,6 +25,7 @@
         "dataset": {
           "lazy_loading": false,
           "img_size": 512,
+          "fp16": false,
 
           "tokenizer": {
             "pipeline_path": "runwayml/stable-diffusion-v1-5"

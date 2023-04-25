@@ -253,8 +253,8 @@ class StableDiffusionLearner(Learner):
         # Encode prompt
         print(f"prompt: {batch['prompt'].dtype}")
         batch["prompt"] = self.components.text_encoder(
-            batch["prompt"].type(torch.int16 if self._params["components"]["fp16"] else torch.int32)
-        )[0]
+            batch["prompt"]
+        )[0].type(torch.float16 if self._params["components"]["fp16"] else torch.float32)
         print(f"prompt encoded: {batch['prompt'].dtype}")
 
         # Predicts added noise
