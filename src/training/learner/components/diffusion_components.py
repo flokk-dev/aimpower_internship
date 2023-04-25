@@ -184,7 +184,7 @@ class DiffusionComponents:
         self.lr_scheduler = get_cosine_schedule_with_warmup(
             optimizer=self.optimizer,
             num_training_steps=(len(self.data_loader) * num_epochs),
-            **self._params["optimizer"]["args"],
+            **self._params["lr_scheduler"]["args"],
         )
 
     def _to_device(
