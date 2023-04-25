@@ -137,8 +137,7 @@ class DiffusionComponents:
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="unet",
                 revision="fp16" if self._params["fp16"] else None,
-                fast_load=False,
-                low_cpu_mem_usage=False
+                low_cpu_mem_usage=True
             )
 
         # Instantiates
