@@ -16,10 +16,10 @@
 
       "loader": {
         "type": "prompt",
-        "num_data": 100,
+        "num_data": 800,
 
         "data_loader": {
-          "batch_size": 2,
+          "batch_size": 4,
           "fp16": true
         },
 
