@@ -12,7 +12,7 @@
     "components": {
       "type": "lora diffusion",
       "pipeline_path": "runwayml/stable-diffusion-v1-5",
-      "fp16": true,
+      "fp16": false,
 
       "loader": {
         "type": "prompt",
@@ -20,13 +20,13 @@
 
         "data_loader": {
           "batch_size": 2,
-          "fp16": true
+          "fp16": false
         },
 
         "dataset": {
           "lazy_loading": false,
           "img_size": 512,
-          "fp16": true,
+          "fp16": false,
 
           "tokenizer": {
             "pipeline_path": "runwayml/stable-diffusion-v1-5"
