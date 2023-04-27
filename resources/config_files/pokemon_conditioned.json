@@ -19,7 +19,7 @@
         "num_data": 800,
 
         "data_loader": {
-          "batch_size": 4,
+          "batch_size": 2,
           "fp16": true
         },
 
