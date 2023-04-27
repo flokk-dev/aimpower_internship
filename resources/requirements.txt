@@ -1,8 +1,12 @@
+pynvml
 tqdm
+matplotlib
 pandas
 wandb
 torch
 torchvision
+bitsandbytes
 transformers
 diffusers
+accelerate
 pytest
