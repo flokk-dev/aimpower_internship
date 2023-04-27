@@ -250,10 +250,10 @@ class StableDiffusionLearner(Learner):
 
         # Encode prompt
         batch["prompt"] = self.components.text_encoder(
-            batch["prompt"]
+            batch["prompt"].to(self._DEVICE)
         )[0]
 
         # Predicts added noise
         return noise, self.components.model(
-            noisy_image, timestep, batch["prompt"]
+            noisy_image, timestep, batch["prompt"].to(self._DEVICE)
         ).sample

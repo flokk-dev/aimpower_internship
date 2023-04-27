@@ -38,6 +38,8 @@ class Learner:
         _add_noise
             Adds noise to a given tensor
     """
+    _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
     _COMPONENTS = {
         "diffusion": DiffusionComponents,
         "stable diffusion": StableDiffusionComponents,
@@ -72,10 +74,7 @@ class Learner:
         self.components.to_device()
 
         # Loss
-        self._loss = torch.nn.MSELoss().to(
-            self.components.accelerator.device,
-            dtype=torch.float16 if self._params["components"]["fp16"] else torch.float32
-        )
+        self._loss = torch.nn.MSELoss().to(device=self._DEVICE, dtype=torch.float16)
 
     def learn(
             self,
