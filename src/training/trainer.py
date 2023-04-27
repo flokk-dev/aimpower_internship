@@ -212,7 +212,7 @@ class Trainer:
 
         # Pipeline
         self._pipeline = self._PIPELINES[self._params["pipeline"]["type"]](
-            self._params["learner"]["components"]
+            self._params["learner"]
         )
 
         # Dashboard
