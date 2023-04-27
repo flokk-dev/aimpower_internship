@@ -93,7 +93,7 @@ class Learner:
             float
                 loss value computed using batch's data
         """
-        with torch.cuda.amp.autocast:
+        with torch.cuda.amp.autocast():
             # Forward
             noise, noise_pred = self._forward(batch)
 
