@@ -1,26 +1,29 @@
 {
-  "training_type": "v1",
   "num_epochs": 100,
 
-  "loader": {
-    "loading_type": "label",
-    "num_data": 5000,
-
-    "data_loader": {
-      "batch_size": 64
-    },
-
-    "dataset": {
-      "lazy_loading": false,
-      "img_size": 32
-    }
+  "pipeline": {
+    "type": "guided diffusion"
   },
 
-  "pipeline": {
-    "pipeline_type": "guided",
+  "learner": {
+    "type": "guided diffusion",
 
     "components": {
-      "pipeline_path": "",
+      "type": "diffusion",
+
+      "loader": {
+        "type": "label",
+        "num_data": 5000,
+
+        "data_loader": {
+          "batch_size": 64
+        },
+
+        "dataset": {
+          "lazy_loading": false,
+          "img_size": 32
+        }
+      },
 
       "optimizer": {
         "lr": 1e-4,
@@ -28,23 +31,22 @@
       },
 
       "model": {
-        "model_type": "guided",
+        "type": "unet",
         "load": false,
 
         "args": {
           "sample_size": 32,
           "in_channels": 1,
           "out_channels": 1,
+          "num_class_embeds": 10,
 
           "layers_per_block": 2,
-          "block_out_channels": [64, 64, 128, 128],
-
-          "num_class_embeds": 10
+          "block_out_channels": [64, 64, 128, 128]
         }
       },
 
       "noise_scheduler": {
-        "noise_scheduler_type": "ddpm",
+        "type": "ddpm",
         "load": false,
 
         "args": {

@@ -97,12 +97,12 @@ class LabelDataset(Dataset):
         if self._params["lazy_loading"]:
             return {
                 "image": self._load_image(self._inputs[idx]),
-                "guider": self._str_to_tensor(self._info[idx]["label"])
+                "label": self._str_to_tensor(self._info[idx]["label"])
             }
 
         return {
             "image": self._inputs[idx],
-            "guider": self._str_to_tensor(self._info[idx]["label"])
+            "label": self._str_to_tensor(self._info[idx]["label"])
         }
 
 
@@ -158,8 +158,8 @@ class PromptDataset(Dataset):
             self._params["tokenizer"]["pipeline_path"]
         )
 
-    @staticmethod
     def _init_tokenizer(
+            self,
             pipeline_path: str
     ) -> CLIPTokenizer:
         """
@@ -176,6 +176,7 @@ class PromptDataset(Dataset):
         return CLIPTokenizer.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,
             subfolder="tokenizer",
+            revision="fp16" if self._params["fp16"] else None
         )
 
     def _tokenize(
@@ -220,10 +221,10 @@ class PromptDataset(Dataset):
         if self._params["lazy_loading"]:
             return {
                 "image": self._load_image(self._inputs[idx]),
-                "guider": self._tokenize(self._info[idx]["prompt"])
+                "prompt": self._tokenize(self._info[idx]["prompt"])
             }
 
         return {
             "image": self._inputs[idx],
-            "guider": self._tokenize(self._info[idx]["prompt"])
+            "prompt": self._tokenize(self._info[idx]["prompt"])
         }
