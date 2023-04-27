@@ -221,7 +221,7 @@ class StableDiffusionLearner(Learner):
         """
         print(f"batch['image']: {batch['image'].dtype}")
         batch["image"] = (
-                self.components.vae.encode(batch["image"]).latent_dist.sample() *
+                self.components.vae.encode(batch["image"].to(self._DEVICE)).latent_dist.sample() *
                 self.components.vae.config.scaling_factor
         )
 
