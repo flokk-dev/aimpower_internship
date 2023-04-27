@@ -130,3 +130,16 @@ class LoRADiffusionComponents(StableDiffusionComponents):
         self.optimizer = self._OPT_TYPES[self._params["optimizer"]["type"]](
             self.lora_layers.parameters(), **self._params["optimizer"]["args"]
         )
+
+    def prepare(
+            self
+    ):
+        """ Prepares the components using an accelerator. """
+        # Device
+        self._to_device()
+
+        # Accelerator
+        self.lora_layers, self.optimizer, self.data_loader, self.lr_scheduler = \
+            self.accelerator.prepare(
+                self.lora_layers, self.optimizer, self.data_loader, self.lr_scheduler
+            )

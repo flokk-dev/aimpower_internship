@@ -100,7 +100,7 @@ class StableDiffusionComponents(DiffusionComponents):
         self.vae = AutoencoderKL.from_pretrained(
             pretrained_model_name_or_path=self._params["pipeline_path"],
             subfolder="vae",
-            revision="fp16"
+            revision="fp16" if self._params["fp16"] else None
         )
         self.vae.requires_grad_(False)
 
@@ -111,15 +111,22 @@ class StableDiffusionComponents(DiffusionComponents):
         self.text_encoder = CLIPTextModel.from_pretrained(
             pretrained_model_name_or_path=self._params["pipeline_path"],
             subfolder="text_encoder",
-            revision="fp16"
+            revision="fp16" if self._params["fp16"] else None
         )
         self.text_encoder.requires_grad_(False)
 
-    def to_device(
+    def _to_device(
             self
     ):
         """ Sends the desired components on device. """
-        super().to_device()
+        super()._to_device()
 
-        self.vae.to(device=self._DEVICE, dtype=torch.float16)
-        self.text_encoder.to(device=self._DEVICE, dtype=torch.float16)
+        self.vae.to(
+            self.accelerator.device,
+            dtype=torch.float16 if self._params["fp16"] else torch.float32
+        )
+
+        self.text_encoder.to(
+            self.accelerator.device,
+            dtype=torch.float16 if self._params["fp16"] else torch.float32
+        )

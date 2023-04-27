@@ -59,8 +59,6 @@ class DiffusionComponents:
         prepare
             Prepares the components using an accelerator
     """
-    _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
     _M_TYPES = {"unet": UNet2DModel, "conditioned unet": UNet2DConditionModel}
     _NS_TYPES = {"ddpm": DDPMScheduler, "ddim": DDIMScheduler}
     _OPT_TYPES = {"AdamW": torch.optim.AdamW, "AdamW8bit": bnb.optim.AdamW8bit}
@@ -86,8 +84,12 @@ class DiffusionComponents:
         # ----- Attributes ----- #
         self._params: Dict[str, Any] = params
 
-        # Grad scaler
-        self.scaler = torch.cuda.amp.GradScaler()
+        # Accelerator
+        self.accelerator: Accelerator = Accelerator(
+            gradient_accumulation_steps=4,
+            mixed_precision=None,  # if params["fp16"] else None,
+            cpu=False if torch.cuda.is_available() else True
+        )
 
         # Data Loader
         self.data_loader: DataLoader = None
@@ -134,8 +136,7 @@ class DiffusionComponents:
             self.model = self._M_TYPES[self._params["model"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="unet",
-                revision="fp16"
-            )
+                revision="fp16" if self._params["fp16"] else None            )
 
         # Instantiates
         else:
@@ -152,7 +153,7 @@ class DiffusionComponents:
             self.noise_scheduler = self._NS_TYPES[self._params["noise_scheduler"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="scheduler",
-                revision="fp16"
+                revision="fp16" if self._params["fp16"] else None
             )
 
         # Instantiates
@@ -187,8 +188,23 @@ class DiffusionComponents:
             **self._params["lr_scheduler"]["args"],
         )
 
-    def to_device(
+    def _to_device(
             self
     ):
         """ Sends the desired components on device. """
-        self.model.to(device=self._DEVICE, dtype=torch.float16)
+        self.model.to(
+            self.accelerator.device,
+            dtype=torch.float16 if self._params["fp16"] else torch.float32
+        )
+
+    def prepare(
+            self
+    ):
+        """ Prepares the components using an accelerator. """
+        # Device
+        self._to_device()
+
+        # Accelerator
+        self.model, self.optimizer, self.data_loader, self.lr_scheduler = self.accelerator.prepare(
+            self.model, self.optimizer, self.data_loader, self.lr_scheduler
+        )

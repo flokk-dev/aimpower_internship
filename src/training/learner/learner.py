@@ -38,8 +38,6 @@ class Learner:
         _add_noise
             Adds noise to a given tensor
     """
-    _DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
     _COMPONENTS = {
         "diffusion": DiffusionComponents,
         "stable diffusion": StableDiffusionComponents,
@@ -71,10 +69,13 @@ class Learner:
         self.components = self._COMPONENTS[params["components"]["type"]](
             params["components"], dataset_path, num_epochs
         )
-        self.components.to_device()
+        self.components.prepare()
 
         # Loss
-        self._loss = torch.nn.MSELoss().to(device=self._DEVICE, dtype=torch.float16)
+        self._loss = torch.nn.MSELoss().to(
+            self.components.accelerator.device,
+            dtype=torch.float16 if self._params["components"]["fp16"] else torch.float32
+        )
 
     def learn(
             self,
@@ -93,18 +94,17 @@ class Learner:
             float
                 loss value computed using batch's data
         """
-        with torch.cuda.amp.autocast():
+        with self.components.accelerator.accumulate(self.components.model):
             # Forward
             noise, noise_pred = self._forward(batch)
 
             # Loss backward
             loss_value: torch.Tensor = self._loss(noise_pred, noise)
-            self.components.scaler.scale(loss_value)
+
+            self.components.accelerator.backward(loss_value)
 
             # Update the training components
-            self.components.scaler.step(self.components.optimizer)
-            self.components.scaler.update()
-
+            self.components.optimizer.step()
             self.components.lr_scheduler.step()
             self.components.optimizer.zero_grad()
 
