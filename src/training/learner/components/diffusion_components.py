@@ -136,7 +136,8 @@ class DiffusionComponents:
             self.model = self._M_TYPES[self._params["model"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="unet",
-                revision="fp16" if self._params["fp16"] else None            )
+                revision="fp16" if self._params["fp16"] else None
+            )
 
         # Instantiates
         else:
@@ -167,7 +168,7 @@ class DiffusionComponents:
     ):
         """ Initializes the optimizer. """
         self.optimizer = self._OPT_TYPES[self._params["optimizer"]["type"]](
-            self.model.parameters(), **self._params["optimizer"]["args"]
+            self.model.parameters(), **self._params["optimizer"]["args"], eps="1e-4"
         )
 
     def _init_lr_scheduler(

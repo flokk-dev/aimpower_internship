@@ -100,7 +100,6 @@ class Learner:
 
             # Loss backward
             loss_value: torch.Tensor = self._loss(noise_pred, noise)
-
             self.components.accelerator.backward(loss_value)
 
             # Update the training components
