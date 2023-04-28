@@ -302,7 +302,7 @@ class StableDiffusionPipeline(Pipeline):
             unet=components.accelerator.unwrap_model(components.model),
             revision="fp16",
             torch_dtype=torch.float16 if self._params["components"]["fp16"] else torch.float32
-        ).to(components.accelerator.device)
+        ).to(components.accelerator.device, dtype=torch.float16)
         pipeline.safety_checker = None
 
         # Save
