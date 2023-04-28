@@ -299,7 +299,7 @@ class StableDiffusionPipeline(Pipeline):
         """
         pipeline = HFStableDiffusionPipeline.from_pretrained(
             pretrained_model_name_or_path=self._params["components"]["pipeline_path"],
-            unet=components.accelerator.unwrap_model(components.model)
+            unet=components.accelerator.unwrap_model(components.model).to(torch.float32)
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 
