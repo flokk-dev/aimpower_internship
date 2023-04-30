@@ -152,4 +152,3 @@ class PromptDataLoader(DataLoader):
                 {"input_ids": [e["prompt"] for e in data]}, padding=True, return_tensors="pt"
             ).input_ids
         }
-
