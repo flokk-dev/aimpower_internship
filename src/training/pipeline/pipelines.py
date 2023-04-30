@@ -364,7 +364,7 @@ class LoRADiffusionPipeline(StableDiffusionPipeline):
             revision="fp16"
         ).to(components.accelerator.device)
 
-        pipeline.model.to(dtype=torch.float16)
+        pipeline.unet.to(dtype=torch.float16)
         pipeline.vae.to(dtype=torch.float16)
         pipeline.text_encoder.to(dtype=torch.float16)
 
