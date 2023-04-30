@@ -121,7 +121,7 @@ class DiffusionComponents:
             dataset_path : str
                 path to the dataset
         """
-        self.data_loader = Loader(self._params["loader"])(
+        self.data_loader = Loader(self._params)(
             dataset_path
         )
 
