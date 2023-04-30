@@ -361,9 +361,13 @@ class LoRADiffusionPipeline(StableDiffusionPipeline):
         pipeline = HFStableDiffusionPipeline.from_pretrained(
             pretrained_model_name_or_path=self._params["components"]["pipeline_path"],
             unet=components.accelerator.unwrap_model(components.model),
-            torch_dtype=torch.float32,
-            # revision="fp16"
+            revision="fp16"
         ).to(components.accelerator.device)
+
+        pipeline.model.to(dtype=torch.float16)
+        pipeline.vae.to(dtype=torch.float16)
+        pipeline.text_encoder.to(dtype=torch.float16)
+
         pipeline.safety_checker = None
 
         # Save
