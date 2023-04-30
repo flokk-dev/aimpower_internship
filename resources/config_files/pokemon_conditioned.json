@@ -1,13 +1,13 @@
 {
   "validation_prompts": ["Totoro", "Totoro", "Totoro", "Totoro"],
-  
+
   "num_data": 800,
   "img_size": 512,
   "lazy_loading": false,
 
   "num_epochs": 100,
   "batch_size": 2,
-  "dtype": "float16",
+  "dtype": "fp16",
 
   "types": {
     "loader": "prompt",

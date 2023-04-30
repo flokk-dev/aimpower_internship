@@ -46,13 +46,6 @@ if __name__ == "__main__":
     with open(os.path.join(paths.CONFIG_PATH, args.config)) as json_file:
         parameters = json.load(json_file)
 
-    if parameters["dtype"] == "float16":
-        parameters["revision"] = "fp16"
-        parameters["dtype"] = torch.float16
-    else:
-        parameters["revision"] = None
-        parameters["dtype"] = torch.float32
-
     # Launch training
     trainer = Trainer(params=parameters)
     trainer(dataset_path=args.dataset)
