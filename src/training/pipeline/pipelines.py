@@ -371,9 +371,10 @@ class LoRADiffusionPipeline(StableDiffusionPipeline):
         pipeline.safety_checker = None
 
         # Save
+        """
         components.accelerator.unwrap_model(
             components.model
         ).to(torch.float32).save_attn_procs(save_path)
-
+        """
         # Inference
         return self._inference(pipeline)
