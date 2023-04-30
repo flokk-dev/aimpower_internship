@@ -134,7 +134,7 @@ class Trainer:
 
             # Updates
             self._dashboard.upload_values(self._learner.components.lr_scheduler.get_last_lr()[0])
-            if (epoch + 1) % 1 == 0:
+            if (epoch + 1) % 1 == 10:
                 self._checkpoint(epoch + 1)
 
             p_bar.update(1)
