@@ -69,7 +69,7 @@ class Learner:
         self.components = self._COMPONENTS[params["components"]["type"]](
             params["components"], dataset_path, num_epochs
         )
-        self.components._to_device()
+        self.components.prepare()
 
         # Loss
         self._loss = torch.nn.MSELoss().to(
@@ -94,20 +94,16 @@ class Learner:
             float
                 loss value computed using batch's data
         """
-        # with self.components.accelerator.accumulate(self.components.model):
-        with torch.cuda.amp.autocast():
+        with self.components.accelerator.accumulate(self.components.model):
             # Forward
             noise, noise_pred = self._forward(batch)
 
             # Loss backward
             loss_value: torch.Tensor = self._loss(noise_pred, noise)
-            self.components.scaler.scale(loss_value).backward()
+            self.components.accelerator.backward(loss_value)
 
             # Update the training components
-            # self.components.optimizer.step()
-            self.components.scaler.step(self.components.optimizer)
-            self.components.scaler.update()
-
+            self.components.optimizer.step()
             self.components.lr_scheduler.step()
             self.components.optimizer.zero_grad()
 

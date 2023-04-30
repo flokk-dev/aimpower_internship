@@ -219,12 +219,10 @@ class StableDiffusionLearner(Learner):
             float
                 loss value computed using batch's data
         """
-        print(f"image: {batch['image'].dtype}, {batch['image'].shape}")
         batch["image"] = (
-                self.components.vae.encode(batch["image"].to("cuda")).latent_dist.sample() *
+                self.components.vae.encode(batch["image"]).latent_dist.sample() *
                 self.components.vae.config.scaling_factor
         )
-        print(f"vaed image: {batch['image'].dtype}, {batch['image'].shape}")
 
         return super().learn(batch)
 
@@ -251,11 +249,9 @@ class StableDiffusionLearner(Learner):
         noisy_image, noise, timestep = self._add_noise(batch["image"])
 
         # Encode prompt
-        print(f"prompt: {batch['prompt'].dtype}, {batch['prompt'].shape}")
         batch["prompt"] = self.components.text_encoder(
-            batch["prompt"].to("cuda")
-        )[0].type(torch.float16)
-        print(f"encoded prompt: {batch['prompt'].dtype}, {batch['prompt'].shape}")
+            batch["prompt"]
+        )[0]
 
         # Predicts added noise
         return noise, self.components.model(
