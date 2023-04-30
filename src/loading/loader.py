@@ -110,10 +110,10 @@ class Loader:
             DataLoader
                 data loader containing training data
         """
-        return self._DATA_LOADERS[self._params["type"]](
-            self._params["data_loader"],
-            self._DATASETS[self._params["type"]](
-                self._params["dataset"], file_paths, data_info
+        return self._DATA_LOADERS[self._params["types"]["loader"]](
+            self._params,
+            self._DATASETS[self._params["types"]["loader"]](
+                self._params, file_paths, data_info
             ),
         )
 

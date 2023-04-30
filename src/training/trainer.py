@@ -11,7 +11,6 @@ from typing import *
 
 import os
 import time
-
 import json
 from tqdm import tqdm
 
@@ -206,13 +205,13 @@ class Trainer:
                 path to the dataset
         """
         # Learner
-        self._learner = self._LEARNERS[self._params["learner"]["type"]](
-            self._params["learner"], dataset_path, self._params["num_epochs"]
+        self._learner = self._LEARNERS[self._params["types"]["learner"]](
+            self._params, dataset_path, self._params["num_epochs"]
         )
 
         # Pipeline
-        self._pipeline = self._PIPELINES[self._params["pipeline"]["type"]](
-            self._params["learner"]
+        self._pipeline = self._PIPELINES[self._params["types"]["pipeline"]](
+            self._params
         )
 
         # Dashboard

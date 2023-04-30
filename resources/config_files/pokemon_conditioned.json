@@ -1,62 +1,44 @@
 {
-  "num_epochs": 100,
+  "validation_prompts": ["Totoro", "Totoro", "Totoro", "Totoro"],
+  
+  "num_data": 800,
+  "img_size": 512,
+  "lazy_loading": false,
 
-  "pipeline": {
-    "type": "lora diffusion"
+  "num_epochs": 100,
+  "batch_size": 2,
+  "dtype": "float16",
+
+  "types": {
+    "loader": "prompt",
+    "pipeline": "lora diffusion",
+    "learner": "stable diffusion",
+    "components": "lora diffusion"
   },
 
-  "learner": {
-    "type": "stable diffusion",
-    "validation_prompts": ["Totoro", "Totoro", "Totoro", "Totoro"],
+  "pipeline_path": "runwayml/stable-diffusion-v1-5",
 
-    "components": {
-      "type": "lora diffusion",
-      "pipeline_path": "runwayml/stable-diffusion-v1-5",
-      "fp16": true,
-
-      "loader": {
-        "type": "prompt",
-        "num_data": 100,
-
-        "data_loader": {
-          "batch_size": 2,
-          "fp16": true
-        },
-
-        "dataset": {
-          "lazy_loading": false,
-          "img_size": 512,
-          "fp16": true,
-
-          "tokenizer": {
-            "pipeline_path": "runwayml/stable-diffusion-v1-5"
-          }
-        }
-      },
-
-      "optimizer": {
-        "type": "AdamW",
-        "args": {
-          "lr": 1e-4,
-          "weight_decay": 1e-2
-        }
-      },
-
-      "lr_scheduler": {
-        "args": {
-          "num_warmup_steps": 500
-        }
-      },
-
-      "model": {
-        "type": "conditioned unet",
-        "load": true
-      },
-
-      "noise_scheduler": {
-        "type": "ddpm",
-        "load": true
+  "optimizer": {
+    "args": {
+        "lr": 1e-4,
+        "weight_decay": 1e-2,
+        "eps": 1e-4
       }
+  },
+
+  "lr_scheduler": {
+    "args": {
+      "num_warmup_steps": 500
     }
+  },
+
+  "model": {
+    "type": "conditioned unet",
+    "load": true
+  },
+
+  "noise_scheduler": {
+    "type": "ddpm",
+    "load": true
   }
 }

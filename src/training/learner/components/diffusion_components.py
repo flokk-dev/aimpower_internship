@@ -85,7 +85,7 @@ class DiffusionComponents:
         # Accelerator
         self.accelerator: Accelerator = Accelerator(
             gradient_accumulation_steps=4,
-            mixed_precision="fp16" if params["fp16"] else None,
+            mixed_precision=params["revision"],
             cpu=False if torch.cuda.is_available() else True
         )
 
@@ -134,7 +134,7 @@ class DiffusionComponents:
             self.model = self._M_TYPES[self._params["model"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="unet",
-                revision="fp16" if self._params["fp16"] else None
+                revision=self._params["revision"]
             )
 
         # Instantiates
@@ -152,7 +152,7 @@ class DiffusionComponents:
             self.noise_scheduler = self._NS_TYPES[self._params["noise_scheduler"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="scheduler",
-                revision="fp16" if self._params["fp16"] else None
+                revision=self._params["revision"]
             )
 
         # Instantiates
@@ -193,7 +193,7 @@ class DiffusionComponents:
         """ Sends the desired components on device. """
         self.model.to(
             self.accelerator.device,
-            dtype=torch.float16 if self._params["fp16"] else torch.float32
+            dtype=self._params["dtype"]
         )
 
     def prepare(

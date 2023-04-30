@@ -9,8 +9,9 @@ Purpose:
 # IMPORT: utils
 import os
 import json
-
 import argparse
+
+import torch
 
 # IMPORT: project
 import paths
@@ -44,6 +45,13 @@ if __name__ == "__main__":
     # Training parameters
     with open(os.path.join(paths.CONFIG_PATH, args.config)) as json_file:
         parameters = json.load(json_file)
+
+    if parameters["dtype"] == "float16":
+        parameters["revision"] = "fp16"
+        parameters["dtype"] = torch.float16
+    else:
+        parameters["revision"] = None
+        parameters["dtype"] = torch.float32
 
     # Launch training
     trainer = Trainer(params=parameters)

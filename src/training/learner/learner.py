@@ -66,15 +66,15 @@ class Learner:
         self._params: Dict[str, Any] = params
 
         # Components
-        self.components = self._COMPONENTS[params["components"]["type"]](
-            params["components"], dataset_path, num_epochs
+        self.components = self._COMPONENTS[params["types"]["components"]](
+            params, dataset_path, num_epochs
         )
         self.components.prepare()
 
         # Loss
         self._loss = torch.nn.MSELoss().to(
             self.components.accelerator.device,
-            dtype=torch.float16 if self._params["components"]["fp16"] else torch.float32
+            dtype=torch.float16 if self._params["fp16"] else torch.float32
         )
 
     def learn(

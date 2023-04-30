@@ -103,8 +103,7 @@ class DiffusionPipeline(Pipeline):
         """
         pipeline = DDPMPipeline(
             unet=components.accelerator.unwrap_model(components.model),
-            scheduler=components.noise_scheduler,
-            torch_dtype=torch.float16 if self._params["components"]["fp16"] else torch.float32
+            scheduler=components.noise_scheduler
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 
@@ -164,7 +163,7 @@ class GuidedDiffusionPipeline(Pipeline):
         """
         generated_images = pipeline(
             batch_size=5,
-            num_class_embeds=self._params["components"]["model"]["args"]["num_class_embeds"],
+            num_class_embeds=self._params["model"]["args"]["num_class_embeds"],
             num_inference_steps=1000,
             generator=torch.manual_seed(0)
         ).images
@@ -176,7 +175,7 @@ class GuidedDiffusionPipeline(Pipeline):
         return {
             str(class_idx): images[class_idx * 5:(class_idx + 1) * 5]
             for class_idx
-            in range(self._params["components"]["model"]["args"]["num_class_embeds"])
+            in range(self._params["model"]["args"]["num_class_embeds"])
         }
 
     def checkpoint(
@@ -199,8 +198,7 @@ class GuidedDiffusionPipeline(Pipeline):
         """
         pipeline = utils.GuidedDDPMPipeline(
             unet=components.accelerator.unwrap_model(components.model),
-            scheduler=components.noise_scheduler,
-            torch_dtype=torch.float16 if self._params["components"]["fp16"] else torch.float32
+            scheduler=components.noise_scheduler
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 
@@ -298,8 +296,10 @@ class StableDiffusionPipeline(Pipeline):
                 generated image
         """
         pipeline = HFStableDiffusionPipeline.from_pretrained(
-            pretrained_model_name_or_path=self._params["components"]["pipeline_path"],
-            unet=components.accelerator.unwrap_model(components.model).to(torch.float32)
+            pretrained_model_name_or_path=self._params["pipeline_path"],
+            unet=components.accelerator.unwrap_model(components.model),
+            torch_dtype=self._params["dtype"],
+            revision=self._params["revision"]
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 
@@ -359,12 +359,11 @@ class LoRADiffusionPipeline(StableDiffusionPipeline):
                 generated image
         """
         pipeline = HFStableDiffusionPipeline.from_pretrained(
-            pretrained_model_name_or_path=self._params["components"]["pipeline_path"],
+            pretrained_model_name_or_path=self._params["pipeline_path"],
             unet=components.accelerator.unwrap_model(components.model),
-            torch_dtype=torch.float16,
-            revision="fp16"
+            torch_dtype=self._params["dtype"],
+            revision=self._params["revision"]
         ).to(components.accelerator.device)
-
         pipeline.safety_checker = None
 
         # Save

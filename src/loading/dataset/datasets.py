@@ -155,7 +155,7 @@ class PromptDataset(Dataset):
 
         # Attributes
         self.tokenizer: CLIPTokenizer = self._init_tokenizer(
-            self._params["tokenizer"]["pipeline_path"]
+            self._params["pipeline_path"]
         )
 
     def _init_tokenizer(
