@@ -103,13 +103,13 @@ class Learner:
             loss_value: torch.Tensor = self._loss(noise_pred, noise)
             self.components.scaler.scale(loss_value).backward()
 
-        # Update the training components
-        # self.components.optimizer.step()
-        self.components.scaler.step(self.components.optimizer)
-        self.components.scaler.update()
+            # Update the training components
+            # self.components.optimizer.step()
+            self.components.scaler.step(self.components.optimizer)
+            self.components.scaler.update()
 
-        self.components.lr_scheduler.step()
-        self.components.optimizer.zero_grad()
+            self.components.lr_scheduler.step()
+            self.components.optimizer.zero_grad()
 
         # Returns
         return loss_value.detach().item()
