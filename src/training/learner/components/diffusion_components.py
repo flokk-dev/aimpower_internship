@@ -16,7 +16,7 @@ from diffusers.optimization import Optimizer, get_cosine_schedule_with_warmup
 from diffusers import UNet2DModel, UNet2DConditionModel, \
     SchedulerMixin, DDPMScheduler, DDIMScheduler
 
-from accelerate import Accelerator
+from accelerate import Accelerator, GradScalerKwargs
 
 # IMPORT: project
 from src.loading.loader import Loader
@@ -82,12 +82,13 @@ class DiffusionComponents:
         # ----- Attributes ----- #
         self._params: Dict[str, Any] = params
 
-        # Accelerator
+        # Scaler
         self.accelerator: Accelerator = Accelerator(
-            gradient_accumulation_steps=4,
-            mixed_precision=None,  # if params["fp16"] else None,
-            cpu=False if torch.cuda.is_available() else True
+            cpu=False if torch.cuda.is_available() else True,
         )
+
+        # Scaler
+        self.scaler = torch.cuda.amp.GradScaler()
 
         # Data Loader
         self.data_loader: DataLoader = None
