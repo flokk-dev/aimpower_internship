@@ -8,6 +8,7 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
+from torch.cuda.amp import GradScaler
 
 # IMPORT: deep learning
 import torch

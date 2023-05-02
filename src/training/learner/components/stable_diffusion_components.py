@@ -100,7 +100,7 @@ class StableDiffusionComponents(DiffusionComponents):
         self.vae = AutoencoderKL.from_pretrained(
             pretrained_model_name_or_path=self._params["pipeline_path"],
             subfolder="vae",
-            revision=self._params["dtype"]
+            # revision=self._params["dtype"]
         )
         self.vae.requires_grad_(False)
 
@@ -111,7 +111,7 @@ class StableDiffusionComponents(DiffusionComponents):
         self.text_encoder = CLIPTextModel.from_pretrained(
             pretrained_model_name_or_path=self._params["pipeline_path"],
             subfolder="text_encoder",
-            revision=self._params["dtype"]
+            # revision=self._params["dtype"]
         )
         self.text_encoder.requires_grad_(False)
 
