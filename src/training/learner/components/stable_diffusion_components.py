@@ -123,10 +123,10 @@ class StableDiffusionComponents(DiffusionComponents):
 
         self.vae.to(
             self.accelerator.device,
-            # dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
+            dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
         )
 
         self.text_encoder.to(
             self.accelerator.device,
-            # dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
+            dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
         )
