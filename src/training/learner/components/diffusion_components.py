@@ -134,7 +134,7 @@ class DiffusionComponents:
             self.model = self._M_TYPES[self._params["model"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="unet",
-                revision=self._params["dtype"], low_cpu_mem_usage=True
+                # revision=self._params["dtype"]
             )
 
         # Instantiates
@@ -152,7 +152,7 @@ class DiffusionComponents:
             self.noise_scheduler = self._NS_TYPES[self._params["noise_scheduler"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="scheduler",
-                revision=self._params["dtype"]
+                # revision=self._params["dtype"]
             )
 
         # Instantiates
@@ -193,7 +193,7 @@ class DiffusionComponents:
         """ Sends the desired components on device. """
         self.model.to(
             self.accelerator.device,
-            # dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
+            dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
         )
 
     def prepare(
