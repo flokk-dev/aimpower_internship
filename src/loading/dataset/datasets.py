@@ -172,8 +172,7 @@ class PromptDataset(Dataset):
         """
         return CLIPTokenizer.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,
-            subfolder="tokenizer",
-            # revision=self._params["dtype"]
+            subfolder="tokenizer"
         )
 
     def _tokenize(

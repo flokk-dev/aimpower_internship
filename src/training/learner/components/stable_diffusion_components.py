@@ -99,8 +99,7 @@ class StableDiffusionComponents(DiffusionComponents):
         """ Initializes an image encoder. """
         self.vae = AutoencoderKL.from_pretrained(
             pretrained_model_name_or_path=self._params["pipeline_path"],
-            subfolder="vae",
-            # revision=self._params["dtype"]
+            subfolder="vae"
         )
         self.vae.requires_grad_(False)
 
@@ -110,8 +109,7 @@ class StableDiffusionComponents(DiffusionComponents):
         """ Initializes a text encoder. """
         self.text_encoder = CLIPTextModel.from_pretrained(
             pretrained_model_name_or_path=self._params["pipeline_path"],
-            subfolder="text_encoder",
-            # revision=self._params["dtype"]
+            subfolder="text_encoder"
         )
         self.text_encoder.requires_grad_(False)
 
