@@ -77,7 +77,7 @@ class Learner:
         # Loss
         self._loss = torch.nn.MSELoss().to(
             self.components.accelerator.device,
-            dtype=torch.float32 if self._params["dtype"] == "fp16" else torch.float32
+            dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
         )
 
     def learn(
