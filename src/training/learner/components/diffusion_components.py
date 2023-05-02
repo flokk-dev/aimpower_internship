@@ -193,7 +193,7 @@ class DiffusionComponents:
         """ Sends the desired components on device. """
         self.model.to(
             self.accelerator.device,
-            dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
+            # dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
         )
 
     def prepare(
