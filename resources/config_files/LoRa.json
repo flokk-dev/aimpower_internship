@@ -1,7 +1,7 @@
 {
   "validation_prompts": ["Totoro", "Totoro", "Totoro", "Totoro"],
 
-  "num_data": 800,
+  "num_data": 50,
   "img_size": 512,
   "lazy_loading": false,
 
