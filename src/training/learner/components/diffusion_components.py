@@ -11,7 +11,6 @@ from typing import *
 
 # IMPORT: deep learning
 import torch
-import bitsandbytes as bnb
 
 from diffusers.optimization import Optimizer, get_cosine_schedule_with_warmup
 from diffusers import UNet2DModel, UNet2DConditionModel, \
@@ -61,7 +60,6 @@ class DiffusionComponents:
     """
     _M_TYPES = {"unet": UNet2DModel, "conditioned unet": UNet2DConditionModel}
     _NS_TYPES = {"ddpm": DDPMScheduler, "ddim": DDIMScheduler}
-    _OPT_TYPES = {"AdamW": torch.optim.AdamW, "AdamW8bit": bnb.optim.AdamW8bit}
 
     def __init__(
             self,
@@ -87,7 +85,7 @@ class DiffusionComponents:
         # Accelerator
         self.accelerator: Accelerator = Accelerator(
             gradient_accumulation_steps=4,
-            mixed_precision=None,  # if params["fp16"] else None,
+            mixed_precision=params["dtype"],
             cpu=False if torch.cuda.is_available() else True
         )
 
@@ -123,7 +121,7 @@ class DiffusionComponents:
             dataset_path : str
                 path to the dataset
         """
-        self.data_loader = Loader(self._params["loader"])(
+        self.data_loader = Loader(self._params)(
             dataset_path
         )
 
@@ -136,7 +134,8 @@ class DiffusionComponents:
             self.model = self._M_TYPES[self._params["model"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="unet",
-                revision="fp16" if self._params["fp16"] else None            )
+                revision=self._params["dtype"]
+            )
 
         # Instantiates
         else:
@@ -153,7 +152,7 @@ class DiffusionComponents:
             self.noise_scheduler = self._NS_TYPES[self._params["noise_scheduler"]["type"]].from_pretrained(
                 pretrained_model_name_or_path=self._params["pipeline_path"],
                 subfolder="scheduler",
-                revision="fp16" if self._params["fp16"] else None
+                revision=self._params["dtype"]
             )
 
         # Instantiates
@@ -166,7 +165,7 @@ class DiffusionComponents:
             self
     ):
         """ Initializes the optimizer. """
-        self.optimizer = self._OPT_TYPES[self._params["optimizer"]["type"]](
+        self.optimizer = torch.optim.AdamW(
             self.model.parameters(), **self._params["optimizer"]["args"]
         )
 
@@ -194,7 +193,7 @@ class DiffusionComponents:
         """ Sends the desired components on device. """
         self.model.to(
             self.accelerator.device,
-            dtype=torch.float16 if self._params["fp16"] else torch.float32
+            dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
         )
 
     def prepare(

@@ -1,0 +1,44 @@
+{
+  "validation_prompts": ["Totoro", "Totoro", "Totoro", "Totoro"],
+
+  "num_data": 50,
+  "img_size": 512,
+  "lazy_loading": false,
+
+  "num_epochs": 100,
+  "batch_size": 2,
+  "dtype": "fp16",
+
+  "types": {
+    "loader": "prompt",
+    "pipeline": "lora diffusion",
+    "learner": "stable diffusion",
+    "components": "lora diffusion"
+  },
+
+  "pipeline_path": "runwayml/stable-diffusion-v1-5",
+
+  "optimizer": {
+    "args": {
+        "lr": 1e-4,
+        "weight_decay": 1e-2,
+        "eps": 1e-4
+      }
+  },
+
+  "lr_scheduler": {
+    "args": {
+      "num_warmup_steps": 500
+    }
+  },
+
+  "model": {
+    "type": "conditioned unet",
+    "load": true
+  },
+
+  "noise_scheduler": {
+    "type": "ddpm",
+    "load": true
+  }
+}

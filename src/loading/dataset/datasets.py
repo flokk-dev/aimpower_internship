@@ -155,7 +155,7 @@ class PromptDataset(Dataset):
 
         # Attributes
         self.tokenizer: CLIPTokenizer = self._init_tokenizer(
-            self._params["tokenizer"]["pipeline_path"]
+            self._params["pipeline_path"]
         )
 
     def _init_tokenizer(
@@ -170,13 +170,10 @@ class PromptDataset(Dataset):
             pipeline_path : str
                 path to the pretrained pipeline
         """
-        if not pipeline_path:
-            return None
-
         return CLIPTokenizer.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,
             subfolder="tokenizer",
-            revision="fp16" if self._params["fp16"] else None
+            revision=self._params["dtype"]
         )
 
     def _tokenize(

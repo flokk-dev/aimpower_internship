@@ -11,7 +11,6 @@ from typing import *
 
 import os
 import time
-
 import json
 from tqdm import tqdm
 
@@ -193,7 +192,7 @@ class Trainer:
                 os.mkdir(key_path)
 
             # Uploads checkpoint images to WandB
-            self._dashboard.upload_inference(key, tensor)
+            self._dashboard.upload_images(key, tensor)
 
             # Saves checkpoint image on disk
             utils.save_plt(tensor, os.path.join(key_path, f"epoch_{epoch}.png"))
@@ -206,13 +205,13 @@ class Trainer:
                 path to the dataset
         """
         # Learner
-        self._learner = self._LEARNERS[self._params["learner"]["type"]](
-            self._params["learner"], dataset_path, self._params["num_epochs"]
+        self._learner = self._LEARNERS[self._params["types"]["learner"]](
+            self._params, dataset_path, self._params["num_epochs"]
         )
 
         # Pipeline
-        self._pipeline = self._PIPELINES[self._params["pipeline"]["type"]](
-            self._params["learner"]["components"]
+        self._pipeline = self._PIPELINES[self._params["types"]["pipeline"]](
+            self._params
         )
 
         # Dashboard

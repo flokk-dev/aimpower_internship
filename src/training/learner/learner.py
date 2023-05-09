@@ -8,6 +8,7 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
+from torch.cuda.amp import GradScaler
 
 # IMPORT: deep learning
 import torch
@@ -66,15 +67,17 @@ class Learner:
         self._params: Dict[str, Any] = params
 
         # Components
-        self.components = self._COMPONENTS[params["components"]["type"]](
-            params["components"], dataset_path, num_epochs
+        self.components = self._COMPONENTS[params["types"]["components"]](
+            params, dataset_path, num_epochs
         )
         self.components.prepare()
+
+        print(self.components.model.dtype)
 
         # Loss
         self._loss = torch.nn.MSELoss().to(
             self.components.accelerator.device,
-            dtype=torch.float16 if self._params["components"]["fp16"] else torch.float32
+            dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
         )
 
     def learn(
@@ -94,12 +97,12 @@ class Learner:
             float
                 loss value computed using batch's data
         """
-        noise, noise_pred = self._forward(batch)
-
         with self.components.accelerator.accumulate(self.components.model):
+            # Forward
+            noise, noise_pred = self._forward(batch)
+
             # Loss backward
             loss_value: torch.Tensor = self._loss(noise_pred, noise)
-
             self.components.accelerator.backward(loss_value)
 
             # Update the training components
@@ -157,11 +160,11 @@ class Learner:
             torch.Tensor
                 noise's timestep
         """
-        print(f"tensor: {tensor.dtype}")
+        # print(f"tensor: {tensor.dtype}")
 
         # Sample random noise
         noise: torch.Tensor = torch.randn_like(tensor, device=tensor.device)
-        print(f"noise: {noise.dtype}")
+        # print(f"noise: {noise.dtype}")
 
         # Sample random timestep
         timestep: torch.Tensor = torch.randint(
@@ -170,13 +173,13 @@ class Learner:
             size=(noise.shape[0],),
             device=tensor.device
         )
-        print(f"timestep: {timestep.dtype}")
+        # print(f"timestep: {timestep.dtype}")
 
         # Add noise to the input data
         noisy_input: torch.Tensor = self.components.noise_scheduler.add_noise(
             tensor, noise, timestep
         )
-        print(f"noisy_input: {noisy_input.dtype}")
+        # print(f"noisy_input: {noisy_input.dtype}")
 
         return noisy_input, noise, timestep
 

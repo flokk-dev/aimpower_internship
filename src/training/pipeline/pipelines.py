@@ -103,8 +103,7 @@ class DiffusionPipeline(Pipeline):
         """
         pipeline = DDPMPipeline(
             unet=components.accelerator.unwrap_model(components.model),
-            scheduler=components.noise_scheduler,
-            torch_dtype=torch.float16 if self._params["fp16"] else torch.float32
+            scheduler=components.noise_scheduler
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 
@@ -199,8 +198,7 @@ class GuidedDiffusionPipeline(Pipeline):
         """
         pipeline = utils.GuidedDDPMPipeline(
             unet=components.accelerator.unwrap_model(components.model),
-            scheduler=components.noise_scheduler,
-            torch_dtype=torch.float16 if self._params["fp16"] else torch.float32
+            scheduler=components.noise_scheduler
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 
@@ -300,7 +298,7 @@ class StableDiffusionPipeline(Pipeline):
         pipeline = HFStableDiffusionPipeline.from_pretrained(
             pretrained_model_name_or_path=self._params["pipeline_path"],
             unet=components.accelerator.unwrap_model(components.model),
-            torch_dtype=torch.float16 if self._params["fp16"] else torch.float32
+            torch_dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 
@@ -362,14 +360,15 @@ class LoRADiffusionPipeline(StableDiffusionPipeline):
         pipeline = HFStableDiffusionPipeline.from_pretrained(
             pretrained_model_name_or_path=self._params["pipeline_path"],
             unet=components.accelerator.unwrap_model(components.model),
-            torch_dtype=torch.float16 if self._params["fp16"] else torch.float32
+            torch_dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 
         # Save
+        """
         components.accelerator.unwrap_model(
             components.model
         ).to(torch.float32).save_attn_procs(save_path)
-
+        """
         # Inference
         return self._inference(pipeline)
