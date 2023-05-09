@@ -41,7 +41,7 @@ class Dashboard:
             Updates the history of loss
         upload_values
             Uploads the history of learning rate and loss
-        upload_inference
+        upload_images
             Uploads examples of image generation
     """
 
@@ -122,7 +122,7 @@ class Dashboard:
             "lr": lr
         })
 
-    def upload_inference(
+    def upload_images(
             self,
             log_key: str,
             tensor: torch.Tensor

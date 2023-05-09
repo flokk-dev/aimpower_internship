@@ -158,8 +158,8 @@ class PromptDataset(Dataset):
             self._params["pipeline_path"]
         )
 
-    @staticmethod
     def _init_tokenizer(
+            self,
             pipeline_path: str
     ) -> CLIPTokenizer:
         """
@@ -172,7 +172,8 @@ class PromptDataset(Dataset):
         """
         return CLIPTokenizer.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,
-            subfolder="tokenizer"
+            subfolder="tokenizer",
+            revision=self._params["dtype"]
         )
 
     def _tokenize(
