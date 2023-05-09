@@ -11,92 +11,32 @@ from typing import *
 
 # IMPORT: data loading
 import torch
+from torch.utils.data import DataLoader as TorchDataLoader
 
 # IMPORT: data processing
 from transformers import CLIPTokenizer
 
 # IMPORT: project
-from .data_loader import DataLoader
-from src.loading.dataset import LabelDataset, PromptDataset
+from src.loading.dataset import PromptDataset, ImagePromptDataset
 
 
-class LabelDataLoader(DataLoader):
+class PromptDataLoader(TorchDataLoader):
     """
-    Represents a LabelDataLoader.
+    Represents a data PromptDataLoader.
 
     Attributes
     ----------
-        _params : Dict[str, Any]
-            parameters needed to adjust the program behaviour
+        _config : Dict[str, Any]
+            configuration needed to adjust the program behaviour
 
     Methods
     ----------
         _collate_fn : Dict[str, torch.Tensor]
             Defines the data loader's behaviour when getting data.
     """
-
     def __init__(
             self,
-            params: Dict[str, Any],
-            dataset: LabelDataset
-    ):
-        """
-        Instantiates a DataLoader.
-
-        Parameters
-        ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
-            dataset: LabelDataset
-                dataset containing file paths
-        """
-        # Mother Class
-        super(LabelDataLoader, self).__init__(params, dataset)
-
-    def _collate_fn(
-            self,
-            data: List[Dict[str, torch.Tensor]]
-    ) -> Dict[str, torch.Tensor]:
-        """
-        Defines the data loader's behaviour when getting data.
-
-        Parameters
-        ----------
-            data : List[Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]]
-                list containing the recovered data
-
-        Returns
-        ----------
-            Dict[str, torch.Tensor]
-                            the dataset's element and additional info
-        """
-        return {
-            "image": torch.stack(
-                [e["image"] for e in data]
-            ).to(memory_format=torch.contiguous_format),  # .type(torch.float16),
-
-            "label": torch.cat([e["label"] for e in data])
-        }
-
-
-class PromptDataLoader(DataLoader):
-    """
-    Represents a PromptDataLoader.
-
-    Attributes
-    ----------
-        _params : Dict[str, Any]
-            parameters needed to adjust the program behaviour
-
-    Methods
-    ----------
-        _collate_fn : Dict[str, torch.Tensor]
-            Defines the data loader's behaviour when getting data.
-    """
-
-    def __init__(
-            self,
-            params: Dict[str, Any],
+            config: Dict[str, Any],
             dataset: PromptDataset
     ):
         """
@@ -104,25 +44,20 @@ class PromptDataLoader(DataLoader):
 
         Parameters
         ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
+            config : Dict[str, Any]
+                configuration needed to adjust the program behaviour
             dataset: PromptDataset
                 dataset containing file paths
         """
         # Mother Class
-        super(PromptDataLoader, self).__init__(params, dataset)
+        super(PromptDataLoader, self).__init__(
+            dataset,
+            batch_size=config["batch_size"], shuffle=True, drop_last=True,
+            collate_fn=self._collate_fn
+        )
 
-    @property
-    def tokenizer(self) -> CLIPTokenizer:
-        """
-        Returns the dataset's tokenizer.
-
-        Returns
-        ----------
-            CLIPTokenizer
-                dataset's tokenizer
-        """
-        return self.dataset.tokenizer
+        # Attributes
+        self._config: Dict[str, Any] = config
 
     def _collate_fn(
             self,
@@ -142,13 +77,63 @@ class PromptDataLoader(DataLoader):
                 the dataset's element and additional info
         """
         return {
-            "image": torch.stack(
-                [e["image"] for e in data]
-            ).to(
-                memory_format=torch.contiguous_format
-            ).type(torch.float16 if self._params["dtype"] == "fp16" else torch.float32),
-
             "prompt": self.dataset.tokenizer.pad(
                 {"input_ids": [e["prompt"] for e in data]}, padding=True, return_tensors="pt"
             ).input_ids
         }
+
+
+class ImagePromptDataLoader(PromptDataLoader):
+    """
+    Represents a data ImagePromptDataLoader.
+
+    Attributes
+    ----------
+        _config : Dict[str, Any]
+            configuration needed to adjust the program behaviour
+
+    Methods
+    ----------
+        _collate_fn : Dict[str, torch.Tensor]
+            Defines the data loader's behaviour when getting data.
+    """
+    def __init__(
+            self,
+            config: Dict[str, Any],
+            dataset: ImagePromptDataset
+    ):
+        """
+        Instantiates a ImagePromptDataLoader.
+
+        Parameters
+        ----------
+            config : Dict[str, Any]
+                configuration needed to adjust the program behaviour
+            dataset: ImagePromptDataset
+                dataset containing file paths
+        """
+        # Mother Class
+        super(ImagePromptDataLoader, self).__init__(config, dataset)
+
+    def _collate_fn(
+            self,
+            data: List[Dict[str, torch.Tensor]]
+    ) -> Dict[str, torch.Tensor]:
+        """
+        Defines the data loader's behaviour when getting data.
+
+        Parameters
+        ----------
+            data : List[Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]]
+                list containing the recovered data
+
+        Returns
+        ----------
+            Dict[str, torch.Tensor]
+                the dataset's element and additional info
+        """
+        images = torch.stack([e["image"] for e in data]).to(
+            memory_format=torch.contiguous_format
+        ).type(torch.float16)
+
+        return {**super()._collate_fn(data), "image": images}

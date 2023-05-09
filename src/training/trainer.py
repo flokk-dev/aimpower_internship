@@ -10,7 +10,6 @@ Purpose:
 from typing import *
 
 import os
-import time
 import json
 from tqdm import tqdm
 
@@ -21,26 +20,21 @@ import torch
 import paths
 import utils
 
-from .learner import Learner, \
-    DiffusionLearner, GuidedDiffusionLearner, StableDiffusionLearner
-
-from .pipeline import Pipeline, \
-    DiffusionPipeline, GuidedDiffusionPipeline, StableDiffusionPipeline, LoRADiffusionPipeline
-
-from src.training.dashboard import Dashboard
+from .learner import Learner
+from .pipeline import Pipeline
+from .dashboard import Dashboard
 
 
 class Trainer:
     """
-    Represents a Trainer, which will be modified depending on the use case.
+    Represents a Trainer.
 
     Attributes
     ----------
-        _params : Dict[str, Any]
-            parameters needed to adjust the program behaviour
+        _config : Dict[str, Any]
+            configuration needed to adjust the program behaviour
         _path : str
             path to the training's logs
-
         _learner : Learner
             ...
         _dashboard : Dashboard
@@ -53,35 +47,22 @@ class Trainer:
         _run_epoch
             Runs an epoch
         _checkpoint
-            Saves noise_scheduler's weights
+            Runs a checkpoint procedure
     """
-    _LEARNERS = {
-        "diffusion": DiffusionLearner,
-        "guided diffusion": GuidedDiffusionLearner,
-        "stable diffusion": StableDiffusionLearner
-    }
-
-    _PIPELINES = {
-        "diffusion": DiffusionPipeline,
-        "guided diffusion": GuidedDiffusionPipeline,
-        "stable diffusion": StableDiffusionPipeline,
-        "lora diffusion": LoRADiffusionPipeline
-    }
-
     def __init__(
             self,
-            params: Dict[str, Any]
+            config: Dict[str, Any]
     ):
         """
         Instantiates a Trainer.
 
         Parameters
         ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
+            config : Dict[str, Any]
+                configuration needed to adjust the program behaviour
         """
         # Attributes
-        self._params: Dict[str, Any] = params
+        self._config: Dict[str, Any] = config
 
         # Creates training's repository
         self._path = os.path.join(paths.MODELS_PATH, utils.get_datetime())
@@ -90,25 +71,18 @@ class Trainer:
             os.mkdir(os.path.join(self._path, "images"))
 
         with open(os.path.join(self._path, "config.json"), 'w') as file_content:
-            json.dump(self._params, file_content)
+            json.dump(self._config, file_content)
 
         # Components
         self._learner: Learner = None
         self._pipeline: Pipeline = None
-
         self._dashboard: Dashboard = None
 
-    def _verify_parameters(
-            self,
-            params: Dict[str, Any]
+    def _launch(
+            self
     ):
         """
-        Verifies if the training's configuration is correct.
-
-        Parameters
-        ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
+        Launches the training.
 
         Raises
         ----------
@@ -116,31 +90,6 @@ class Trainer:
                 function isn't implemented yet
         """
         raise NotImplementedError()
-
-    def _launch(
-            self
-    ):
-        """ Launches the training. """
-        time.sleep(1)
-
-        p_bar: tqdm = tqdm(total=self._params["num_epochs"], desc="training in progress")
-        for epoch in range(self._params["num_epochs"]):
-            self._learner.components.model.train()
-
-            # Learns
-            self._learner.components.model.train()
-            self._run_epoch(p_bar)
-
-            # Updates
-            self._dashboard.upload_values(self._learner.components.lr_scheduler.get_last_lr()[0])
-            if (epoch + 1) % 10 == 0:
-                self._checkpoint(epoch + 1)
-
-            p_bar.update(1)
-
-        # End
-        time.sleep(10)
-        self._dashboard.shutdown()
 
     def _run_epoch(
             self,
@@ -153,25 +102,20 @@ class Trainer:
         ----------
             p_bar : tqdm
                 the training's progress bar
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
         """
-        num_batch: int = len(self._learner.components.data_loader)
-
-        epoch_loss: list = list()
-        for batch_idx, batch in enumerate(self._learner.components.data_loader):
-            p_bar.set_postfix(batch=f"{batch_idx}/{num_batch}", gpu=utils.gpu_utilization())
-
-            # Learns on batch
-            epoch_loss.append(self._learner(batch))
-
-        # Stores the results
-        self._dashboard.update_loss(epoch_loss)
+        raise NotImplementedError()
 
     def _checkpoint(
             self,
             epoch: int
     ):
         """
-        Saves noise_scheduler's weights.
+        Runs a checkpoint procedure.
 
         Parameters
         ----------
@@ -197,22 +141,9 @@ class Trainer:
             # Saves checkpoint image on disk
             utils.save_plt(tensor, os.path.join(key_path, f"epoch_{epoch}.png"))
 
-    def __call__(self, dataset_path: str):
-        """
-        Parameters
-        ----------
-            dataset_path : str
-                path to the dataset
-        """
-        # Learner
-        self._learner = self._LEARNERS[self._params["types"]["learner"]](
-            self._params, dataset_path, self._params["num_epochs"]
-        )
-
+    def __call__(self):
         # Pipeline
-        self._pipeline = self._PIPELINES[self._params["types"]["pipeline"]](
-            self._params
-        )
+        self._pipeline = Pipeline(self._config)
 
         # Dashboard
         self._dashboard = Dashboard(train_id=os.path.basename(self._path))

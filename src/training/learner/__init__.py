@@ -1,2 +1,2 @@
 from .learner import Learner
-from .learners import DiffusionLearner, GuidedDiffusionLearner, StableDiffusionLearner
+from .learners import LossLearner, RewardLearner

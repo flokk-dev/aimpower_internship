@@ -11,12 +11,9 @@ import os
 import json
 import argparse
 
-import torch
-
 # IMPORT: project
 import paths
-
-from src import Trainer
+from src import LossTrainer, RewardTrainer
 
 
 class Parser(argparse.ArgumentParser):
@@ -37,6 +34,9 @@ class Parser(argparse.ArgumentParser):
         )
 
 
+TASKS = {"learning": LossTrainer, "reinforcement_learning": RewardTrainer}
+
+
 if __name__ == "__main__":
     # Training arguments
     parser = Parser()
@@ -47,5 +47,5 @@ if __name__ == "__main__":
         parameters = json.load(json_file)
 
     # Launch training
-    trainer = Trainer(params=parameters)
+    trainer = TASKS[parameters["training_type"]](params=parameters)
     trainer(dataset_path=args.dataset)

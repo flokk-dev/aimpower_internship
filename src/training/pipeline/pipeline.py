@@ -11,7 +11,10 @@ from typing import *
 
 # IMPORT: deep learning
 import torch
-from diffusers import DiffusionPipeline
+from diffusers import StableDiffusionPipeline
+
+# IMPORT: project
+import utils
 
 
 class Pipeline:
@@ -20,53 +23,66 @@ class Pipeline:
 
     Attributes
     ----------
-        _params : Dict[str, Any]
-            parameters needed to adjust the pipeline behaviour
+        _config : Dict[str, Any]
+            configuration needed to adjust the pipeline behaviour
 
     Methods
     ----------
         inference: Dict[str, torch.Tensor]
             Builds the pipeline using its components
     """
-
     def __init__(
             self,
-            params: Dict[str, Any]
+            config: Dict[str, Any]
     ):
         """
         Instantiates a Pipeline.
 
         Parameters
         ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the pipeline behaviour
+            config : Dict[str, Any]
+                configuration needed to adjust the pipeline behaviour
         """
         # ----- Attributes ----- #
-        self._params: Dict[str, Any] = params
+        self._config: Dict[str, Any] = config
 
     def _inference(
             self,
-            pipeline: DiffusionPipeline
+            pipeline: StableDiffusionPipeline
     ) -> Dict[str, torch.Tensor]:
         """
         Generates images using a diffusion pipeline.
 
         Parameters
         ----------
-            pipeline : DiffusionPipeline
+            pipeline : StableDiffusionPipeline
                 components needed to instantiate the pipeline
 
         Returns
         ----------
             Dict[str, torch.Tensor]
                 generated image
-
-        Raises
-        ----------
-            NotImplementedError
-                function isn't implemented yet
         """
-        raise NotImplementedError()
+        generated_images = list()
+
+        for idx, prompt in enumerate(self._config["validation_prompts"]):
+            generated_images.append(
+                pipeline(
+                    prompt,
+                    num_inference_steps=50,
+                    generator=torch.manual_seed(idx)
+                ).images[0]
+            )
+
+        # Adjusts colors
+        images: List[torch.Tensor] = utils.images_to_tensors(generated_images)
+
+        # Returns
+        return {
+            f"{prompt}_{idx}": images[idx].unsqueeze(0)
+            for idx, prompt
+            in enumerate(self._config["validation_prompts"])
+        }
 
     def checkpoint(
         self,
@@ -85,10 +101,20 @@ class Pipeline:
         ----------
             Dict[str, torch.Tensor]
                 generated image
-
-        Raises
-        ----------
-            NotImplementedError
-                function isn't implemented yet
         """
-        raise NotImplementedError()
+        pipeline = StableDiffusionPipeline.from_pretrained(
+            pretrained_model_name_or_path=self._config["pipeline_path"],
+            unet=components.accelerator.unwrap_model(components.model),
+            torch_dtype=torch.float16
+        ).to(components.accelerator.device)
+        pipeline.safety_checker = None
+
+        # Save
+        """
+        components.accelerator.unwrap_model(
+            components.model
+        ).to(torch.float32).save_attn_procs(save_path)
+        """
+
+        # Inference
+        return self._inference(pipeline)

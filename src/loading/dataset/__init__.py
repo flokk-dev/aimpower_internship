@@ -1,2 +1,1 @@
-from .dataset import Dataset
-from .datasets import LabelDataset, PromptDataset
+from .datasets import PromptDataset, ImagePromptDataset

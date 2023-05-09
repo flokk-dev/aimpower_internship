@@ -1,2 +1,1 @@
-from .data_loader import DataLoader
-from .data_loaders import LabelDataLoader, PromptDataLoader
+from .data_loaders import PromptDataLoader, ImagePromptDataLoader

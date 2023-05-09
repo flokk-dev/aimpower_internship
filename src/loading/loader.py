@@ -9,54 +9,47 @@ Purpose:
 # IMPORT: utils
 from typing import *
 
-import os
-import pandas as pd
-
 # IMPORT: project
-from .data_loader import DataLoader, LabelDataLoader, PromptDataLoader
-from .dataset import Dataset, LabelDataset, PromptDataset
+from .data_loader import PromptDataLoader
 
 
 class Loader:
     """
-    Represents a Loader, which will be modified depending on the use case.
+    Represents a Loader.
 
     Attributes
     ----------
-        _params : Dict[str, Any]
-            parameters needed to adjust the program behaviour
+        _config : Dict[str, Any]
+            configuration needed to adjust the program behaviour
 
     Methods
     ----------
         _parse_dataset : List[str]
-            Parses the dataset to extract some info
+            Parses the dataset to extract some information
         _generate_data_loaders : Dict[str, DataLoader]
-            Generates a data loaders using extracted file paths
+            Generates a data loader using extracted dataset's information
     """
-    _DATA_LOADERS = {"basic": DataLoader, "label": LabelDataLoader, "prompt": PromptDataLoader}
-    _DATASETS = {"basic": Dataset, "label": LabelDataset, "prompt": PromptDataset}
-
     def __init__(
             self,
-            params: Dict[str, Any]
+            config: Dict[str, Any]
     ):
         """
         Instantiates a Loader.
 
         Parameters
         ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
+            config : Dict[str, Any]
+                configuration needed to adjust the program behaviour
         """
         # Attributes
-        self._params: Dict[str, Any] = params
+        self._config: Dict[str, Any] = config
 
     def _parse_dataset(
             self,
             dataset_path: str
-    ) -> Tuple[List[str], List[Dict[str, Any]]]:
+    ) -> Dict[str, List[str]]:
         """
-        Parses the dataset to extract some info.
+        Parses the dataset to extract some information.
 
         Parameters
         ----------
@@ -65,62 +58,44 @@ class Loader:
 
         Returns
         ----------
-            List[str]
-                file paths within the dataset
-            List[Dict[str, Any]]
-                additional info about the data
+            Dict[str, List[str]]
+                dataset's content
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
         """
-        # Parses dataset info via a csv file
-        dataset_info: Dict[int, Dict[str, Any]] = pd.read_csv(
-            os.path.join(dataset_path, "dataset_info.csv")
-        ).to_dict(orient="index")
-
-        # Extracts and uses the info
-        file_paths: List[str] = list()
-        data_info: List[Dict[str, Any]] = list()
-
-        for idx, row in dataset_info.items():
-            file_paths.append(os.path.join(dataset_path, row["image_path"]))
-
-            del row["image_path"]
-            data_info.append(row)
-
-            if idx >= self._params["num_data"] - 1:
-                break
-
-        return file_paths, data_info
+        raise NotImplementedError()
 
     def _generate_data_loader(
             self,
-            file_paths: List[str],
-            data_info: List[Dict[str, Any]]
-    ) -> DataLoader:
+            dataset_info: Dict[str, List[str]]
+    ) -> PromptDataLoader:
         """
-        Generates a data loader using extracted file paths.
+        Generates a data loader using extracted dataset's information.
 
         Parameters
         ----------
-            file_paths : Dict[str, List[str]]
-                file paths within the dataset
-            data_info : Dict[str, List[Dict[str, Any]]]
-                additional info about the data
+            dataset_info : Dict[str, List[str]]
+                dataset's content
 
         Returns
         ----------
             DataLoader
                 data loader containing training data
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
         """
-        return self._DATA_LOADERS[self._params["types"]["loader"]](
-            self._params,
-            self._DATASETS[self._params["types"]["loader"]](
-                self._params, file_paths, data_info
-            ),
-        )
+        raise NotImplementedError()
 
     def __call__(
             self,
             dataset_path: str
-    ) -> DataLoader:
+    ) -> PromptDataLoader:
         """
         Parameters
         ----------
@@ -132,4 +107,4 @@ class Loader:
             Dict[str, DataLoader]
                 data loaders containing training data
         """
-        return self._generate_data_loader(*self._parse_dataset(dataset_path))
+        return self._generate_data_loader(self._parse_dataset(dataset_path))

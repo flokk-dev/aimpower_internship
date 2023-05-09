@@ -8,13 +8,12 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
-from torch.cuda.amp import GradScaler
 
 # IMPORT: deep learning
 import torch
 
 # IMPORT: project
-from .components import DiffusionComponents, StableDiffusionComponents, LoRADiffusionComponents
+from .components import DiffusionComponents
 
 
 class Learner:
@@ -23,11 +22,9 @@ class Learner:
 
     Attributes
     ----------
-        _params : Dict[str, Any]
-            parameters needed to adjust the program behaviour
-        _loss : Loss
-            training's loss function
-        components : ComponentsV1
+        _config : Dict[str, Any]
+            configuration needed to adjust the program behaviour
+        components : DiffusionComponents
             training's components
 
     Methods
@@ -35,50 +32,31 @@ class Learner:
         learn
             Learns on a batch of data
         _forward
-            Extracts noise within the noisy image using the noise_scheduler
+            Extracts noise within the noisy image using the model
         _add_noise
             Adds noise to a given tensor
     """
-    _COMPONENTS = {
-        "diffusion": DiffusionComponents,
-        "stable diffusion": StableDiffusionComponents,
-        "lora diffusion": LoRADiffusionComponents
-    }
-
     def __init__(
             self,
-            params: Dict[str, Any],
-            dataset_path: str,
-            num_epochs: int,
+            config: Dict[str, Any],
+            dataset_path: str
     ):
         """
         Instantiates a Learner.
 
         Parameters
         ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
+            config : Dict[str, Any]
+                configuration needed to adjust the program behaviour
             dataset_path : str
                 path to the dataset
-            num_epochs : int
-                number of epochs during the training
         """
         # ----- Attributes ----- #
-        self._params: Dict[str, Any] = params
+        self._config: Dict[str, Any] = config
 
         # Components
-        self.components = self._COMPONENTS[params["types"]["components"]](
-            params, dataset_path, num_epochs
-        )
+        self.components = DiffusionComponents(config, dataset_path)
         self.components.prepare()
-
-        print(self.components.model.dtype)
-
-        # Loss
-        self._loss = torch.nn.MSELoss().to(
-            self.components.accelerator.device,
-            dtype=torch.float16 if self._params["dtype"] == "fp16" else torch.float32
-        )
 
     def learn(
             self,
@@ -96,41 +74,6 @@ class Learner:
         ----------
             float
                 loss value computed using batch's data
-        """
-        with self.components.accelerator.accumulate(self.components.model):
-            # Forward
-            noise, noise_pred = self._forward(batch)
-
-            # Loss backward
-            loss_value: torch.Tensor = self._loss(noise_pred, noise)
-            self.components.accelerator.backward(loss_value)
-
-            # Update the training components
-            self.components.optimizer.step()
-            self.components.lr_scheduler.step()
-            self.components.optimizer.zero_grad()
-
-        # Returns
-        return loss_value.detach().item()
-
-    def _forward(
-            self,
-            batch: Dict[str, torch.Tensor],
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Extracts noise within the noisy image using the noise_scheduler.
-
-        Parameters
-        ----------
-            batch : Dict[str, torch.Tensor]
-                batch of data
-
-        Returns
-        ----------
-            torch.Tensor
-                added noise
-            torch.Tensor
-                extracted noise
 
         Raises
         ----------
@@ -138,6 +81,23 @@ class Learner:
                 function isn't implemented yet
         """
         raise NotImplementedError()
+
+    def _forward(
+            self,
+            batch: Dict[str, torch.Tensor],
+    ):
+        """
+        Extracts noise within the noisy image using the model.
+
+        Parameters
+        ----------
+            batch : Dict[str, torch.Tensor]
+                batch of data
+        """
+        # Encode prompt
+        batch["prompt"] = self.components.text_encoder(
+            batch["prompt"]
+        )[0]
 
     def _add_noise(
             self,
@@ -160,11 +120,8 @@ class Learner:
             torch.Tensor
                 noise's timestep
         """
-        # print(f"tensor: {tensor.dtype}")
-
         # Sample random noise
         noise: torch.Tensor = torch.randn_like(tensor, device=tensor.device)
-        # print(f"noise: {noise.dtype}")
 
         # Sample random timestep
         timestep: torch.Tensor = torch.randint(
@@ -173,13 +130,11 @@ class Learner:
             size=(noise.shape[0],),
             device=tensor.device
         )
-        # print(f"timestep: {timestep.dtype}")
 
         # Add noise to the input data
         noisy_input: torch.Tensor = self.components.noise_scheduler.add_noise(
             tensor, noise, timestep
         )
-        # print(f"noisy_input: {noisy_input.dtype}")
 
         return noisy_input, noise, timestep
 
