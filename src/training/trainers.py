@@ -16,7 +16,7 @@ from tqdm import tqdm
 import utils
 
 from .trainer import Trainer
-from .learner import StableDiffusionLearner
+from .learner import ClassicLearner, ReinforcementLearner
 
 
 class ClassicTrainer(Trainer):
@@ -115,8 +115,7 @@ class ClassicTrainer(Trainer):
                 path to the dataset
         """
         # Learner
-        self._learner = StableDiffusionLearner(self._config, dataset_path, self._config[
-            "num_epochs"])
+        self._learner = ClassicLearner(self._config, dataset_path)
 
         # Mother class
         super().__call__()
@@ -191,8 +190,7 @@ class ReinforcementTrainer(Trainer):
                 path to the dataset
         """
         # Learner
-        self._learner = StableDiffusionLearner(self._config, dataset_path, self._config[
-            "num_epochs"])
+        self._learner = ReinforcementLearner(self._config, dataset_path)
 
         # Mother class
         super().__call__()
