@@ -110,11 +110,9 @@ class Pipeline:
         pipeline.safety_checker = None
 
         # Save
-        """
         components.accelerator.unwrap_model(
             components.model
-        ).to(torch.float32).save_attn_procs(save_path)
-        """
+        ).save_attn_procs(save_path)
 
         # Inference
         pipeline.unet.eval()
