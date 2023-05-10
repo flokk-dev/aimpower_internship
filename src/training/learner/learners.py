@@ -15,6 +15,7 @@ import torch
 # IMPORT: project
 from .learner import Learner
 from .components import ClassicComponents, ReinforcementComponents
+from tmp import LoRADiffusionComponents
 
 
 class ClassicLearner(Learner):
@@ -59,7 +60,9 @@ class ClassicLearner(Learner):
 
         # ----- Attributes ----- #
         # Components
-        self.components: ClassicComponents = ClassicComponents(config, dataset_path)
+        self.components: LoRADiffusionComponents = LoRADiffusionComponents(
+            config, dataset_path, config["num_epochs"]
+        )
         self.components.prepare()
 
         # Loss
@@ -126,10 +129,9 @@ class ClassicLearner(Learner):
         )[0]
 
         # Adds noise
-        noisy_image, noise, timestep = self._add_noise(
-            self.components.vae.encode(batch["image"]).latent_dist.sample() *
+        batch["image"] = self.components.vae.encode(batch["image"]).latent_dist.sample() * \
             self.components.vae.config.scaling_factor
-        )
+        noisy_image, noise, timestep = self._add_noise(batch["image"])
 
         # Predicts added noise
         return self.components.model(

@@ -117,4 +117,5 @@ class Pipeline:
         """
 
         # Inference
+        pipeline.unet.eval()
         return self._inference(pipeline)

@@ -143,11 +143,6 @@ class Components:
         ----------
             dataset_path : str
                 path to the dataset
-
-        Raises
-        ----------
-            NotImplementedError
-                function isn't implemented yet
         """
         return self._LOADER[self._config["loading_type"]](
             self._config

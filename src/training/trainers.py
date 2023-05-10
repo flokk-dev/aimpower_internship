@@ -63,13 +63,13 @@ class ClassicTrainer(Trainer):
     ):
         """ Launches the training. """
         time.sleep(1)
+        self._learner.components.model.train()
 
         p_bar: tqdm = tqdm(total=self._config["num_epochs"], desc="training in progress")
         for epoch in range(self._config["num_epochs"]):
             self._learner.components.model.train()
 
             # Learns
-            self._learner.components.model.train()
             self._run_epoch(p_bar)
 
             # Updates
