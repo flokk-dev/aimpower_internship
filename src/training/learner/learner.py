@@ -36,6 +36,7 @@ class Learner:
         _add_noise
             Adds noise to a given tensor
     """
+
     def __init__(
             self,
             config: Dict[str, Any]
@@ -89,13 +90,15 @@ class Learner:
         ----------
             batch : Dict[str, torch.Tensor]
                 batch of data
-
-        Raises
-        ----------
-            NotImplementedError
-                function isn't implemented yet
         """
-        raise NotImplementedError()
+        # Encode prompt
+        batch["prompt"] = self.components.text_encoder(
+            batch["prompt"]
+        )[0]
+
+        # Encode image
+        batch["image"] = self.components.vae.encode(batch["image"]).latent_dist.sample() * \
+            self.components.vae.config.scaling_factor
 
     def _add_noise(
             self,
