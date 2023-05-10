@@ -22,7 +22,6 @@ import utils
 
 from .learner import Learner
 from .pipeline import Pipeline
-from .tmp import LoRADiffusionPipeline
 from .dashboard import Dashboard
 
 
@@ -144,7 +143,7 @@ class Trainer:
 
     def __call__(self):
         # Pipeline
-        self._pipeline = LoRADiffusionPipeline(self._config)
+        self._pipeline = Pipeline(self._config)
 
         # Dashboard
         self._dashboard = Dashboard(train_id=os.path.basename(self._path))

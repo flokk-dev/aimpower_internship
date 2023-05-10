@@ -1,2 +1,2 @@
 from .learner import Learner
-from .learners import ClassicLearner, ReinforcementLearner
+from .learners import StableDiffusionLearner

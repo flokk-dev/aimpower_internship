@@ -13,7 +13,7 @@ from typing import *
 import torch
 
 # IMPORT: project
-from .components import Components
+from .components import ClassicComponents, ReinforcementComponents
 
 
 class Learner:
@@ -22,9 +22,11 @@ class Learner:
 
     Attributes
     ----------
-        _config : Dict[str, Any]
-            configuration needed to adjust the program behaviour
-        components : Components
+        _params : Dict[str, Any]
+            parameters needed to adjust the program behaviour
+        _loss : Loss
+            training's loss function
+        components : ComponentsV1
             training's components
 
     Methods
@@ -32,27 +34,42 @@ class Learner:
         learn
             Learns on a batch of data
         _forward
-            Extracts noise within the noisy image using the model
+            Extracts noise within the noisy image using the noise_scheduler
         _add_noise
             Adds noise to a given tensor
     """
     def __init__(
             self,
-            config: Dict[str, Any]
+            params: Dict[str, Any],
+            dataset_path: str,
+            num_epochs: int,
     ):
         """
         Instantiates a Learner.
 
         Parameters
         ----------
-            config : Dict[str, Any]
-                configuration needed to adjust the program behaviour
+            params : Dict[str, Any]
+                parameters needed to adjust the program behaviour
+            dataset_path : str
+                path to the dataset
+            num_epochs : int
+                number of epochs during the training
         """
         # ----- Attributes ----- #
-        self._config: Dict[str, Any] = config
+        self._params: Dict[str, Any] = params
 
         # Components
-        self.components: Components = None
+        self.components = ClassicComponents(
+            params, dataset_path
+        )
+        self.components.prepare()
+
+        # Loss
+        self._loss = torch.nn.MSELoss().to(
+            self.components.accelerator.device,
+            dtype=torch.float16
+        )
 
     def learn(
             self,
@@ -70,25 +87,41 @@ class Learner:
         ----------
             float
                 loss value computed using batch's data
-
-        Raises
-        ----------
-            NotImplementedError
-                function isn't implemented yet
         """
-        raise NotImplementedError()
+        with self.components.accelerator.accumulate(self.components.model):
+            # Forward
+            noise, noise_pred = self._forward(batch)
+
+            # Loss backward
+            loss_value: torch.Tensor = self._loss(noise_pred, noise)
+            self.components.accelerator.backward(loss_value)
+
+            # Update the training components
+            self.components.optimizer.step()
+            self.components.lr_scheduler.step()
+            self.components.optimizer.zero_grad()
+
+        # Returns
+        return loss_value.detach().item()
 
     def _forward(
             self,
             batch: Dict[str, torch.Tensor],
-    ):
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Extracts noise within the noisy image using the model.
+        Extracts noise within the noisy image using the noise_scheduler.
 
         Parameters
         ----------
             batch : Dict[str, torch.Tensor]
                 batch of data
+
+        Returns
+        ----------
+            torch.Tensor
+                added noise
+            torch.Tensor
+                extracted noise
 
         Raises
         ----------
