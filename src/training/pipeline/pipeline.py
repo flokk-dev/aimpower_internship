@@ -63,8 +63,10 @@ class Pipeline:
             Dict[str, torch.Tensor]
                 generated image
         """
-        generated_images = list()
+        pipeline.unet.eval()
 
+        # Generates images
+        generated_images = list()
         for idx, prompt in enumerate(self._config["validation_prompts"]):
             generated_images.append(
                 pipeline(
@@ -115,5 +117,4 @@ class Pipeline:
         ).save_attn_procs(save_path)
 
         # Inference
-        pipeline.unet.eval()
         return self._inference(pipeline)
