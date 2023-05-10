@@ -308,13 +308,13 @@ class Components:
     ):
         """ Sends the desired components on device. """
         # Model
-        self.model.to(self.accelerator.device, dtype="fp16")
+        self.model.to(self.accelerator.device, dtype=torch.float16)
 
         # VAE
-        self.vae.to(self.accelerator.device, dtype="fp16")
+        self.vae.to(self.accelerator.device, dtype=torch.float16)
 
         # Text encoder
-        self.text_encoder.to(self.accelerator.device, dtype="fp16")
+        self.text_encoder.to(self.accelerator.device, dtype=torch.float16)
 
     def prepare(
             self

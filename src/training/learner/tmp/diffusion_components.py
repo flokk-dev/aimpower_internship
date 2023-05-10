@@ -176,7 +176,7 @@ class DiffusionComponents:
         """ Sends the desired components on device. """
         self.model.to(
             self.accelerator.device,
-            dtype="fp16"
+            dtype=torch.float16
         )
 
     def prepare(
