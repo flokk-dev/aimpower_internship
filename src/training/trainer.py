@@ -8,6 +8,7 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
+from huggingface_hub import login
 
 import os
 import json
@@ -125,7 +126,7 @@ class Trainer:
         # Saves pipeline and generates images
         tensors: Dict[str, torch.Tensor] = self._pipeline.checkpoint(
             components=self._learner.components,
-            save_path=self._path
+            repo_path=self._path
         )
 
         # Uploads and saves qualitative results
@@ -149,4 +150,5 @@ class Trainer:
         self._dashboard = Dashboard(train_id=os.path.basename(self._path))
 
         # Launches the training procedure
+        login()
         self._launch()

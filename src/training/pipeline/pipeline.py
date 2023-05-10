@@ -11,7 +11,7 @@ from typing import *
 import os
 
 # IMPORT: data loading
-from huggingface_hub import create_repo, upload_folder
+from huggingface_hub import HfApi, create_repo, upload_folder, get_full_repo_name
 
 # IMPORT: deep learning
 import torch
@@ -32,6 +32,10 @@ class Pipeline:
 
     Methods
     ----------
+        checkpoint : Dict[str, torch.Tensor]
+            Runs a checkpoint procedure
+        _upload
+            Uploads LoRA layers to the huggingface hub
         inference: Dict[str, torch.Tensor]
             Builds the pipeline using its components
     """
@@ -49,6 +53,64 @@ class Pipeline:
         """
         # ----- Attributes ----- #
         self._config: Dict[str, Any] = config
+
+    def checkpoint(
+        self,
+        components,
+        repo_path: str
+    ) -> Dict[str, torch.Tensor]:
+        """
+        Runs a checkpoint procedure.
+
+        Parameters
+        ----------
+            components
+                components needed to generate images
+            repo_path: str
+                path where to save the pipeline
+
+        Returns
+        ----------
+            Dict[str, torch.Tensor]
+                generated image
+        """
+        pipeline = StableDiffusionPipeline.from_pretrained(
+            pretrained_model_name_or_path=self._config["pipeline_path"],
+            unet=components.accelerator.unwrap_model(components.model),
+            torch_dtype=torch.float16
+        ).to(components.accelerator.device)
+        pipeline.safety_checker = None
+
+        # Saves
+        components.accelerator.unwrap_model(
+            components.model
+        ).save_attn_procs(repo_path)
+
+        # Uploads
+        self._upload(repo_path)
+
+        # Inference
+        return self._inference(pipeline)
+
+    @staticmethod
+    def _upload(
+            repo_path: str
+    ):
+        """
+        Uploads LoRA layers to the huggingface hub.
+
+        Parameters
+        ----------
+            repo_path: str
+                path where to save the pipeline
+        """
+        # Create repository
+        repo_id = get_full_repo_name(repo_path)
+        create_repo(repo_id)
+
+        # Uploads local repository
+        api = HfApi()
+        api.upload_folder(folder_path=repo_path, repo_id=repo_id)
 
     def _inference(
             self,
@@ -89,49 +151,3 @@ class Pipeline:
             for idx, prompt
             in enumerate(self._config["validation_prompts"])
         }
-
-    def checkpoint(
-        self,
-        components,
-        save_path: str
-    ) -> Dict[str, torch.Tensor]:
-        """
-        Parameters
-        ----------
-            components
-                components needed to generate images
-            save_path: str
-                path where to save the pipeline
-
-        Returns
-        ----------
-            Dict[str, torch.Tensor]
-                generated image
-        """
-        pipeline = StableDiffusionPipeline.from_pretrained(
-            pretrained_model_name_or_path=self._config["pipeline_path"],
-            unet=components.accelerator.unwrap_model(components.model),
-            torch_dtype=torch.float16
-        ).to(components.accelerator.device)
-        pipeline.safety_checker = None
-
-        # Saves
-        components.accelerator.unwrap_model(
-            components.model
-        ).save_attn_procs(save_path)
-
-        # Uploads
-        repo_id = create_repo(
-            repo_id=os.path.basename(save_path),
-            exist_ok=True,
-            token="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"
-        ).repo_id
-
-        upload_folder(
-            repo_id=repo_id,
-            folder_path=save_path,
-            commit_message="checkpoint"
-        )
-
-        # Inference
-        return self._inference(pipeline)
