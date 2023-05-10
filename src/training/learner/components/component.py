@@ -225,7 +225,7 @@ class Components:
         """
         # Loads
         if self._config["noise_scheduler"]["load"]:
-            return SchedulerMixin.from_pretrained(
+            return DDPMScheduler.from_pretrained(
                 pretrained_model_name_or_path=self._config["pipeline_path"],
                 subfolder="scheduler"
             )
