@@ -117,6 +117,12 @@ class Components:
         # Noise scheduler
         self.noise_scheduler: SchedulerMixin = self._init_noise_scheduler()
 
+        # Optimizer
+        self.optimizer: Optimizer = self._init_optimizer()
+
+        # Learning rate
+        self.lr_scheduler: torch.nn.Module = self._init_lr_scheduler()
+
         # VAE
         self.vae: AutoencoderKL = self._init_vae()
         self.vae.requires_grad_(False)
@@ -161,8 +167,7 @@ class Components:
         """
         return UNet2DConditionModel.from_pretrained(
             pretrained_model_name_or_path=self._config["pipeline_path"],
-            subfolder="unet",
-            revision="fp16"
+            subfolder="unet"
         )
 
     def _init_lora_layers(
@@ -267,7 +272,9 @@ class Components:
             NotImplementedError
                 function isn't implemented yet
         """
-        raise NotImplementedError()
+        return torch.optim.AdamW(
+            self.lora_layers.parameters(), **self._config["optimizer"]["args"]
+        )
 
     def _init_lr_scheduler(
             self
@@ -285,20 +292,24 @@ class Components:
             NotImplementedError
                 function isn't implemented yet
         """
-        raise NotImplementedError()
+        return get_cosine_schedule_with_warmup(
+            optimizer=self.optimizer,
+            num_training_steps=(len(self.data_loader) * self._config["num_epochs"]),
+            **self._config["lr_scheduler"]["args"],
+        )
 
     def _to_device(
             self
     ):
         """ Sends the desired components on device. """
         # Model
-        self.model.to(self.accelerator.device, dtype=torch.float16)
+        self.model.to(self.accelerator.device, dtype="fp16")
 
         # VAE
-        self.vae.to(self.accelerator.device, dtype=torch.float16)
+        self.vae.to(self.accelerator.device, dtype="fp16")
 
         # Text encoder
-        self.text_encoder.to(self.accelerator.device, dtype=torch.float16)
+        self.text_encoder.to(self.accelerator.device, dtype="fp16")
 
     def prepare(
             self
