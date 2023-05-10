@@ -24,7 +24,8 @@ from diffusers.loaders import AttnProcsLayers
 from diffusers.models.attention_processor import LoRAAttnProcessor
 
 # IMPORT: project
-from src.loading.data_loader import PromptDataLoader, ImagePromptDataLoader
+from src.loading import PromptLoader, ImagePromptLoader
+from src.loading.data_loader import PromptDataLoader
 
 
 class Components:
@@ -76,7 +77,7 @@ class Components:
         prepare
             Prepares the components using an accelerator
     """
-    _DATA_LOADER = {"prompt": PromptDataLoader, "prompt_image": ImagePromptDataLoader}
+    _LOADER = {"prompt": PromptLoader, "prompt_image": ImagePromptLoader}
 
     def __init__(
             self,
@@ -148,7 +149,7 @@ class Components:
             NotImplementedError
                 function isn't implemented yet
         """
-        return self._DATA_LOADER[self._config["loading_type"]](
+        return self._LOADER[self._config["loading_type"]](
             self._config
         )(dataset_path)
 
