@@ -165,7 +165,7 @@ class ImagePromptDataset(PromptDataset):
                 images' paths
         """
         # Mother Class
-        super(PromptDataset, self).__init__(config, prompts)
+        super(ImagePromptDataset, self).__init__(config, prompts)
 
         # ----- Attributes ----- #
         # Pre-processing
