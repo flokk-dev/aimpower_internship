@@ -1,6 +1,4 @@
 {
-  "validation_prompts": ["Totoro", "Totoro", "Totoro", "Totoro"],
-
   "num_data": 50,
   "img_size": 512,
   "lazy_loading": false,
@@ -10,7 +8,9 @@
 
   "loading_type": "image_prompt",
   "training_type": "classic",
+
   "pipeline_path": "runwayml/stable-diffusion-v1-5",
+  "validation_prompts": ["Totoro", "Totoro", "Totoro", "Totoro"],
 
   "optimizer": {
     "args": {
