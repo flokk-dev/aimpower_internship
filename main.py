@@ -44,8 +44,8 @@ if __name__ == "__main__":
 
     # Training parameters
     with open(os.path.join(paths.CONFIG_PATH, args.config)) as json_file:
-        parameters = json.load(json_file)
+        configuration = json.load(json_file)
 
     # Launch training
-    trainer = TASKS[parameters["training_type"]](params=parameters)
+    trainer = TASKS[configuration["training_type"]](config=configuration)
     trainer(dataset_path=args.dataset)
