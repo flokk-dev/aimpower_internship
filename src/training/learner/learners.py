@@ -60,8 +60,8 @@ class ClassicLearner(Learner):
 
         # ----- Attributes ----- #
         # Components
-        self.components: Components = Components(
-            config, dataset_path
+        self.components: LoRADiffusionComponents = LoRADiffusionComponents(
+            config, dataset_path, config["num_epochs"]
         )
         self.components.prepare()
 
