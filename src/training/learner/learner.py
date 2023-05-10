@@ -13,7 +13,7 @@ from typing import *
 import torch
 
 # IMPORT: project
-from .components import DiffusionComponents
+from .components import Components
 
 
 class Learner:
@@ -24,7 +24,7 @@ class Learner:
     ----------
         _config : Dict[str, Any]
             configuration needed to adjust the program behaviour
-        components : DiffusionComponents
+        components : Components
             training's components
 
     Methods
@@ -38,8 +38,7 @@ class Learner:
     """
     def __init__(
             self,
-            config: Dict[str, Any],
-            dataset_path: str
+            config: Dict[str, Any]
     ):
         """
         Instantiates a Learner.
@@ -48,15 +47,12 @@ class Learner:
         ----------
             config : Dict[str, Any]
                 configuration needed to adjust the program behaviour
-            dataset_path : str
-                path to the dataset
         """
         # ----- Attributes ----- #
         self._config: Dict[str, Any] = config
 
         # Components
-        self.components = DiffusionComponents(config, dataset_path)
-        self.components.prepare()
+        self.components: Components = None
 
     def learn(
             self,

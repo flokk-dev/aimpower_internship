@@ -14,6 +14,7 @@ import torch
 
 # IMPORT: project
 from .learner import Learner
+from .components import ClassicComponents, ReinforcementComponents
 
 
 class ClassicLearner(Learner):
@@ -23,7 +24,7 @@ class ClassicLearner(Learner):
     Attributes
     ----------
         _config : Dict[str, Any]
-            parameters needed to adjust the program behaviour
+            configuration needed to adjust the program behaviour
         components : DiffusionComponents
             training's components
         _loss : torch.nn.Module
@@ -40,7 +41,7 @@ class ClassicLearner(Learner):
     """
     def __init__(
             self,
-            params: Dict[str, Any],
+            config: Dict[str, Any],
             dataset_path: str
     ):
         """
@@ -48,15 +49,19 @@ class ClassicLearner(Learner):
 
         Parameters
         ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
+            config : Dict[str, Any]
+                configuration needed to adjust the program behaviour
             dataset_path : str
                 path to the dataset
         """
         # ----- Mother Class ----- #
-        super(ClassicLearner, self).__init__(params, dataset_path)
+        super(ClassicLearner, self).__init__(config)
 
         # ----- Attributes ----- #
+        # Components
+        self.components: ClassicComponents = ClassicComponents(config, dataset_path)
+        self.components.prepare()
+
         # Loss
         self._loss: torch.nn.Module = torch.nn.MSELoss().to(
             self.components.accelerator.device,
@@ -136,7 +141,7 @@ class ReinforcementLearner(Learner):
     Attributes
     ----------
         _config : Dict[str, Any]
-            parameters needed to adjust the program behaviour
+            configuration needed to adjust the program behaviour
         components : DiffusionComponents
             training's components
         _reward : torch.nn.Module
@@ -153,7 +158,7 @@ class ReinforcementLearner(Learner):
     """
     def __init__(
             self,
-            params: Dict[str, Any],
+            config: Dict[str, Any],
             dataset_path: str
     ):
         """
@@ -161,15 +166,19 @@ class ReinforcementLearner(Learner):
 
         Parameters
         ----------
-            params : Dict[str, Any]
-                parameters needed to adjust the program behaviour
+            config : Dict[str, Any]
+                configuration needed to adjust the program behaviour
             dataset_path : str
                 path to the dataset
         """
         # ----- Mother Class ----- #
-        super(ReinforcementLearner, self).__init__(params, dataset_path)
+        super(ReinforcementLearner, self).__init__(config)
 
         # ----- Attributes ----- #
+        # Components
+        self.components: ReinforcementComponents = ReinforcementComponents(config, dataset_path)
+        self.components.prepare()
+
         # Reward
         self._reward: torch.nn.Module = None
 
