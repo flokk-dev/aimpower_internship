@@ -84,7 +84,7 @@ class DiffusionComponents:
         # Accelerator
         self.accelerator: Accelerator = Accelerator(
             gradient_accumulation_steps=4,
-            mixed_precision=params["dtype"],
+            mixed_precision="fp16",
             cpu=False if torch.cuda.is_available() else True
         )
 
