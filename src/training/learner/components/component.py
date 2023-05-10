@@ -164,16 +164,11 @@ class Components:
             UNet2DConditionModel
                 model
         """
-        # Loads
-        if self._config["model"]["load"]:
-            return UNet2DConditionModel.from_pretrained(
-                pretrained_model_name_or_path=self._config["pipeline_path"],
-                subfolder="unet",
-                revision="fp16"
-            )
-
-        # Instantiates
-        return UNet2DConditionModel(**self._config["model"]["args"])
+        return UNet2DConditionModel.from_pretrained(
+            pretrained_model_name_or_path=self._config["pipeline_path"],
+            subfolder="unet",
+            revision="fp16"
+        )
 
     def _init_lora_layers(
             self
@@ -224,16 +219,10 @@ class Components:
             SchedulerMixin
                 noise scheduler
         """
-        # Loads
-        if self._config["noise_scheduler"]["load"]:
-            return DDPMScheduler.from_pretrained(
-                pretrained_model_name_or_path=self._config["pipeline_path"],
-                subfolder="scheduler",
-                revision="fp16"
-            )
-
-        # Instantiates
-        return DDPMScheduler(**self._config["noise_scheduler"]["args"])
+        return DDPMScheduler.from_pretrained(
+            pretrained_model_name_or_path=self._config["pipeline_path"],
+            subfolder="scheduler"
+        )
 
     def _init_vae(
             self,
@@ -248,8 +237,7 @@ class Components:
         """
         return AutoencoderKL.from_pretrained(
             pretrained_model_name_or_path=self._config["pipeline_path"],
-            subfolder="vae",
-            revision="fp16"
+            subfolder="vae"
         )
 
     def _init_text_encoder(
@@ -265,8 +253,7 @@ class Components:
         """
         return CLIPTextModel.from_pretrained(
             pretrained_model_name_or_path=self._config["pipeline_path"],
-            subfolder="text_encoder",
-            revision="fp16"
+            subfolder="text_encoder"
         )
 
     def _init_optimizer(
@@ -310,22 +297,13 @@ class Components:
     ):
         """ Sends the desired components on device. """
         # Model
-        self.model.to(
-            self.accelerator.device,
-            dtype=torch.float16
-        )
+        self.model.to(self.accelerator.device, dtype=torch.float16)
 
         # VAE
-        self.vae.to(
-            self.accelerator.device,
-            dtype=torch.float16
-        )
+        self.vae.to(self.accelerator.device, dtype=torch.float16)
 
         # Text encoder
-        self.text_encoder.to(
-            self.accelerator.device,
-            dtype=torch.float16
-        )
+        self.text_encoder.to(self.accelerator.device, dtype=torch.float16)
 
     def prepare(
             self

@@ -24,15 +24,5 @@
     "args": {
       "num_warmup_steps": 500
     }
-  },
-
-  "model": {
-    "type": "conditioned unet",
-    "load": true
-  },
-
-  "noise_scheduler": {
-    "type": "ddpm",
-    "load": true
   }
 }

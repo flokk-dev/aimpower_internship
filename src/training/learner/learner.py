@@ -89,11 +89,13 @@ class Learner:
         ----------
             batch : Dict[str, torch.Tensor]
                 batch of data
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
         """
-        # Encode prompt
-        batch["prompt"] = self.components.text_encoder(
-            batch["prompt"]
-        )[0]
+        raise NotImplementedError()
 
     def _add_noise(
             self,

@@ -120,7 +120,10 @@ class ClassicLearner(Learner):
             torch.Tensor
                 extracted noise
         """
-        super()._forward(batch)
+        # Encode prompt
+        batch["prompt"] = self.components.text_encoder(
+            batch["prompt"]
+        )[0]
 
         # Adds noise
         noisy_image, noise, timestep = self._add_noise(

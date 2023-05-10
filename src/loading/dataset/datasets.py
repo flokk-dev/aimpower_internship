@@ -66,8 +66,7 @@ class PromptDataset(TorchDataset):
         # Tokenizer
         self.tokenizer: CLIPTokenizer = CLIPTokenizer.from_pretrained(
             pretrained_model_name_or_path=self._config["pipeline_path"],
-            subfolder="tokenizer",
-            revision="fp16"
+            subfolder="tokenizer"
         )
 
     def _tokenize(
