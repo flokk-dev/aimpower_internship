@@ -108,7 +108,7 @@ class PromptLoader(Loader):
         )
 
 
-class ImagePromptLoader:
+class ImagePromptLoader(Loader):
     """
     Represents a ImagePromptLoader.
 
@@ -191,7 +191,7 @@ class ImagePromptLoader:
 
         Returns
         ----------
-            DataLoader
+            ImagePromptDataLoader
                 data loader containing training data
         """
         return ImagePromptDataLoader(

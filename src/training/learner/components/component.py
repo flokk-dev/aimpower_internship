@@ -11,11 +11,10 @@ from typing import *
 
 # IMPORT: deep learning
 import torch
-from torch.optim import AdamW
+from torch.optim import Optimizer, AdamW
 
 from accelerate import Accelerator
 
-from diffusers.optimization import Optimizer, get_cosine_schedule_with_warmup
 from diffusers import UNet2DConditionModel, SchedulerMixin, DDPMScheduler
 
 from diffusers import AutoencoderKL
@@ -25,32 +24,33 @@ from diffusers.loaders import AttnProcsLayers
 from diffusers.models.attention_processor import LoRAAttnProcessor
 
 # IMPORT: project
-from src.loading.loader import Loader
-from src.loading.data_loader import PromptDataLoader
+from src.loading.data_loader import PromptDataLoader, ImagePromptDataLoader
 
 
-class DiffusionComponents:
+class Components:
     """
-    Represents a DiffusionComponents.
+    Represents a Components.
 
     Attributes
     ----------
         _config : Dict[str, Any]
             configuration needed to adjust the program behaviour
-        noise_scheduler : diffusers.SchedulerMixin
-            training's noise scheduler
+        data_loader : PromptDataLoader
+            data loader
         model : torch.nn.Module
             training's model
         lora_layers : AttnProcsLayers
             LoRA attention layers
-        optimizer : torch.optim.Optimizer
-            training's optimizer
-        lr_scheduler : torch.nn.Module
-            learning rate's scheduler
+        noise_scheduler : diffusers.SchedulerMixin
+            training's noise scheduler
         vae : AutoencoderKL
             auto encoder
         text_encoder : CLIPTextModel
             text encoder
+        optimizer : torch.optim.Optimizer
+            training's optimizer
+        lr_scheduler : torch.nn.Module
+            learning rate's scheduler
 
     Methods
     ----------
@@ -62,27 +62,29 @@ class DiffusionComponents:
             Initializes the LoRA layers
         _init_noise_scheduler : SchedulerMixin
             Initializes the noise scheduler
-        _init_optimizer : AdamW
-            Initializes the optimizer
-        _init_lr_scheduler : torch.nn.Module
-            Initializes the learning rate's scheduler
         _init_vae : AutoencoderKL
             Initializes an auto encoder
         _init_text_encoder : CLIPTextModel
             Initializes a text encoder
+        _init_optimizer : AdamW
+            Initializes the optimizer
+        _init_lr_scheduler : torch.nn.Module
+            Initializes the learning rate's scheduler
 
         _to_device
             Sends the desired components on device
         prepare
             Prepares the components using an accelerator
     """
+    _DATA_LOADER = {"prompt": PromptDataLoader, "prompt_image": ImagePromptDataLoader}
+
     def __init__(
             self,
             config: Dict[str, Any],
             dataset_path: str
     ):
         """
-        Instantiates a DiffusionComponents.
+        Instantiates a Components.
 
         Parameters
         ----------
@@ -114,12 +116,6 @@ class DiffusionComponents:
         # Noise scheduler
         self.noise_scheduler: SchedulerMixin = self._init_noise_scheduler()
 
-        # Optimizer
-        self.optimizer: Optimizer = self._init_optimizer()
-
-        # Learning rate
-        self.lr_scheduler: torch.nn.Module = self._init_lr_scheduler()
-
         # VAE
         self.vae: AutoencoderKL = self._init_vae()
         self.vae.requires_grad_(False)
@@ -127,6 +123,13 @@ class DiffusionComponents:
         # Text encoder
         self.text_encoder: CLIPTextModel = self._init_text_encoder()
         self.vae.requires_grad_(False)
+
+        # ----- Attributes to inherit ----- #
+        # Optimizer
+        self.optimizer: Optimizer = None
+
+        # Learning rate
+        self.lr_scheduler: torch.nn.Module = None
 
     def _init_data_loader(
             self,
@@ -139,8 +142,15 @@ class DiffusionComponents:
         ----------
             dataset_path : str
                 path to the dataset
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
         """
-        return Loader(self._config)(dataset_path)
+        return self._DATA_LOADER[self._config["loading_type"]](
+            self._config
+        )(dataset_path)
 
     def _init_model(
             self
@@ -222,38 +232,6 @@ class DiffusionComponents:
         # Instantiates
         return DDPMScheduler(**self._config["noise_scheduler"]["args"])
 
-    def _init_optimizer(
-            self
-    ) -> AdamW:
-        """
-        Initializes the optimizer.
-
-        Returns
-        ----------
-            AdamW
-                training optimizer
-        """
-        return torch.optim.AdamW(
-            self.lora_layers.parameters(), **self._config["optimizer"]["args"]
-        )
-
-    def _init_lr_scheduler(
-            self
-    ) -> torch.nn.Module:
-        """
-        Instantiates an optimizer and a scheduler.
-
-        Returns
-        ----------
-            torch.nn.Module
-                learning rate's scheduler
-        """
-        return get_cosine_schedule_with_warmup(
-            optimizer=self.optimizer,
-            num_training_steps=(len(self.data_loader) * self._config["num_epochs"]),
-            **self._config["lr_scheduler"]["args"],
-        )
-
     def _init_vae(
             self,
     ) -> AutoencoderKL:
@@ -285,6 +263,42 @@ class DiffusionComponents:
             pretrained_model_name_or_path=self._config["pipeline_path"],
             subfolder="text_encoder"
         )
+
+    def _init_optimizer(
+            self
+    ) -> AdamW:
+        """
+        Initializes the optimizer.
+
+        Returns
+        ----------
+            AdamW
+                training optimizer
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
+        """
+        raise NotImplementedError()
+
+    def _init_lr_scheduler(
+            self
+    ) -> torch.nn.Module:
+        """
+        Instantiates an optimizer and a scheduler.
+
+        Returns
+        ----------
+            torch.nn.Module
+                learning rate's scheduler
+
+        Raises
+        ----------
+            NotImplementedError
+                function isn't implemented yet
+        """
+        raise NotImplementedError()
 
     def _to_device(
             self

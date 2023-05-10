@@ -16,13 +16,13 @@ import torch
 from .learner import Learner
 
 
-class LossLearner(Learner):
+class ClassicLearner(Learner):
     """
-    Represents a LossLearner.
+    Represents a ClassicLearner.
 
     Attributes
     ----------
-        _params : Dict[str, Any]
+        _config : Dict[str, Any]
             parameters needed to adjust the program behaviour
         components : DiffusionComponents
             training's components
@@ -44,7 +44,7 @@ class LossLearner(Learner):
             dataset_path: str
     ):
         """
-        Instantiates a LossLearner.
+        Instantiates a ClassicLearner.
 
         Parameters
         ----------
@@ -54,7 +54,7 @@ class LossLearner(Learner):
                 path to the dataset
         """
         # ----- Mother Class ----- #
-        super(LossLearner, self).__init__(params, dataset_path)
+        super(ClassicLearner, self).__init__(params, dataset_path)
 
         # ----- Attributes ----- #
         # Loss
@@ -129,13 +129,13 @@ class LossLearner(Learner):
         ).sample
 
 
-class RewardLearner(Learner):
+class ReinforcementLearner(Learner):
     """
-    Represents a RewardLearner.
+    Represents a ReinforcementLearner.
 
     Attributes
     ----------
-        _params : Dict[str, Any]
+        _config : Dict[str, Any]
             parameters needed to adjust the program behaviour
         components : DiffusionComponents
             training's components
@@ -157,7 +157,7 @@ class RewardLearner(Learner):
             dataset_path: str
     ):
         """
-        Instantiates a RewardLearner.
+        Instantiates a ReinforcementLearner.
 
         Parameters
         ----------
@@ -167,7 +167,7 @@ class RewardLearner(Learner):
                 path to the dataset
         """
         # ----- Mother Class ----- #
-        super(RewardLearner, self).__init__(params, dataset_path)
+        super(ReinforcementLearner, self).__init__(params, dataset_path)
 
         # ----- Attributes ----- #
         # Reward

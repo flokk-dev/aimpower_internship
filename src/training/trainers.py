@@ -16,12 +16,12 @@ from tqdm import tqdm
 import utils
 
 from .trainer import Trainer
-from .learner import LossLearner, RewardLearner
+from .learner import ClassicLearner, ReinforcementLearner
 
 
-class LossTrainer(Trainer):
+class ClassicTrainer(Trainer):
     """
-    Represents a LossTrainer.
+    Represents a ClassicTrainer.
 
     Attributes
     ----------
@@ -48,7 +48,7 @@ class LossTrainer(Trainer):
             config: Dict[str, Any]
     ):
         """
-        Instantiates a LossTrainer.
+        Instantiates a ClassicTrainer.
 
         Parameters
         ----------
@@ -56,7 +56,7 @@ class LossTrainer(Trainer):
                 configuration needed to adjust the program behaviour
         """
         # Mother class
-        super(LossTrainer, self).__init__(config)
+        super(ClassicTrainer, self).__init__(config)
 
     def _launch(
             self
@@ -115,15 +115,15 @@ class LossTrainer(Trainer):
                 path to the dataset
         """
         # Learner
-        self._learner = LossLearner(self._config, dataset_path)
+        self._learner = ClassicLearner(self._config, dataset_path)
 
         # Mother class
         super().__call__()
 
 
-class RewardTrainer(Trainer):
+class ReinforcementTrainer(Trainer):
     """
-    Represents a RewardTrainer.
+    Represents a ReinforcementTrainer.
 
     Attributes
     ----------
@@ -150,7 +150,7 @@ class RewardTrainer(Trainer):
             config: Dict[str, Any]
     ):
         """
-        Instantiates a RewardTrainer.
+        Instantiates a ReinforcementTrainer.
 
         Parameters
         ----------
@@ -158,7 +158,7 @@ class RewardTrainer(Trainer):
                 configuration needed to adjust the program behaviour
         """
         # Mother class
-        super(RewardTrainer, self).__init__(config)
+        super(ReinforcementTrainer, self).__init__(config)
 
     def _launch(
             self
@@ -190,7 +190,7 @@ class RewardTrainer(Trainer):
                 path to the dataset
         """
         # Learner
-        self._learner = RewardLearner(self._config, dataset_path)
+        self._learner = ReinforcementLearner(self._config, dataset_path)
 
         # Mother class
         super().__call__()

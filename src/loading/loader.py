@@ -104,7 +104,7 @@ class Loader:
 
         Returns
         ----------
-            Dict[str, DataLoader]
+            PromptDataLoader
                 data loaders containing training data
         """
         return self._generate_data_loader(self._parse_dataset(dataset_path))

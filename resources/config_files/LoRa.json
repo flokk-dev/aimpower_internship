@@ -7,15 +7,9 @@
 
   "num_epochs": 100,
   "batch_size": 2,
-  "dtype": "fp16",
 
-  "types": {
-    "loader": "prompt",
-    "pipeline": "lora diffusion",
-    "learner": "stable diffusion",
-    "components": "lora diffusion"
-  },
-
+  "loading_type": "image_prompt",
+  "training_type": "classic",
   "pipeline_path": "runwayml/stable-diffusion-v1-5",
 
   "optimizer": {
