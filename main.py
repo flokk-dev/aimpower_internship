@@ -13,7 +13,7 @@ import argparse
 
 # IMPORT: project
 import paths
-from src import LossTrainer, RewardTrainer
+from src import ClassicTrainer, ReinforcementTrainer
 
 
 class Parser(argparse.ArgumentParser):
@@ -34,7 +34,7 @@ class Parser(argparse.ArgumentParser):
         )
 
 
-TASKS = {"learning": LossTrainer, "reinforcement_learning": RewardTrainer}
+TASKS = {"classic_learning": ClassicTrainer, "reinforcement_learning": ReinforcementTrainer}
 
 
 if __name__ == "__main__":

@@ -1,1 +1,1 @@
-from .trainers import LossTrainer, RewardTrainer
+from .trainers import ClassicTrainer, ReinforcementTrainer
