@@ -15,7 +15,7 @@ import torch
 # IMPORT: project
 from .learner import Learner
 from .components import Components, ClassicComponents, ReinforcementComponents
-from tmp import LoRADiffusionComponents
+from .tmp import LoRADiffusionComponents
 
 
 class ClassicLearner(Learner):
