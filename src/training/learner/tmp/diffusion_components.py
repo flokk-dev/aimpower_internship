@@ -128,7 +128,7 @@ class DiffusionComponents:
             self
     ):
         """ Initializes the model. """
-        self.model = UNet2DConditionModel(
+        self.model = UNet2DConditionModel.from_pretrained(
             pretrained_model_name_or_path=self._config["pipeline_path"],
             subfolder="unet",
             revision="fp16"
