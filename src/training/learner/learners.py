@@ -14,8 +14,7 @@ import torch
 
 # IMPORT: project
 from .learner import Learner
-from .components import Components, ClassicComponents, ReinforcementComponents
-from .tmp import LoRADiffusionComponents
+from .components import ClassicComponents, ReinforcementComponents
 
 
 class ClassicLearner(Learner):
@@ -60,8 +59,8 @@ class ClassicLearner(Learner):
 
         # ----- Attributes ----- #
         # Components
-        self.components: LoRADiffusionComponents = LoRADiffusionComponents(
-            config, dataset_path, config["num_epochs"]
+        self.components: ClassicComponents = ClassicComponents(
+            config, dataset_path
         )
         self.components.prepare()
 

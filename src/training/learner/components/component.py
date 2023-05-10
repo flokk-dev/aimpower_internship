@@ -120,12 +120,6 @@ class Components:
         # Noise scheduler
         self.noise_scheduler: SchedulerMixin = self._init_noise_scheduler()
 
-        # Optimizer
-        self.optimizer: Optimizer = self._init_optimizer()
-
-        # Learning rate
-        self.lr_scheduler: torch.nn.Module = self._init_lr_scheduler()
-
         # VAE
         self.vae: AutoencoderKL = self._init_vae()
         self.vae.requires_grad_(False)
@@ -135,13 +129,11 @@ class Components:
         self.vae.requires_grad_(False)
 
         # ----- Attributes to inherit ----- #
-        """
         # Optimizer
         self.optimizer: Optimizer = None
 
         # Learning rate
         self.lr_scheduler: torch.nn.Module = None
-        """
 
     def _init_data_loader(
             self,
