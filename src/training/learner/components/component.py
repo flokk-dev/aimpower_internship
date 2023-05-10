@@ -135,11 +135,13 @@ class Components:
         self.vae.requires_grad_(False)
 
         # ----- Attributes to inherit ----- #
+        """
         # Optimizer
         self.optimizer: Optimizer = None
 
         # Learning rate
         self.lr_scheduler: torch.nn.Module = None
+        """
 
     def _init_data_loader(
             self,
