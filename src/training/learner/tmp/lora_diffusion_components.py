@@ -25,7 +25,7 @@ class LoRADiffusionComponents(StableDiffusionComponents):
 
     Attributes
     ----------
-        _params : Dict[str, Any]
+        _config : Dict[str, Any]
             parameters needed to adjust the program behaviour
         noise_scheduler : diffusers.SchedulerMixin
             training's noise scheduler
@@ -128,7 +128,7 @@ class LoRADiffusionComponents(StableDiffusionComponents):
     ):
         """ Initializes the optimizer. """
         self.optimizer = torch.optim.AdamW(
-            self.lora_layers.parameters(), **self._params["optimizer"]["args"]
+            self.lora_layers.parameters(), **self._config["optimizer"]["args"]
         )
 
     def prepare(

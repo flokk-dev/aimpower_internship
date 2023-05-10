@@ -25,7 +25,7 @@ class StableDiffusionComponents(DiffusionComponents):
 
     Attributes
     ----------
-        _params : Dict[str, Any]
+        _config : Dict[str, Any]
             parameters needed to adjust the program behaviour
         noise_scheduler : diffusers.SchedulerMixin
             training's noise scheduler
@@ -98,7 +98,7 @@ class StableDiffusionComponents(DiffusionComponents):
     ):
         """ Initializes an image encoder. """
         self.vae = AutoencoderKL.from_pretrained(
-            pretrained_model_name_or_path=self._params["pipeline_path"],
+            pretrained_model_name_or_path=self._config["pipeline_path"],
             subfolder="vae",
             revision="fp16"
         )
@@ -109,7 +109,7 @@ class StableDiffusionComponents(DiffusionComponents):
     ):
         """ Initializes a text encoder. """
         self.text_encoder = CLIPTextModel.from_pretrained(
-            pretrained_model_name_or_path=self._params["pipeline_path"],
+            pretrained_model_name_or_path=self._config["pipeline_path"],
             subfolder="text_encoder",
             revision="fp16"
         )

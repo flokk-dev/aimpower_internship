@@ -19,8 +19,8 @@ from diffusers import UNet2DModel, UNet2DConditionModel, \
 from accelerate import Accelerator
 
 # IMPORT: project
-from src.loading.loader import Loader
-from src.loading.data_loader import DataLoader
+from src.loading import PromptLoader, ImagePromptLoader
+from src.loading.data_loader import PromptDataLoader
 
 
 class DiffusionComponents:
@@ -29,7 +29,7 @@ class DiffusionComponents:
 
     Attributes
     ----------
-        _params : Dict[str, Any]
+        _config : Dict[str, Any]
             parameters needed to adjust the program behaviour
         model : torch.nn.Module
             training's model
@@ -58,8 +58,7 @@ class DiffusionComponents:
         prepare
             Prepares the components using an accelerator
     """
-    _M_TYPES = {"unet": UNet2DModel, "conditioned unet": UNet2DConditionModel}
-    _NS_TYPES = {"ddpm": DDPMScheduler, "ddim": DDIMScheduler}
+    _LOADER = {"prompt": PromptLoader, "prompt_image": ImagePromptLoader}
 
     def __init__(
             self,
@@ -80,7 +79,7 @@ class DiffusionComponents:
                 number of epochs during the training
         """
         # ----- Attributes ----- #
-        self._params: Dict[str, Any] = params
+        self._config: Dict[str, Any] = params
 
         # Accelerator
         self.accelerator: Accelerator = Accelerator(
@@ -90,7 +89,7 @@ class DiffusionComponents:
         )
 
         # Data Loader
-        self.data_loader: DataLoader = None
+        self.data_loader: PromptDataLoader = None
         self._init_data_loader(dataset_path)
 
         # Model
@@ -112,7 +111,7 @@ class DiffusionComponents:
     def _init_data_loader(
             self,
             dataset_path: str
-    ):
+    ) -> PromptDataLoader:
         """
         Initializes the data loader.
 
@@ -121,16 +120,16 @@ class DiffusionComponents:
             dataset_path : str
                 path to the dataset
         """
-        self.data_loader = Loader(self._params)(
-            dataset_path
-        )
+        return self._LOADER[self._config["loading_type"]](
+            self._config
+        )(dataset_path)
 
     def _init_model(
             self
     ):
         """ Initializes the model. """
         self.model = UNet2DConditionModel(
-            pretrained_model_name_or_path=self._params["pipeline_path"],
+            pretrained_model_name_or_path=self._config["pipeline_path"],
             subfolder="unet",
             revision="fp16"
         )
@@ -140,7 +139,7 @@ class DiffusionComponents:
     ):
         """ Initializes the noise scheduler. """
         self.noise_scheduler = DDPMScheduler.from_pretrained(
-            pretrained_model_name_or_path=self._params["pipeline_path"],
+            pretrained_model_name_or_path=self._config["pipeline_path"],
             subfolder="scheduler",
             revision="fp16"
         )
@@ -150,7 +149,7 @@ class DiffusionComponents:
     ):
         """ Initializes the optimizer. """
         self.optimizer = torch.optim.AdamW(
-            self.model.parameters(), **self._params["optimizer"]["args"]
+            self.model.parameters(), **self._config["optimizer"]["args"]
         )
 
     def _init_lr_scheduler(
@@ -168,7 +167,7 @@ class DiffusionComponents:
         self.lr_scheduler = get_cosine_schedule_with_warmup(
             optimizer=self.optimizer,
             num_training_steps=(len(self.data_loader) * num_epochs),
-            **self._params["lr_scheduler"]["args"],
+            **self._config["lr_scheduler"]["args"],
         )
 
     def _to_device(
