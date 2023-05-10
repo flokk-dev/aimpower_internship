@@ -8,6 +8,10 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
+import os
+
+# IMPORT: data loading
+from huggingface_hub import create_repo, upload_folder
 
 # IMPORT: deep learning
 import torch
@@ -111,10 +115,23 @@ class Pipeline:
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 
-        # Save
+        # Saves
         components.accelerator.unwrap_model(
             components.model
         ).save_attn_procs(save_path)
+
+        # Uploads
+        repo_id = create_repo(
+            repo_id=os.path.basename(save_path),
+            exist_ok=True,
+            token="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"
+        ).repo_id
+
+        upload_folder(
+            repo_id=repo_id,
+            folder_path=save_path,
+            commit_message="checkpoint"
+        )
 
         # Inference
         return self._inference(pipeline)
