@@ -11,7 +11,7 @@ from typing import *
 import os
 
 # IMPORT: data loading
-from huggingface_hub import HfApi, create_repo, upload_folder, get_full_repo_name
+from huggingface_hub import HfApi, get_full_repo_name, create_repo
 
 # IMPORT: deep learning
 import torch
@@ -105,7 +105,7 @@ class Pipeline:
                 path where to save the pipeline
         """
         # Create repository
-        repo_id = get_full_repo_name(repo_path)
+        repo_id = get_full_repo_name(os.path.basename(repo_path))
         create_repo(repo_id)
 
         # Uploads local repository
