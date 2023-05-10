@@ -6,7 +6,7 @@
   "num_epochs": 100,
   "batch_size": 2,
 
-  "loading_type": "image_prompt",
+  "loading_type": "prompt_image",
   "training_type": "classic",
 
   "pipeline_path": "runwayml/stable-diffusion-v1-5",

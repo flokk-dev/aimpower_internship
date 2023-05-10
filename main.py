@@ -34,7 +34,7 @@ class Parser(argparse.ArgumentParser):
         )
 
 
-TASKS = {"classic_learning": ClassicTrainer, "reinforcement_learning": ReinforcementTrainer}
+TASKS = {"classic": ClassicTrainer, "reinforcement": ReinforcementTrainer}
 
 
 if __name__ == "__main__":
