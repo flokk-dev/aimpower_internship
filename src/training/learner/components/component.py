@@ -12,6 +12,7 @@ from typing import *
 # IMPORT: deep learning
 import torch
 from torch.optim import Optimizer, AdamW
+from diffusers.optimization import get_cosine_schedule_with_warmup
 
 from accelerate import Accelerator
 
@@ -94,6 +95,8 @@ class Components:
             dataset_path : str
                 path to the dataset
         """
+        print("HEEEEEEEERE")
+
         # ----- Attributes ----- #
         self._config: Dict[str, Any] = config
 
