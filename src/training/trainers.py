@@ -115,7 +115,8 @@ class ClassicTrainer(Trainer):
                 path to the dataset
         """
         # Learner
-        self._learner = StableDiffusionLearner(self._config, dataset_path)
+        self._learner = StableDiffusionLearner(self._config, dataset_path, self._config[
+            "num_epochs"])
 
         # Mother class
         super().__call__()
@@ -190,7 +191,8 @@ class ReinforcementTrainer(Trainer):
                 path to the dataset
         """
         # Learner
-        self._learner = StableDiffusionLearner(self._config, dataset_path)
+        self._learner = StableDiffusionLearner(self._config, dataset_path, self._config[
+            "num_epochs"])
 
         # Mother class
         super().__call__()
