@@ -111,7 +111,7 @@ class DiffusionComponents:
     def _init_data_loader(
             self,
             dataset_path: str
-    ) -> PromptDataLoader:
+    ):
         """
         Initializes the data loader.
 
@@ -120,7 +120,7 @@ class DiffusionComponents:
             dataset_path : str
                 path to the dataset
         """
-        return self._LOADER[self._config["loading_type"]](
+        self.data_loader = self._LOADER[self._config["loading_type"]](
             self._config
         )(dataset_path)
 
