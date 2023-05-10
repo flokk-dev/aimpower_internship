@@ -168,7 +168,8 @@ class Components:
         if self._config["model"]["load"]:
             return UNet2DConditionModel.from_pretrained(
                 pretrained_model_name_or_path=self._config["pipeline_path"],
-                subfolder="unet"
+                subfolder="unet",
+                revision="fp16"
             )
 
         # Instantiates
@@ -227,7 +228,8 @@ class Components:
         if self._config["noise_scheduler"]["load"]:
             return DDPMScheduler.from_pretrained(
                 pretrained_model_name_or_path=self._config["pipeline_path"],
-                subfolder="scheduler"
+                subfolder="scheduler",
+                revision="fp16"
             )
 
         # Instantiates
@@ -246,7 +248,8 @@ class Components:
         """
         return AutoencoderKL.from_pretrained(
             pretrained_model_name_or_path=self._config["pipeline_path"],
-            subfolder="vae"
+            subfolder="vae",
+            revision="fp16"
         )
 
     def _init_text_encoder(
@@ -262,7 +265,8 @@ class Components:
         """
         return CLIPTextModel.from_pretrained(
             pretrained_model_name_or_path=self._config["pipeline_path"],
-            subfolder="text_encoder"
+            subfolder="text_encoder",
+            revision="fp16"
         )
 
     def _init_optimizer(

@@ -105,7 +105,8 @@ class Pipeline:
         pipeline = StableDiffusionPipeline.from_pretrained(
             pretrained_model_name_or_path=self._config["pipeline_path"],
             unet=components.accelerator.unwrap_model(components.model),
-            torch_dtype=torch.float16
+            torch_dtype=torch.float16,
+            revision="fp16"
         ).to(components.accelerator.device)
         pipeline.safety_checker = None
 
