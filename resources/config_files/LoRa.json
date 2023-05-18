@@ -10,7 +10,7 @@
   "training_type": "classic",
 
   "pipeline_path": "runwayml/stable-diffusion-v1-5",
-  "validation_prompts": ["Totoro", "Totoro", "Totoro", "Totoro"],
+  "validation_prompts": "Totoro",
 
   "optimizer": {
     "args": {

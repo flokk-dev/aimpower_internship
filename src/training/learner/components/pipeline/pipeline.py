@@ -62,9 +62,15 @@ class Pipeline:
         # Pipeline
         self._pipeline: StableDiffusionPipeline = StableDiffusionPipeline.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,
-            torch_dtype=torch.float16,
-            revision="fp16"
+            torch_dtype=torch.float16
         ).to(device)
+
+        # Disables gradient descent
+        self._pipeline.unet.requires_grad_(False)
+        self._pipeline.vae.requires_grad_(False)
+        self._pipeline.text_encoder.requires_grad_(False)
+
+        # Disables Safety regarding NSFW prompts
         self._pipeline.safety_checker = None
 
     @property
