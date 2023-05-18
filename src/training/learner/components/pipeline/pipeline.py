@@ -208,4 +208,4 @@ class Pipeline:
         HfApi().upload_folder(folder_path=self._repo_path, repo_id=self._repo_id)
 
         # Inference
-        return self._generate_images(prompt, return_dict=return_dict)
+        return self._generate_images(prompt, inference=inference, return_dict=return_dict)
