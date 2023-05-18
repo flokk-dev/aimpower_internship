@@ -112,8 +112,9 @@ class Components:
         self.pipeline: StableDiffusionPipeline = StableDiffusionPipeline.from_pretrained(
             pretrained_model_name_or_path=self._config["pipeline_path"],
             torch_dtype=torch.float16
-        )
+        ).to(self.accelerator.device)
 
+        print("aaaaaaaaaa")
         print(self.pipeline.unet.dtype)
         print(self.pipeline.scheduler.dtype)
         print(self.pipeline.vae.dtype)
