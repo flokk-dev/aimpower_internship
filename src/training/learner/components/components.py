@@ -27,18 +27,14 @@ class ClassicComponents(Components):
     ----------
         _config : Dict[str, Any]
             configuration needed to adjust the program behaviour
+        accelerator : Accelerator
+            accelerator needed to improve the training
         data_loader : PromptDataLoader
             data loader
-        model : torch.nn.Module
-            training's model
+        pipeline : StableDiffusionPipeline
+            pipeline to train
         lora_layers : AttnProcsLayers
-            LoRA attention layers
-        noise_scheduler : diffusers.SchedulerMixin
-            training's noise scheduler
-        vae : AutoencoderKL
-            auto encoder
-        text_encoder : CLIPTextModel
-            text encoder
+            model's LoRA layers
         optimizer : torch.optim.Optimizer
             training's optimizer
         lr_scheduler : torch.nn.Module
@@ -46,25 +42,17 @@ class ClassicComponents(Components):
 
     Methods
     ----------
-        _init_data_loader : PromptDataLoader
-            Initializes the data loader
-        _init_model : UNet2DConditionModel
-            Initializes the model
-        _init_lora_layers : AttnProcsLayers
-            Initializes the LoRA layers
-        _init_noise_scheduler : SchedulerMixin
-            Initializes the noise scheduler
-        _init_vae : AutoencoderKL
-            Initializes an auto encoder
-        _init_text_encoder : CLIPTextModel
-            Initializes a text encoder
-        _init_optimizer : AdamW
-            Initializes the optimizer
-        _init_lr_scheduler : torch.nn.Module
-            Initializes the learning rate's scheduler
+        model : UNet2DConditionModel
+            Returns pipeline's model
+        noise_scheduler : SchedulerMixin
+            Returns pipeline's noise scheduler
+        vae : AutoencoderKL
+            Returns pipeline's vae
+        text_encoder : CLIPTextModel
+            Returns pipeline's text encoder
 
-        _to_device
-            Sends the desired components on device
+        _create_lora_layers : AttnProcsLayers
+            Initializes the LoRA layers
         prepare
             Prepares the components using an accelerator
     """
@@ -87,44 +75,26 @@ class ClassicComponents(Components):
         super(ClassicComponents, self).__init__(config, dataset_path)
 
         # ----- Attributes ----- #
-
         # Optimizer
-        self.optimizer: Optimizer = self._init_optimizer()
-
-        # Learning rate
-        self.lr_scheduler: torch.nn.Module = self._init_lr_scheduler()
-
-    def _init_optimizer(
-            self
-    ) -> AdamW:
-        """
-        Initializes the optimizer.
-
-        Returns
-        ----------
-            AdamW
-                training optimizer
-        """
-        return torch.optim.AdamW(
+        self.optimizer: Optimizer = torch.optim.AdamW(
             self.lora_layers.parameters(), **self._config["optimizer"]["args"]
         )
 
-    def _init_lr_scheduler(
-            self
-    ) -> torch.nn.Module:
-        """
-        Instantiates an optimizer and a scheduler.
-
-        Returns
-        ----------
-            torch.nn.Module
-                learning rate's scheduler
-        """
-        return get_cosine_schedule_with_warmup(
+        # Learning rate scheduler
+        self.lr_scheduler: torch.nn.Module = get_cosine_schedule_with_warmup(
             optimizer=self.optimizer,
             num_training_steps=(len(self.data_loader) * self._config["num_epochs"]),
             **self._config["lr_scheduler"]["args"],
         )
+
+    def prepare(
+            self
+    ):
+        """ Prepares the components using an accelerator. """
+        self.lora_layers, self.optimizer, self.data_loader, self.lr_scheduler = \
+            self.accelerator.prepare(
+                self.lora_layers, self.optimizer, self.data_loader, self.lr_scheduler
+            )
 
 
 class ReinforcementComponents(Components):
@@ -135,44 +105,28 @@ class ReinforcementComponents(Components):
     ----------
         _config : Dict[str, Any]
             configuration needed to adjust the program behaviour
+        accelerator : Accelerator
+            accelerator needed to improve the training
         data_loader : PromptDataLoader
             data loader
-        model : torch.nn.Module
-            training's model
+        pipeline : StableDiffusionPipeline
+            pipeline to train
         lora_layers : AttnProcsLayers
-            LoRA attention layers
-        noise_scheduler : diffusers.SchedulerMixin
-            training's noise scheduler
-        vae : AutoencoderKL
-            auto encoder
-        text_encoder : CLIPTextModel
-            text encoder
-        optimizer : torch.optim.Optimizer
-            training's optimizer
-        lr_scheduler : torch.nn.Module
-            learning rate's scheduler
+            model's LoRA layers
 
     Methods
     ----------
-        _init_data_loader : PromptDataLoader
-            Initializes the data loader
-        _init_model : UNet2DConditionModel
-            Initializes the model
-        _init_lora_layers : AttnProcsLayers
-            Initializes the LoRA layers
-        _init_noise_scheduler : SchedulerMixin
-            Initializes the noise scheduler
-        _init_vae : AutoencoderKL
-            Initializes an auto encoder
-        _init_text_encoder : CLIPTextModel
-            Initializes a text encoder
-        _init_optimizer : AdamW
-            Initializes the optimizer
-        _init_lr_scheduler : torch.nn.Module
-            Initializes the learning rate's scheduler
+        model : UNet2DConditionModel
+            Returns pipeline's model
+        noise_scheduler : SchedulerMixin
+            Returns pipeline's noise scheduler
+        vae : AutoencoderKL
+            Returns pipeline's vae
+        text_encoder : CLIPTextModel
+            Returns pipeline's text encoder
 
-        _to_device
-            Sends the desired components on device
+        _create_lora_layers : AttnProcsLayers
+            Initializes the LoRA layers
         prepare
             Prepares the components using an accelerator
     """
@@ -182,7 +136,7 @@ class ReinforcementComponents(Components):
             dataset_path: str
     ):
         """
-        Instantiates a ReinforcementComponents.
+        Instantiates a ClassicComponents.
 
         Parameters
         ----------
@@ -194,37 +148,10 @@ class ReinforcementComponents(Components):
         # ----- Mother class ----- #
         super(ReinforcementComponents, self).__init__(config, dataset_path)
 
-        # ----- Attributes ----- #
-        # Optimizer
-        self.optimizer: Optimizer = self._init_optimizer()
-
-        # Learning rate scheduler
-        self.lr_scheduler: torch.nn.Module = self._init_lr_scheduler()
-
-    def _init_optimizer(
+    def prepare(
             self
-    ) -> AdamW:
-        """
-        Initializes the optimizer.
-
-        Returns
-        ----------
-            AdamW
-                training optimizer
-        """
-        # Not implemented
-        raise NotImplementedError()
-
-    def _init_lr_scheduler(
-            self
-    ) -> torch.nn.Module:
-        """
-        Instantiates an optimizer and a scheduler.
-
-        Returns
-        ----------
-            torch.nn.Module
-                learning rate's scheduler
-        """
-        # Not implemented
-        raise NotImplementedError()
+    ):
+        """ Prepares the components using an accelerator. """
+        self.lora_layers, self.data_loader = self.accelerator.prepare(
+            self.lora_layers, self.data_loader
+        )

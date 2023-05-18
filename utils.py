@@ -91,6 +91,12 @@ def images_to_tensors(images: List[PIL.Image.Image]) -> List[torch.Tensor]:
     ]
 
 
+def images_to_tensor(images: List[PIL.Image.Image]) -> torch.Tensor:
+    return torch.stack([
+        adjust_image_colors(to_tensor(image)) for image in images
+    ])
+
+
 def to_tensor(image):
     return torchvision.transforms.ToTensor()(image)
 

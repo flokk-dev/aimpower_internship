@@ -22,7 +22,7 @@ import paths
 import utils
 
 from .learner import Learner
-from .pipeline import Pipeline
+from src.training.learner.components.pipeline import Pipeline
 from .dashboard import Dashboard
 
 
@@ -124,9 +124,11 @@ class Trainer:
                 the current epoch idx
         """
         # Saves pipeline and generates images
-        tensors: Dict[str, torch.Tensor] = self._pipeline.checkpoint(
-            components=self._learner.components,
-            repo_path=self._path
+        tensors: Dict[str, torch.Tensor] = self._learner.components.pipeline(
+            repo_path=self._path,
+            prompt=self._config["validation_prompts"],
+            inference=True,
+            return_dict=True
         )
 
         # Uploads and saves qualitative results
@@ -143,13 +145,10 @@ class Trainer:
             utils.save_plt(tensor, os.path.join(key_path, f"epoch_{epoch}.png"))
 
     def __call__(self):
-        # Pipeline
-        self._pipeline = Pipeline(self._config)
-
         # Dashboard
         self._dashboard = Dashboard(train_id=os.path.basename(self._path))
 
-        # Huggingface hub
+        # Loging to huggingface hub
         login()
 
         # Launches the training procedure

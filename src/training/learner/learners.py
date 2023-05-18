@@ -61,9 +61,7 @@ class ClassicLearner(Learner):
 
         # ----- Attributes ----- #
         # Components
-        self.components: ClassicComponents = ClassicComponents(
-            config, dataset_path
-        )
+        self.components: ClassicComponents = ClassicComponents(config, dataset_path)
         self.components.prepare()
 
         # Loss
