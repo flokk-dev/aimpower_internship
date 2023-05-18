@@ -43,6 +43,58 @@ def gpu_utilization():
 
 # ---------- VISUALIZATION ---------- #
 
+def plot_images(prompt, images):
+    # Adjust image colors
+    adjust_image_colors(images)
+
+    # Adds the subplots
+    num_images = images.shape[0]
+
+    plt.figure(figsize=(num_images * 5, num_images * 1.75))
+    for idx in range(num_images):
+        plt.subplot(1, num_images, idx + 1)
+        plt.imshow(images[idx].permute(1, 2, 0))
+
+        plt.axis("off")
+        plt.title(f"idx = {idx}", fontsize=24)
+
+    # Plot the images
+    plt.suptitle(prompt, fontsize=28)
+    plt.tight_layout()
+    plt.show()
+
+
+def save_plt(images, path):
+    # Adjust image colors
+    adjust_image_colors(images)
+
+    # Adds the subplots
+    num_images = images.shape[0]
+
+    plt.figure(figsize=(num_images * 5, num_images * 5))
+    for idx in range(num_images):
+        plt.subplot(1, num_images, idx + 1)
+        plt.imshow(images[idx].permute(1, 2, 0))
+
+    # Plot the images
+    plt.savefig(path, bbox_inches="tight")
+    plt.close()
+
+
+# ---------- DATA PROCESSING ---------- #
+
+def images_to_tensors(images: List[PIL.Image.Image]) -> List[torch.Tensor]:
+    return [
+        adjust_image_colors(to_tensor(image))
+        for image
+        in images
+    ]
+
+
+def to_tensor(image):
+    return torchvision.transforms.ToTensor()(image)
+
+
 def adjust_image_colors(image):
     values = torch.unique(image)
 
@@ -52,37 +104,6 @@ def adjust_image_colors(image):
         return ((image / 2 + 0.5).clamp(0, 1) * 255).type(torch.uint8)
 
     return image
-
-
-def save_plt(tensor, path):
-    # Adjust image colors
-    adjust_image_colors(tensor)
-
-    # Adds the subplots
-    num_images = tensor.shape[0]
-
-    plt.figure(figsize=(num_images * 5, num_images * 5))
-    for b_idx in range(num_images):
-        plt.subplot(1, num_images, b_idx + 1)
-        plt.imshow(tensor[b_idx].permute(1, 2, 0))
-
-    # Plot the images
-    plt.savefig(path, bbox_inches="tight")
-    plt.close()
-
-
-# ---------- DATA PROCESSING ---------- #
-
-def to_tensor(image):
-    return torchvision.transforms.ToTensor()(image)
-
-
-def images_to_tensors(images: List[PIL.Image.Image]) -> List[torch.Tensor]:
-    return [
-        adjust_image_colors(to_tensor(image))
-        for image
-        in images
-    ]
 
 
 # ---------- DEEP LEARNING ---------- #

@@ -55,7 +55,7 @@ class Learner:
         # Components
         self.components: Components = None
 
-    def learn(
+    def _learn(
             self,
             batch: Dict[str, torch.Tensor],
     ) -> float:
@@ -154,4 +154,4 @@ class Learner:
             float
                 loss value computed using batch's data
         """
-        return self.learn(batch)
+        return self._learn(batch)

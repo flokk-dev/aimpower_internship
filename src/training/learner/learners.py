@@ -16,6 +16,8 @@ import torch
 from .learner import Learner
 from .components import ClassicComponents, ReinforcementComponents
 
+from src.training.learner.ranker.reward_function import PickAPicScore
+
 
 class ClassicLearner(Learner):
     """
@@ -70,7 +72,7 @@ class ClassicLearner(Learner):
             dtype=torch.float16
         )
 
-    def learn(
+    def _learn(
             self,
             batch: Dict[str, torch.Tensor],
     ) -> float:
@@ -179,9 +181,9 @@ class ReinforcementLearner(Learner):
         self.components.prepare()
 
         # Reward
-        self._reward: torch.nn.Module = None
+        self._reward: PickAPicScore = PickAPicScore(device=self.components.accelerator.device)
 
-    def learn(
+    def _learn(
             self,
             batch: Dict[str, torch.Tensor],
     ):

@@ -149,6 +149,8 @@ class Trainer:
         # Dashboard
         self._dashboard = Dashboard(train_id=os.path.basename(self._path))
 
-        # Launches the training procedure
+        # Huggingface hub
         login()
+
+        # Launches the training procedure
         self._launch()

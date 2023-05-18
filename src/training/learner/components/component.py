@@ -18,7 +18,7 @@ from accelerate import Accelerator
 
 from diffusers import UNet2DConditionModel, SchedulerMixin, DDPMScheduler
 
-from diffusers import AutoencoderKL
+from diffusers import AutoencoderKL, StableDiffusionPipeline
 from transformers import CLIPTextModel
 
 from diffusers.loaders import AttnProcsLayers
@@ -108,23 +108,19 @@ class Components:
         # Data Loader
         self.data_loader: PromptDataLoader = self._init_data_loader(dataset_path)
 
-        # Model
-        self.model: torch.nn.Module = self._init_model()
-        self.model.requires_grad_(False)
+        # Pipeline
+        self.pipeline: StableDiffusionPipeline = StableDiffusionPipeline.from_pretrained(
+            pretrained_model_name_or_path=self._config["pipeline_path"],
+            torch_dtype=torch.float16
+        )
+
+        print(self.pipeline.unet.dtype)
+        print(self.pipeline.scheduler.dtype)
+        print(self.pipeline.vae.dtype)
+        print(self.pipeline.text_encoder.dtype)
 
         # LoRA layers
         self.lora_layers: AttnProcsLayers = self._init_lora_layers()
-
-        # Noise scheduler
-        self.noise_scheduler: SchedulerMixin = self._init_noise_scheduler()
-
-        # VAE
-        self.vae: AutoencoderKL = self._init_vae()
-        self.vae.requires_grad_(False)
-
-        # Text encoder
-        self.text_encoder: CLIPTextModel = self._init_text_encoder()
-        self.vae.requires_grad_(False)
 
         # ----- Attributes to inherit ----- #
         # Optimizer
@@ -149,22 +145,6 @@ class Components:
             self._config
         )(dataset_path)
 
-    def _init_model(
-            self
-    ) -> UNet2DConditionModel:
-        """
-        Initializes the model.
-
-        Returns
-        ----------
-            UNet2DConditionModel
-                model
-        """
-        return UNet2DConditionModel.from_pretrained(
-            pretrained_model_name_or_path=self._config["pipeline_path"],
-            subfolder="unet"
-        )
-
     def _init_lora_layers(
             self
     ) -> AttnProcsLayers:
@@ -177,22 +157,22 @@ class Components:
                 LoRA layers
         """
         lora_attn_procs = dict()
-        for name in self.model.attn_processors.keys():
+        for name in self.pipeline.unet.attn_processors.keys():
             cross_attention_dim = None \
                 if name.endswith("attn1.processor") \
-                else self.model.config.cross_attention_dim
+                else self.pipeline.unet.config.cross_attention_dim
 
             hidden_size = None
             if name.startswith("mid_block"):
-                hidden_size = self.model.config.block_out_channels[-1]
+                hidden_size = self.pipeline.unet.config.block_out_channels[-1]
 
             elif name.startswith("up_blocks"):
                 block_id = int(name[len("up_blocks.")])
-                hidden_size = list(reversed(self.model.config.block_out_channels))[block_id]
+                hidden_size = list(reversed(self.pipeline.unet.config.block_out_channels))[block_id]
 
             elif name.startswith("down_blocks"):
                 block_id = int(name[len("down_blocks.")])
-                hidden_size = self.model.config.block_out_channels[block_id]
+                hidden_size = self.pipeline.unet.config.block_out_channels[block_id]
 
             lora_attn_procs[name] = LoRAAttnProcessor(
                 hidden_size=hidden_size,
@@ -200,56 +180,8 @@ class Components:
             )
 
         # Adds LoRA layers to the model
-        self.model.set_attn_processor(lora_attn_procs)
-        return AttnProcsLayers(self.model.attn_processors)
-
-    def _init_noise_scheduler(
-            self
-    ) -> SchedulerMixin:
-        """
-        Initializes the noise scheduler.
-
-        Returns
-        ----------
-            SchedulerMixin
-                noise scheduler
-        """
-        return DDPMScheduler.from_pretrained(
-            pretrained_model_name_or_path=self._config["pipeline_path"],
-            subfolder="scheduler"
-        )
-
-    def _init_vae(
-            self,
-    ) -> AutoencoderKL:
-        """
-        Initializes an image encoder.
-
-        Returns
-        ----------
-            AutoencoderKL
-                image encoder
-        """
-        return AutoencoderKL.from_pretrained(
-            pretrained_model_name_or_path=self._config["pipeline_path"],
-            subfolder="vae"
-        )
-
-    def _init_text_encoder(
-            self
-    ) -> CLIPTextModel:
-        """
-        Initializes a text encoder.
-
-        Returns
-        ----------
-            AutoencoderKL
-                text encoder
-        """
-        return CLIPTextModel.from_pretrained(
-            pretrained_model_name_or_path=self._config["pipeline_path"],
-            subfolder="text_encoder"
-        )
+        self.pipeline.unet.set_attn_processor(lora_attn_procs)
+        return AttnProcsLayers(self.pipeline.unet.attn_processors)
 
     def _init_optimizer(
             self
@@ -298,13 +230,13 @@ class Components:
     ):
         """ Sends the desired components on device. """
         # Model
-        self.model.to(self.accelerator.device, dtype=torch.float16)
+        self.pipeline.unet.to(self.accelerator.device, dtype=torch.float16)
 
         # VAE
-        self.vae.to(self.accelerator.device, dtype=torch.float16)
+        self.pipeline.vae.to(self.accelerator.device, dtype=torch.float16)
 
         # Text encoder
-        self.text_encoder.to(self.accelerator.device, dtype=torch.float16)
+        self.pipeline.text_encoder.to(self.accelerator.device, dtype=torch.float16)
 
     def prepare(
             self
