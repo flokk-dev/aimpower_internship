@@ -69,6 +69,7 @@ class Components:
     def __init__(
             self,
             config: Dict[str, Any],
+            repo_path: str,
             dataset_path: str
     ):
         """
@@ -78,6 +79,8 @@ class Components:
         ----------
             config : Dict[str, Any]
                 configuration needed to adjust the program behaviour
+            repo_path: str
+                path where to save the pipeline
             dataset_path : str
                 path to the dataset
         """
@@ -98,6 +101,7 @@ class Components:
 
         # Pipeline
         self.pipeline: Pipeline = Pipeline(
+            repo_path=repo_path,
             pipeline_path=self._config["pipeline_path"],
             device=self.accelerator.device
         )

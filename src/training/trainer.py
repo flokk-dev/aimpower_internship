@@ -125,7 +125,6 @@ class Trainer:
         """
         # Saves pipeline and generates images
         tensors: Dict[str, torch.Tensor] = self._learner.components.pipeline(
-            repo_path=self._path,
             prompt=self._config["validation_prompts"],
             inference=True,
             return_dict=True

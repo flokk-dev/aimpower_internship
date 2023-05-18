@@ -44,6 +44,7 @@ class ClassicLearner(Learner):
     def __init__(
             self,
             config: Dict[str, Any],
+            repo_path: str,
             dataset_path: str
     ):
         """
@@ -53,6 +54,8 @@ class ClassicLearner(Learner):
         ----------
             config : Dict[str, Any]
                 configuration needed to adjust the program behaviour
+            repo_path: str
+                path where to save the pipeline
             dataset_path : str
                 path to the dataset
         """
@@ -61,7 +64,9 @@ class ClassicLearner(Learner):
 
         # ----- Attributes ----- #
         # Components
-        self.components: ClassicComponents = ClassicComponents(config, dataset_path)
+        self.components: ClassicComponents = ClassicComponents(
+            config, repo_path, dataset_path
+        )
         self.components.prepare()
 
         # Loss
@@ -158,6 +163,7 @@ class ReinforcementLearner(Learner):
     def __init__(
             self,
             config: Dict[str, Any],
+            repo_path,
             dataset_path: str
     ):
         """
@@ -167,6 +173,8 @@ class ReinforcementLearner(Learner):
         ----------
             config : Dict[str, Any]
                 configuration needed to adjust the program behaviour
+            repo_path: str
+                path where to save the pipeline
             dataset_path : str
                 path to the dataset
         """
@@ -175,7 +183,9 @@ class ReinforcementLearner(Learner):
 
         # ----- Attributes ----- #
         # Components
-        self.components: ReinforcementComponents = ReinforcementComponents(config, dataset_path)
+        self.components: ReinforcementComponents = ReinforcementComponents(
+            config, repo_path, dataset_path
+        )
         self.components.prepare()
 
         # Reward

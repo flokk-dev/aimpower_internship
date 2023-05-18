@@ -59,6 +59,7 @@ class ClassicComponents(Components):
     def __init__(
             self,
             config: Dict[str, Any],
+            repo_path: str,
             dataset_path: str
     ):
         """
@@ -68,11 +69,13 @@ class ClassicComponents(Components):
         ----------
             config : Dict[str, Any]
                 configuration needed to adjust the program behaviour
+            repo_path: str
+                path where to save the pipeline
             dataset_path : str
                 path to the dataset
         """
         # ----- Mother class ----- #
-        super(ClassicComponents, self).__init__(config, dataset_path)
+        super(ClassicComponents, self).__init__(config, repo_path, dataset_path)
 
         # ----- Attributes ----- #
         # Optimizer
@@ -133,6 +136,7 @@ class ReinforcementComponents(Components):
     def __init__(
             self,
             config: Dict[str, Any],
+            repo_path: str,
             dataset_path: str
     ):
         """
@@ -142,11 +146,13 @@ class ReinforcementComponents(Components):
         ----------
             config : Dict[str, Any]
                 configuration needed to adjust the program behaviour
+            repo_path: str
+                path where to save the pipeline
             dataset_path : str
                 path to the dataset
         """
         # ----- Mother class ----- #
-        super(ReinforcementComponents, self).__init__(config, dataset_path)
+        super(ReinforcementComponents, self).__init__(config, repo_path, dataset_path)
 
     def prepare(
             self

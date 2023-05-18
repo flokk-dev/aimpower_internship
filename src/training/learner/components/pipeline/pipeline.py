@@ -45,6 +45,7 @@ class Pipeline:
     """
     def __init__(
             self,
+            repo_path: str,
             pipeline_path: str,
             device: str
     ):
@@ -53,12 +54,18 @@ class Pipeline:
 
         Parameters
         ----------
+            repo_path: str
+                path where to save the pipeline
             pipeline_path : str
                 path to the pretrained pipeline to load
             device : str
                 device on which to put the pipeline
         """
         # ----- Attributes ----- #
+        self._repo_path = repo_path
+        self._repo_id = get_full_repo_name(os.path.basename(repo_path))
+        create_repo(self._repo_id)
+
         # Pipeline
         self._pipeline: StableDiffusionPipeline = StableDiffusionPipeline.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,
@@ -70,7 +77,7 @@ class Pipeline:
         self._pipeline.vae.requires_grad_(False)
         self._pipeline.text_encoder.requires_grad_(False)
 
-        # Disables Safety regarding NSFW prompts
+        # Disables verification regarding NSFW prompts
         self._pipeline.safety_checker = None
 
     @property
@@ -175,7 +182,6 @@ class Pipeline:
 
     def __call__(
         self,
-        repo_path: str,
         prompt: str,
         inference=False,
         return_dict=False
@@ -183,8 +189,6 @@ class Pipeline:
         """
         Parameters
         ----------
-            repo_path: str
-                path where to save the pipeline
             prompt: str
                 prompt needed for the generation
             inference: bool
@@ -198,13 +202,10 @@ class Pipeline:
                 generated image
         """
         # Saves the trained LoRA layers
-        self._pipeline.unet.save_attn_procs(repo_path)
+        self._pipeline.unet.save_attn_procs(self._repo_path)
 
         # Uploads the trained LoRA layers
-        repo_id = get_full_repo_name(os.path.basename(repo_path))
-        create_repo(repo_id)
-
-        HfApi().upload_folder(folder_path=repo_path, repo_id=repo_id)
+        HfApi().upload_folder(folder_path=self._repo_path, repo_id=self._repo_id)
 
         # Inference
         return self._generate_images(prompt, return_dict=return_dict)
