@@ -116,7 +116,6 @@ class Components:
 
         print("aaaaaaaaaa")
         print(self.pipeline.unet.dtype)
-        print(self.pipeline.scheduler.dtype)
         print(self.pipeline.vae.dtype)
         print(self.pipeline.text_encoder.dtype)
 
