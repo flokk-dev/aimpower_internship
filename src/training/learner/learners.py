@@ -16,7 +16,7 @@ import torch
 from .learner import Learner
 from .components import ClassicComponents, ReinforcementComponents
 
-from src.training.learner.ranker.reward_function import PickAPicScore
+from src.training.learner.components.ranker import PickAPicScore
 
 
 class ClassicLearner(Learner):
