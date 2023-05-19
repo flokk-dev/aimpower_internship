@@ -8,7 +8,6 @@ Purpose:
 
 # IMPORT: utils
 from typing import *
-from huggingface_hub import login
 
 import os
 import json
@@ -146,9 +145,6 @@ class Trainer:
     def __call__(self):
         # Dashboard
         self._dashboard = Dashboard(train_id=os.path.basename(self._path))
-
-        # Loging to huggingface hub
-        login()
 
         # Launches the training procedure
         self._launch()

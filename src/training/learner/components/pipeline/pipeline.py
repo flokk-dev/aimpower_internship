@@ -11,7 +11,7 @@ from typing import *
 import os
 
 # IMPORT: data loading
-from huggingface_hub import HfApi, get_full_repo_name, create_repo
+from huggingface_hub import HfApi, login, get_full_repo_name, create_repo
 
 # IMPORT: deep learning
 import torch
@@ -62,8 +62,9 @@ class Pipeline:
                 device on which to put the pipeline
         """
         # ----- Attributes ----- #
-        self._repo_path = repo_path
-        self._repo_id = get_full_repo_name(os.path.basename(repo_path))
+        login()
+
+        self._repo_path, self._repo_id = repo_path, get_full_repo_name(os.path.basename(repo_path))
         create_repo(self._repo_id)
 
         # Pipeline
