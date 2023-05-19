@@ -16,8 +16,6 @@ import torch
 from .learner import Learner
 from .components import ClassicComponents, ReinforcementComponents
 
-from src.training.learner.components.ranker import PickAPicScore
-
 
 class ClassicLearner(Learner):
     """
@@ -187,9 +185,6 @@ class ReinforcementLearner(Learner):
             config, repo_path, dataset_path
         )
         self.components.prepare()
-
-        # Reward
-        self._reward: PickAPicScore = PickAPicScore(device=self.components.accelerator.device)
 
     def _learn(
             self,
