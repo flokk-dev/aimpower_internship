@@ -22,7 +22,7 @@
 
   "lr_scheduler": {
     "args": {
-      "num_warmup_steps": 50
+      "num_warmup_steps": 0
     }
   }
 }
