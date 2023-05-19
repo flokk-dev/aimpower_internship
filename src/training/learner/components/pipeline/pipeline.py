@@ -70,8 +70,7 @@ class Pipeline:
         # Pipeline
         self._pipeline: StableDiffusionPipeline = StableDiffusionPipeline.from_pretrained(
             pretrained_model_name_or_path=pipeline_path,
-            torch_dtype=torch.float16,
-            revision="fp16"
+            torch_dtype=torch.float16
         ).to(device)
 
         # Disables gradient descent
