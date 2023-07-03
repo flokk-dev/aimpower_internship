@@ -10,7 +10,12 @@
   "training_type": "classic",
 
   "pipeline_path": "runwayml/stable-diffusion-v1-5",
-  "validation_prompts": ["a bird", "a turtle", "a monkey", "a spider"],
+  "validation_prompts": [
+    "a couple of bottles of deodorance next to each other, by Gen Paul, war theme, pivix, love hate love, packaging of the world",
+    "a bottle of sham on a blue background with the words world's no 1 anti - dandruf shampoo, by Dennis Flanders, head and shoulders view, clear hd image, bangalore, banner",
+    "a couple of bikes sitting on the side of a road, a poster, by Pierre Toutain-Dorbec, deviantart, magazine advertisement, deception, octan, detail content",
+    "a white train sitting on top of a lush green field, a poster, by Etienne Delessert, les automatistes, engagement ring ads, tram, réunion des musées nationaux"
+  ],
 
   "optimizer": {
     "args": {
