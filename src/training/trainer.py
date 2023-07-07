@@ -144,7 +144,7 @@ class Trainer:
 
     def __call__(self):
         # Dashboard
-        self._dashboard = Dashboard(train_id=os.path.basename(self._path))
+        self._dashboard = Dashboard(train_id=os.path.basename(self._path), mode="disabled")
 
         # Launches the training procedure
         self._launch()
