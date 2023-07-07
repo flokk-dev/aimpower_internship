@@ -73,7 +73,7 @@ class ClassicTrainer(Trainer):
             self._run_epoch(p_bar)
 
             # Updates
-            self._dashboard.upload_values(self._learner.components.lr_scheduler.get_last_lr()[0])
+            # self._dashboard.upload_values(self._learner.components.lr_scheduler.get_last_lr()[0])
             if (epoch + 1) % 10 == 0:
                 self._checkpoint(epoch + 1)
 
@@ -81,7 +81,7 @@ class ClassicTrainer(Trainer):
 
         # End
         time.sleep(10)
-        self._dashboard.shutdown()
+        # self._dashboard.shutdown()
 
     def _run_epoch(
             self,
@@ -105,7 +105,7 @@ class ClassicTrainer(Trainer):
             epoch_loss.append(self._learner(batch))
 
         # Stores the results
-        self._dashboard.update_loss(epoch_loss)
+        # self._dashboard.update_loss(epoch_loss)
 
     def __call__(self, dataset_path: str):
         """

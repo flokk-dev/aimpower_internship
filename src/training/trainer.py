@@ -137,14 +137,14 @@ class Trainer:
                 os.mkdir(key_path)
 
             # Uploads checkpoint images to WandB
-            self._dashboard.upload_images(key, tensor)
+            # self._dashboard.upload_images(key, tensor)
 
             # Saves checkpoint image on disk
             utils.save_plt(tensor, os.path.join(key_path, f"epoch_{epoch}.png"))
 
     def __call__(self):
         # Dashboard
-        self._dashboard = Dashboard(train_id=os.path.basename(self._path), mode="disabled")
+        # self._dashboard = Dashboard(train_id=os.path.basename(self._path))
 
         # Launches the training procedure
         self._launch()
